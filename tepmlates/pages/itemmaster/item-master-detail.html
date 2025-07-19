@@ -1,0 +1,355 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}{{ item.name }} - {% trans 'Item Detail' %}{% endblock %}
+{% block content %}
+<div class="pl-8 pr-8 space-y-6">
+    <!-- Header -->
+    <div class="bg-gray-25 pl-8 pr-8">
+        <div class="flex justify-between items-center p-0">
+            <div>
+                <h2 class="text-md font-semibold text-gray-700">{{ item.name }}</h2>
+                <p class="text-gray-600 mt-0.5 text-sm">{% trans "Item Detail" %} - {{ item.shortcode }}</p>
+            </div>
+            <div class="flex space-x-2">
+                <a href="{% url 'item-master:item_master_list' %}" class="inline-flex items-center space-x-2
+                         bg-gray-100 text-gray-700 border border-gray-200 px-3 py-1.5 rounded-md hover:bg-gray-200 text-sm">
+                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path d="M15 19l-7-7 7-7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <span>{% trans "Back to List" %}</span>
+                </a>
+                <a href="{% url 'item-master:item_master_update' item.id %}" class="inline-flex items-center space-x-2
+                         bg-blue-700 text-white border border-gray-200 px-3 py-1.5 rounded-md hover:bg-blue-900 text-sm">
+                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15.232 5.232l3.536 3.536M9 13l6-6 3 3-6 6H9v-3z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    <span>{% trans "Edit Item" %}</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Main Information -->
+        <div class="lg:col-span-2 space-y-6">
+            <!-- Basic Information Card -->
+            <div class="bg-white rounded-xl border border-gray-200 p-6">
+                <h3 class="text-md font-semibold text-gray-700 mb-4 pb-2 border-b border-gray-200">{% trans "Basic Information" %}</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-500 mb-1">{% trans "Shortcode" %}</label>
+                        <p class="text-sm text-gray-900 font-medium">{{ item.shortcode }}</p>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-500 mb-1">{% trans "Name" %}</label>
+                        <p class="text-sm text-gray-900 font-medium">{{ item.name }}</p>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-500 mb-1">{% trans "Category" %}</label>
+                        <span class="inline-block rounded bg-gray-100 text-gray-700 px-2 py-1 text-xs">
+                            {{ item.category.category_name|default:"-" }}
+                        </span>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-500 mb-1">{% trans "Brand" %}</label>
+                        <span class="inline-block rounded bg-gray-50 text-gray-700 px-2 py-1 text-xs">
+                            {{ item.brand_name.name|default:"-" }}
+                        </span>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-500 mb-1">{% trans "Stock Type" %}</label>
+                        <span class="inline-block rounded bg-purple-100 text-purple-800 px-2 py-1 text-xs font-semibold">
+                            {{ item.stock_type.name|default:"-" }}
+                        </span>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-500 mb-1">{% trans "Status" %}</label>
+                        {% if item.status.status == "Active" %}
+                            <span class="inline-block bg-green-100 text-green-800 px-2 py-1 rounded text-xs font-semibold">{% trans "Active" %}</span>
+                        {% else %}
+                            <span class="inline-block bg-gray-200 text-gray-700 px-2 py-1 rounded text-xs font-semibold">{{ item.status.status }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+                {% if item.description %}
+                <div class="mt-4">
+                    <label class="block text-sm font-medium text-gray-500 mb-1">{% trans "Description" %}</label>
+                    <p class="text-sm text-gray-900">{{ item.description }}</p>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Spare Parts -->
+            {% if spare_parts %}
+            <div class="bg-white rounded-xl border border-gray-200 p-6">
+                <h3 class="text-md font-semibold text-gray-700 mb-4 pb-2 border-b border-gray-200">{% trans "Spare Parts" %}</h3>
+                <div class="overflow-hidden border border-gray-100 rounded-lg">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Code" %}</th>
+                                <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Name" %}</th>
+                                <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Category" %}</th>
+                                <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Brand" %}</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            {% for spare_part in spare_parts %}
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-3 py-2">
+                                    <a href="{% url 'item-master:item_master_detail' spare_part.id %}" class="text-blue-600 hover:text-blue-800 font-medium text-xs">
+                                        {{ spare_part.shortcode }}
+                                    </a>
+                                </td>
+                                <td class="px-3 py-2 text-xs text-gray-900">{{ spare_part.name }}</td>
+                                <td class="px-3 py-2">
+                                    <span class="inline-block rounded bg-gray-100 text-gray-700 px-1 py-0.5 text-xs">
+                                        {{ spare_part.category.category_name|default:"-" }}
+                                    </span>
+                                </td>
+                                <td class="px-3 py-2">
+                                    <span class="inline-block rounded bg-gray-50 text-gray-700 px-1 py-0.5 text-xs">
+                                        {{ spare_part.brand_name.name|default:"-" }}
+                                    </span>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <!-- Pagination for Spare Parts -->
+                {% if spare_parts.has_other_pages %}
+                <div class="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6 mt-4">
+                    <div class="flex flex-1 justify-between sm:hidden">
+                        {% if spare_parts.has_previous %}
+                        <a href="?spare_parts_page={{ spare_parts.previous_page_number }}" class="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">{% trans "Previous" %}</a>
+                        {% endif %}
+                        {% if spare_parts.has_next %}
+                        <a href="?spare_parts_page={{ spare_parts.next_page_number }}" class="relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">{% trans "Next" %}</a>
+                        {% endif %}
+                    </div>
+                    <div class="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
+                        <div>
+                            <p class="text-sm text-gray-700">
+                                {% trans "Showing" %} {{ spare_parts.start_index }} {% trans "to" %} {{ spare_parts.end_index }} {% trans "of" %} {{ spare_parts.paginator.count }} {% trans "spare parts" %}
+                            </p>
+                        </div>
+                        <div>
+                            <nav class="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
+                                {% if spare_parts.has_previous %}
+                                <a href="?spare_parts_page={{ spare_parts.previous_page_number }}" class="relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0">
+                                    <span class="sr-only">{% trans "Previous" %}</span>
+                                    <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M12.79 5.23a.75.75 0 01-.02 1.06L8.832 10l3.938 3.71a.75.75 0 11-1.04 1.08l-4.5-4.25a.75.75 0 010-1.08l4.5-4.25a.75.75 0 011.06.02z" clip-rule="evenodd" /></svg>
+                                </a>
+                                {% endif %}
+                                {% for num in spare_parts.paginator.page_range %}
+                                    {% if spare_parts.number == num %}
+                                    <span class="relative z-10 inline-flex items-center bg-blue-600 px-4 py-2 text-sm font-semibold text-white focus:z-20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600">{{ num }}</span>
+                                    {% else %}
+                                    <a href="?spare_parts_page={{ num }}" class="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0">{{ num }}</a>
+                                    {% endif %}
+                                {% endfor %}
+                                {% if spare_parts.has_next %}
+                                <a href="?spare_parts_page={{ spare_parts.next_page_number }}" class="relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0">
+                                    <span class="sr-only">{% trans "Next" %}</span>
+                                    <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z" clip-rule="evenodd" /></svg>
+                                </a>
+                                {% endif %}
+                            </nav>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            {% endif %}
+
+            <!-- Used In Items -->
+            {% if used_in_items %}
+            <div class="bg-white rounded-xl border border-gray-200 p-6">
+                <h3 class="text-md font-semibold text-gray-700 mb-4 pb-2 border-b border-gray-200">{% trans "Used In Items" %}</h3>
+                <div class="overflow-hidden border border-gray-100 rounded-lg">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Code" %}</th>
+                                <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Name" %}</th>
+                                <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Category" %}</th>
+                                <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Brand" %}</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            {% for main_item in used_in_items %}
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-3 py-2">
+                                    <a href="{% url 'item-master:item_master_detail' main_item.id %}" class="text-blue-600 hover:text-blue-800 font-medium text-xs">
+                                        {{ main_item.shortcode }}
+                                    </a>
+                                </td>
+                                <td class="px-3 py-2 text-xs text-gray-900">{{ main_item.name }}</td>
+                                <td class="px-3 py-2">
+                                    <span class="inline-block rounded bg-gray-100 text-gray-700 px-1 py-0.5 text-xs">
+                                        {{ main_item.category.category_name|default:"-" }}
+                                    </span>
+                                </td>
+                                <td class="px-3 py-2">
+                                    <span class="inline-block rounded bg-gray-50 text-gray-700 px-1 py-0.5 text-xs">
+                                        {{ main_item.brand_name.name|default:"-" }}
+                                    </span>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <!-- Pagination for Used In Items -->
+                {% if used_in_items.has_other_pages %}
+                <div class="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6 mt-4">
+                    <div class="flex flex-1 justify-between sm:hidden">
+                        {% if used_in_items.has_previous %}
+                        <a href="?used_in_page={{ used_in_items.previous_page_number }}" class="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">{% trans "Previous" %}</a>
+                        {% endif %}
+                        {% if used_in_items.has_next %}
+                        <a href="?used_in_page={{ used_in_items.next_page_number }}" class="relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">{% trans "Next" %}</a>
+                        {% endif %}
+                    </div>
+                    <div class="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
+                        <div>
+                            <p class="text-sm text-gray-700">
+                                {% trans "Showing" %} {{ used_in_items.start_index }} {% trans "to" %} {{ used_in_items.end_index }} {% trans "of" %} {{ used_in_items.paginator.count }} {% trans "items" %}
+                            </p>
+                        </div>
+                        <div>
+                            <nav class="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
+                                {% if used_in_items.has_previous %}
+                                <a href="?used_in_page={{ used_in_items.previous_page_number }}" class="relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0">
+                                    <span class="sr-only">{% trans "Previous" %}</span>
+                                    <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M12.79 5.23a.75.75 0 01-.02 1.06L8.832 10l3.938 3.71a.75.75 0 11-1.04 1.08l-4.5-4.25a.75.75 0 010-1.08l4.5-4.25a.75.75 0 011.06.02z" clip-rule="evenodd" /></svg>
+                                </a>
+                                {% endif %}
+                                {% for num in used_in_items.paginator.page_range %}
+                                    {% if used_in_items.number == num %}
+                                    <span class="relative z-10 inline-flex items-center bg-blue-600 px-4 py-2 text-sm font-semibold text-white focus:z-20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600">{{ num }}</span>
+                                    {% else %}
+                                    <a href="?used_in_page={{ num }}" class="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0">{{ num }}</a>
+                                    {% endif %}
+                                {% endfor %}
+                                {% if used_in_items.has_next %}
+                                <a href="?used_in_page={{ used_in_items.next_page_number }}" class="relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0">
+                                    <span class="sr-only">{% trans "Next" %}</span>
+                                    <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z" clip-rule="evenodd" /></svg>
+                                </a>
+                                {% endif %}
+                            </nav>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            {% endif %}
+
+            <!-- Specifications -->
+            {% if item.specs.all %}
+            <div class="bg-white rounded-xl border border-gray-200 p-6">
+                <h3 class="text-md font-semibold text-gray-700 mb-4 pb-2 border-b border-gray-200">{% trans "Specification Files" %}</h3>
+                <div class="space-y-2">
+                    {% for spec in item.specs.all %}
+                    <div class="flex items-center p-3 bg-gray-50 rounded hover:bg-gray-100 transition">
+                        <svg class="h-5 w-5 text-blue-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <div class="flex-1">
+                            <a href="{{ spec.url.url }}" target="_blank" class="text-sm font-medium text-blue-600 hover:text-blue-800">
+                                {% trans "Specification File" %} #{{ forloop.counter }}
+                            </a>
+                            <p class="text-xs text-gray-500">{{ spec.created_at|date:"M d, Y" }}</p>
+                        </div>
+                        <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Sidebar -->
+        <div class="space-y-6">
+            <!-- Images -->
+            <div class="bg-white rounded-xl border border-gray-200 p-6">
+                <h3 class="text-md font-semibold text-gray-700 mb-4 pb-2 border-b border-gray-200">{% trans "Images" %}</h3>
+                {% if item.images.all %}
+                    <div class="grid grid-cols-3 gap-1">
+                        {% for image in item.images.all %}
+                        <div class="aspect-square bg-gray-100 rounded overflow-hidden">
+                            <img src="{{ image.url.url }}" alt="{{ item.name }}" class="w-full h-full object-cover cursor-pointer hover:opacity-90 transition-opacity" 
+                                 onclick="window.open('{{ image.url.url }}', '_blank')">
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <p class="text-center text-gray-500 text-xs mt-1">{% trans "Click to view full size" %}</p>
+                {% else %}
+                    <div class="w-16 h-16 bg-gray-100 rounded flex items-center justify-center mx-auto">
+                        <svg class="h-6 w-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                    <p class="text-center text-gray-500 text-xs mt-2">{% trans "No images available" %}</p>
+                {% endif %}
+            </div>
+
+            <!-- Warranties -->
+            {% if item.warranties.all %}
+            <div class="bg-white rounded-xl border border-gray-200 p-6">
+                <h3 class="text-md font-semibold text-gray-700 mb-4 pb-2 border-b border-gray-200">{% trans "Warranties" %}</h3>
+                <div class="space-y-2">
+                    {% for warranty in item.warranties.all %}
+                    <div class="flex justify-between items-center p-2 bg-gray-50 rounded">
+                        <span class="text-sm text-gray-700">{{ warranty.warranty_type.type }}</span>
+                        <span class="text-sm font-medium text-gray-900">{{ warranty.value }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Service Forms -->
+            {% if item.service_forms.all %}
+            <div class="bg-white rounded-xl border border-gray-200 p-6">
+                <h3 class="text-md font-semibold text-gray-700 mb-4 pb-2 border-b border-gray-200">{% trans "Service Forms" %}</h3>
+                <div class="space-y-2">
+                    {% for service_form in item.service_forms.all %}
+                    <div class="p-2 bg-blue-50 rounded">
+                        <span class="text-sm font-medium text-blue-900">{{ service_form.name }}</span>
+                        {% if service_form.description %}
+                        <p class="text-xs text-blue-700 mt-1">{{ service_form.description }}</p>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Metadata -->
+            <div class="bg-white rounded-xl border border-gray-200 p-6">
+                <h3 class="text-md font-semibold text-gray-700 mb-4 pb-2 border-b border-gray-200">{% trans "Metadata" %}</h3>
+                <div class="space-y-3">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-500 mb-1">{% trans "Created" %}</label>
+                        <p class="text-sm text-gray-900">{{ item.created_at|date:"F d, Y H:i" }}</p>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-500 mb-1">{% trans "Last Updated" %}</label>
+                        <p class="text-sm text-gray-900">{{ item.updated_at|date:"F d, Y H:i" }}</p>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-500 mb-1">{% trans "Slug" %}</label>
+                        <p class="text-sm text-gray-900 font-mono">{{ item.slug }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

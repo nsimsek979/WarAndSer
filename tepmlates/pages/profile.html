@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans 'Profile' %}{% endblock %}
+{% block content %}
+<div class="max-w-xl mx-auto mt-10 bg-white rounded shadow p-8">
+  <h2 class="text-2xl font-bold mb-6">{% trans 'User Profile' %}</h2>
+  <div class="space-y-4">
+    <div>
+      <span class="font-semibold">{% trans 'Username' %}:</span> {{ user.username }}
+    </div>
+    <div>
+      <span class="font-semibold">{% trans 'First Name' %}:</span> {{ user.first_name|default:'-' }}
+    </div>
+    <div>
+      <span class="font-semibold">{% trans 'Last Name' %}:</span> {{ user.last_name|default:'-' }}
+    </div>
+    <div>
+      <span class="font-semibold">{% trans 'Role' %}:</span> {{ user.get_role_display|default:'-' }}
+    </div>
+    <div>
+      <span class="font-semibold">{% trans 'Default Language' %}:</span>
+      {% if user.profile_language %}
+        {{ user.profile_language|upper }}
+      {% elif user.language %}
+        {{ user.language|upper }}
+      {% else %}
+        {{ LANGUAGE_CODE|upper }}
+      {% endif %}
+    </div>
+  </div>
+  <div class="mt-8">
+    <a href="{% url 'logout' %}" class="inline-block px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded text-gray-700 font-semibold">{% trans 'Logout' %}</a>
+  </div>
+</div>
+{% endblock %}

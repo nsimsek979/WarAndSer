@@ -1,0 +1,837 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load static %}
+
+{% block title %}{% trans 'Update Item' %} - {{ item.name }}{% endblock %}
+{% block content %}
+<div class="pl-8 pr-8 space-y-6">
+    <!-- Header -->
+    <div class="bg-gray-25 pl-8 pr-8">
+        <div class="flex justify-between items-center p-0">
+            <div>
+                <h2 class="text-md font-semibold text-gray-700">{% trans "Update Item" %} - {{ item.name }}</h2>
+                <p class="text-gray-600 mt-0.5 text-sm">{% trans "Edit item details and relationships" %}</p>
+            </div>
+            <div class="flex space-x-2">
+                <a href="{% url 'item-master:item_master_detail' pk=item.pk %}" class="inline-flex items-center space-x-2
+                         bg-gray-100 text-gray-700 border border-gray-200 px-3 py-1.5 rounded-md hover:bg-gray-200 text-sm">
+                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path d="M15 19l-7-7 7-7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <span>{% trans "Back to Detail" %}</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Messages -->
+    {% if messages %}
+    <div class="space-y-2">
+        {% for message in messages %}
+        <div class="{% if message.tags == 'error' %}bg-red-50 border border-red-200 text-red-700{% elif message.tags == 'success' %}bg-green-50 border border-green-200 text-green-700{% else %}bg-blue-50 border border-blue-200 text-blue-700{% endif %} px-4 py-3 rounded-md">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Tabbed Update Form -->
+    <div x-data="{
+        activeTab: 'basic',
+        deletedImages: [],
+        deletedSpecs: [],
+        sparePartsData: [
+            {% for spare_part_rel in item.main_item_spare_parts_set.all %}
+            {
+                spare_part_id: '{{ spare_part_rel.spare_part_item.id }}',
+                name: '{{ spare_part_rel.spare_part_item.name|escapejs }}',
+                shortcode: '{{ spare_part_rel.spare_part_item.shortcode|escapejs }}',
+                category: '{{ spare_part_rel.spare_part_item.category.category_name|default:""|escapejs }}',
+                id: {{ spare_part_rel.id }}
+            }{% if not forloop.last %},{% endif %}
+            {% endfor %}
+        ],
+        imagesData: [
+            {% for image in item.images.all %}
+            {
+                id: {{ image.id }},
+                url: '{{ image.url.url }}',
+                name: '{{ image.url.name|escapejs }}'
+            }{% if not forloop.last %},{% endif %}
+            {% endfor %}
+        ],
+        specsData: [
+            {% for spec in item.specs.all %}
+            {
+                id: {{ spec.id }},
+                url: '{{ spec.url.url }}',
+                name: '{{ spec.url.name|escapejs }}'
+            }{% if not forloop.last %},{% endif %}
+            {% endfor %}
+        ],
+        warrantiesData: [
+            {% for warranty in item.warranties.all %}
+            {
+                warranty_id: '{{ warranty.id }}',
+                type: '{{ warranty.warranty_type.type|escapejs }}',
+                value: '{{ warranty.value }}',
+                id: {{ warranty.id }}
+            }{% if not forloop.last %},{% endif %}
+            {% endfor %}
+        ],
+        servicesData: [
+            {% for service in item.service_forms.all %}
+            {
+                service_id: '{{ service.id }}',
+                name: '{{ service.name|escapejs }}',
+                id: {{ service.id }}
+            }{% if not forloop.last %},{% endif %}
+            {% endfor %}
+        ],
+        sparePartSearch: '',
+        addSparePart(item) {
+            if (item && !this.sparePartsData.find(sp => sp.spare_part_id === item.id)) {
+                this.sparePartsData.push(item);
+            }
+        },
+        addSparePartFromSelect(selectElement) {
+            const selectedOption = selectElement.options[selectElement.selectedIndex];
+            if (selectedOption.value) {
+                const sparePartId = selectedOption.value;
+                const name = selectedOption.dataset.name;
+                const shortcode = selectedOption.dataset.shortcode;
+                const category = selectedOption.dataset.category;
+                
+                if (!this.sparePartsData.find(sp => sp.spare_part_id === sparePartId)) {
+                    this.sparePartsData.push({
+                        spare_part_id: sparePartId,
+                        name: name,
+                        shortcode: shortcode,
+                        category: category,
+                        id: Date.now()
+                    });
+                }
+                selectElement.value = '';
+            }
+        },
+        removeSparePart(index) {
+            this.sparePartsData.splice(index, 1);
+        },
+        deleteImage(index) {
+            const image = this.imagesData[index];
+            this.deletedImages.push(image.id);
+            this.imagesData.splice(index, 1);
+        },
+        deleteSpec(index) {
+            const spec = this.specsData[index];
+            this.deletedSpecs.push(spec.id);
+            this.specsData.splice(index, 1);
+        },
+        addWarrantyFromSelect(selectElement) {
+            const selectedOption = selectElement.options[selectElement.selectedIndex];
+            if (selectedOption.value) {
+                const warrantyId = selectedOption.value;
+                const type = selectedOption.dataset.type;
+                const value = selectedOption.dataset.value;
+                
+                if (!this.warrantiesData.find(w => w.warranty_id === warrantyId)) {
+                    this.warrantiesData.push({
+                        warranty_id: warrantyId,
+                        type: type,
+                        value: value,
+                        id: Date.now()
+                    });
+                }
+                selectElement.value = '';
+            }
+        },
+        addServiceFromSelect(selectElement) {
+            const selectedOption = selectElement.options[selectElement.selectedIndex];
+            if (selectedOption.value) {
+                const serviceId = selectedOption.value;
+                const name = selectedOption.dataset.name;
+                
+                if (!this.servicesData.find(s => s.service_id === serviceId)) {
+                    this.servicesData.push({
+                        service_id: serviceId,
+                        name: name,
+                        id: Date.now()
+                    });
+                }
+                selectElement.value = '';
+            }
+        },
+        removeWarranty(index) {
+            this.warrantiesData.splice(index, 1);
+        },
+        removeService(index) {
+            this.servicesData.splice(index, 1);
+        }
+    }" class="bg-white shadow-sm rounded-lg">
+        
+        <!-- Tab Navigation -->
+        <div class="border-b border-gray-200">
+            <nav class="flex space-x-8 px-6" aria-label="Tabs">
+                <button @click="activeTab = 'basic'"
+                        :class="activeTab === 'basic' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'"
+                        class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
+                    {% trans "Basic Information" %}
+                </button>
+                <button @click="activeTab = 'spare-parts'"
+                        :class="activeTab === 'spare-parts' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'"
+                        class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
+                    {% trans "Spare Parts" %}
+                </button>
+                <button @click="activeTab = 'media'"
+                        :class="activeTab === 'media' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'"
+                        class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
+                    {% trans "Images & Specs" %}
+                </button>
+                <button @click="activeTab = 'warranty'"
+                        :class="activeTab === 'warranty' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'"
+                        class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
+                    {% trans "Warranties" %}
+                </button>
+                <button @click="activeTab = 'services'"
+                        :class="activeTab === 'services' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'"
+                        class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
+                    {% trans "Services" %}
+                </button>
+            </nav>
+        </div>
+
+        <form method="post" enctype="multipart/form-data" class="p-6">
+            {% csrf_token %}
+            
+            <!-- Hidden inputs for deleted items -->
+            <template x-for="imageId in deletedImages" :key="imageId">
+                <input type="hidden" name="delete_images" :value="imageId">
+            </template>
+            <template x-for="specId in deletedSpecs" :key="specId">
+                <input type="hidden" name="delete_specs" :value="specId">
+            </template>
+            
+            <!-- Tab 1: Basic Information -->
+            <div x-show="activeTab === 'basic'" class="space-y-4">
+                <h3 class="text-md font-semibold text-gray-700 mb-4">{% trans "Basic Information" %}</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Shortcode -->
+                    <div>
+                        <label for="shortcode" class="block text-xs font-medium text-gray-700 mb-1">
+                            {% trans "Shortcode" %} <span class="text-red-500">*</span>
+                        </label>
+                        <input type="text" 
+                               id="shortcode" 
+                               name="shortcode" 
+                               value="{{ item.shortcode }}"
+                               class="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" 
+                               placeholder="{% trans 'Enter unique shortcode' %}"
+                               maxlength="10"
+                               required>
+                        <p class="mt-1 text-xs text-gray-500">{% trans "Maximum 10 characters" %}</p>
+                    </div>
+
+                    <!-- Name -->
+                    <div>
+                        <label for="name" class="block text-xs font-medium text-gray-700 mb-1">
+                            {% trans "Name" %} <span class="text-red-500">*</span>
+                        </label>
+                        <input type="text" 
+                               id="name" 
+                               name="name" 
+                               value="{{ item.name }}"
+                               class="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" 
+                               placeholder="{% trans 'Enter item name' %}"
+                               maxlength="255"
+                               required>
+                    </div>
+
+                    <!-- Category -->
+                    <div>
+                        <label for="category" class="block text-xs font-medium text-gray-700 mb-1">
+                            {% trans "Category" %} <span class="text-red-500">*</span>
+                        </label>
+                        <select id="category" 
+                                name="category" 
+                                class="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                                required>
+                            <option value="">{% trans "Select a category" %}</option>
+                            {% for category in categories %}
+                            <option value="{{ category.id }}" {% if item.category_id == category.id %}selected{% endif %}>
+                                {{ category.category_name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Brand -->
+                    <div>
+                        <label for="brand_name" class="block text-xs font-medium text-gray-700 mb-1">
+                            {% trans "Brand" %}
+                        </label>
+                        <select id="brand_name" 
+                                name="brand_name" 
+                                class="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                            <option value="">{% trans "Select a brand" %}</option>
+                            {% for brand in brands %}
+                            <option value="{{ brand.id }}" {% if item.brand_name_id == brand.id %}selected{% endif %}>
+                                {{ brand.name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Stock Type -->
+                    <div>
+                        <label for="stock_type" class="block text-xs font-medium text-gray-700 mb-1">
+                            {% trans "Stock Type" %} <span class="text-red-500">*</span>
+                        </label>
+                        <select id="stock_type" 
+                                name="stock_type" 
+                                class="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                                required>
+                            <option value="">{% trans "Select stock type" %}</option>
+                            {% for stock_type in stock_types %}
+                            <option value="{{ stock_type.id }}" {% if item.stock_type_id == stock_type.id %}selected{% endif %}>
+                                {{ stock_type.name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Status -->
+                    <div>
+                        <label for="status" class="block text-xs font-medium text-gray-700 mb-1">
+                            {% trans "Status" %} <span class="text-red-500">*</span>
+                        </label>
+                        <select id="status" 
+                                name="status" 
+                                class="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                                required>
+                            <option value="">{% trans "Select status" %}</option>
+                            {% for status in statuses %}
+                            <option value="{{ status.id }}" {% if item.status_id == status.id %}selected{% endif %}>
+                                {{ status.status }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Description -->
+                <div class="mt-4">
+                    <label for="description" class="block text-xs font-medium text-gray-700 mb-1">
+                        {% trans "Description" %}
+                    </label>
+                    <textarea id="description" 
+                              name="description" 
+                              rows="3"
+                              class="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" 
+                              placeholder="{% trans 'Enter item description' %}">{{ item.description }}</textarea>
+                </div>
+            </div>
+
+            <!-- Tab 2: Spare Parts -->
+            <div x-show="activeTab === 'spare-parts'" class="space-y-4">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-md font-semibold text-gray-700">{% trans "Spare Parts" %}</h3>
+                </div>
+                
+                <!-- Add Spare Part Form -->
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
+                        <div>
+                            <label class="block text-xs font-medium text-gray-700 mb-1">{% trans "Select Spare Part" %}</label>
+                            <select x-ref="sparePartSelect" class="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-md">
+                                <option value="">{% trans "Select spare part" %}</option>
+                                {% for spare_item in spare_part_items %}
+                                <option value="{{ spare_item.id }}" data-name="{{ spare_item.name|escapejs }}" data-shortcode="{{ spare_item.shortcode|escapejs }}" data-category="{{ spare_item.category.category_name|default:'-'|escapejs }}">
+                                    {{ spare_item.shortcode }} - {{ spare_item.name }}
+                                </option>
+                                {% empty %}
+                                <option value="" disabled>{% trans "No spare parts available (looking for stock type 'Yedek Parça')" %}</option>
+                                {% endfor %}
+                            </select>
+                            {% if not spare_part_items %}
+                            <p class="mt-1 text-xs text-red-500">{% trans "No items found with stock type 'Yedek Parça'" %}</p>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <button type="button" 
+                                    @click="addSparePartFromSelect($refs.sparePartSelect)"
+                                    class="px-3 py-1.5 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700">
+                                {% trans "Add" %}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Selected Spare Parts -->
+                <div class="border border-gray-200 rounded-lg">
+                    <template x-if="sparePartsData.length === 0">
+                        <div class="p-6 text-center text-gray-500">
+                            {% trans "No spare parts selected yet" %}
+                        </div>
+                    </template>
+                    <template x-if="sparePartsData.length > 0">
+                        <div class="divide-y divide-gray-200">
+                            <template x-for="(sparePart, index) in sparePartsData" :key="sparePart.id">
+                                <div class="p-4 flex justify-between items-center">
+                                    <div>
+                                        <p class="text-sm font-medium text-gray-900" x-text="sparePart.name"></p>
+                                        <p class="text-xs text-gray-500" x-text="sparePart.shortcode + ' - ' + sparePart.category"></p>
+                                    </div>
+                                    <button type="button" 
+                                            @click="if(confirm('{% trans "Are you sure you want to remove this spare part?" %}')) { removeSparePart(index); }"
+                                            class="text-red-600 hover:text-red-800">
+                                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        </svg>
+                                    </button>
+                                    <!-- Hidden input for form submission -->
+                                    <input type="hidden" name="spare_parts" :value="sparePart.spare_part_id">
+                                </div>
+                            </template>
+                        </div>
+                    </template>
+                </div>
+            </div>
+
+            <!-- Tab 3: Images & Specifications -->
+            <div x-show="activeTab === 'media'" class="space-y-6">
+                <!-- Images Section -->
+                <div>
+                    <h4 class="text-sm font-semibold text-gray-700 mb-3">{% trans "Images" %}</h4>
+                    <div x-data="imageUpload()" class="space-y-4">
+                        <!-- Current Images -->
+                        <template x-if="imagesData.length > 0">
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                                <template x-for="(image, index) in imagesData" :key="image.id">
+                                    <div class="relative group">
+                                        <img :src="image.url" :alt="image.name" class="w-full h-20 object-cover rounded-lg border">
+                                        <button type="button" 
+                                                @click="if(confirm('{% trans "Are you sure you want to delete this image?" %}')) { deleteImage(index); }"
+                                                class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-600">
+                                            ×
+                                        </button>
+                                        <p class="text-xs text-gray-500 mt-1 truncate" x-text="image.name"></p>
+                                    </div>
+                                </template>
+                            </div>
+                        </template>
+
+                        <!-- Drag & Drop Area for new images -->
+                        <div @drop="handleDrop($event)" 
+                             @dragover.prevent 
+                             @dragenter.prevent
+                             :class="isDragging ? 'border-blue-500 bg-blue-50' : 'border-gray-300'"
+                             class="border-2 border-dashed rounded-lg p-6 text-center transition-colors">
+                            <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                                <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                            <div class="mt-4">
+                                <label for="images" class="cursor-pointer">
+                                    <span class="mt-2 block text-sm font-medium text-gray-900">
+                                        {% trans "Drop images here or click to upload" %}
+                                    </span>
+                                    <input id="images" name="images" type="file" class="sr-only" multiple accept="image/*" @change="handleFileSelect($event)">
+                                </label>
+                                <p class="mt-2 text-xs text-gray-500">{% trans "PNG, JPG, GIF up to 10MB each" %}</p>
+                            </div>
+                        </div>
+
+                        <!-- Preview new uploaded images -->
+                        <template x-if="images.length > 0">
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                <template x-for="(image, index) in images" :key="index">
+                                    <div class="relative">
+                                        <img :src="image.preview" class="w-full h-20 object-cover rounded-lg border">
+                                        <button type="button" 
+                                                @click="removeImage(index)"
+                                                class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-600">
+                                            ×
+                                        </button>
+                                        <p class="text-xs text-gray-500 mt-1 truncate" x-text="image.file.name"></p>
+                                    </div>
+                                </template>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+
+                <!-- Specifications Section -->
+                <div>
+                    <h4 class="text-sm font-semibold text-gray-700 mb-3">{% trans "Specifications" %}</h4>
+                    <div x-data="specUpload()" class="space-y-4">
+                        <!-- Current Specs -->
+                        <template x-if="specsData.length > 0">
+                            <div class="space-y-2 mb-4">
+                                <template x-for="(spec, index) in specsData" :key="spec.id">
+                                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                        <div class="flex items-center space-x-3">
+                                            <svg class="h-8 w-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                            </svg>
+                                            <div>
+                                                <p class="text-sm font-medium text-gray-900" x-text="spec.name"></p>
+                                                <p class="text-xs text-gray-500">{% trans "Existing specification file" %}</p>
+                                            </div>
+                                        </div>
+                                        <button type="button" 
+                                                @click="if(confirm('{% trans "Are you sure you want to delete this specification file?" %}')) { deleteSpec(index); }"
+                                                class="text-red-600 hover:text-red-800">
+                                            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </template>
+                            </div>
+                        </template>
+
+                        <!-- Drag & Drop Area for new specs -->
+                        <div @drop="handleDrop($event)" 
+                             @dragover.prevent 
+                             @dragenter.prevent
+                             :class="isDragging ? 'border-blue-500 bg-blue-50' : 'border-gray-300'"
+                             class="border-2 border-dashed rounded-lg p-6 text-center transition-colors">
+                            <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                                <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                            <div class="mt-4">
+                                <label for="specs" class="cursor-pointer">
+                                    <span class="mt-2 block text-sm font-medium text-gray-900">
+                                        {% trans "Drop specification files here or click to upload" %}
+                                    </span>
+                                    <input id="specs" name="specs" type="file" class="sr-only" multiple accept=".pdf,.doc,.docx,.txt" @change="handleFileSelect($event)">
+                                </label>
+                                <p class="mt-2 text-xs text-gray-500">{% trans "PDF, DOC, DOCX, TXT up to 10MB each" %}</p>
+                            </div>
+                        </div>
+
+                        <!-- Preview new uploaded specs -->
+                        <template x-if="specs.length > 0">
+                            <div class="space-y-2">
+                                <template x-for="(spec, index) in specs" :key="index">
+                                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                        <div class="flex items-center space-x-3">
+                                            <svg class="h-8 w-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                            </svg>
+                                            <div>
+                                                <p class="text-sm font-medium text-gray-900" x-text="spec.name"></p>
+                                                <p class="text-xs text-gray-500" x-text="(spec.file.size / 1024 / 1024).toFixed(2) + ' MB' + ' • ' + spec.originalName"></p>
+                                            </div>
+                                        </div>
+                                        <button type="button" 
+                                                @click="removeSpec(index)"
+                                                class="text-red-600 hover:text-red-800">
+                                            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </template>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab 4: Warranties -->
+            <div x-show="activeTab === 'warranty'" class="space-y-4">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-md font-semibold text-gray-700">{% trans "Warranties" %}</h3>
+                </div>
+                
+                <!-- Add Warranty Form -->
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
+                        <div>
+                            <label class="block text-xs font-medium text-gray-700 mb-1">{% trans "Select Warranty" %}</label>
+                            <select x-ref="warrantySelect" class="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-md">
+                                <option value="">{% trans "Select warranty" %}</option>
+                                {% for warranty in warranty_values %}
+                                <option value="{{ warranty.id }}" data-type="{{ warranty.warranty_type.type }}" data-value="{{ warranty.value }}">
+                                    {{ warranty.warranty_type.type }} - 
+                                    {% if 'hour' in warranty.warranty_type.type|lower %}
+                                        {% if warranty.value == warranty.value|floatformat:0|add:0 %}
+                                            {{ warranty.value|floatformat:0 }} {% trans "hours" %}
+                                        {% else %}
+                                            {{ warranty.value }} {% trans "hours" %}
+                                        {% endif %}
+                                    {% elif 'month' in warranty.warranty_type.type|lower %}
+                                        {% if warranty.value == warranty.value|floatformat:0|add:0 %}
+                                            {{ warranty.value|floatformat:0 }} {% trans "months" %}
+                                        {% else %}
+                                            {{ warranty.value }} {% trans "months" %}
+                                        {% endif %}
+                                    {% elif 'year' in warranty.warranty_type.type|lower %}
+                                        {% if warranty.value == warranty.value|floatformat:0|add:0 %}
+                                            {{ warranty.value|floatformat:0 }} {% trans "years" %}
+                                        {% else %}
+                                            {{ warranty.value }} {% trans "years" %}
+                                        {% endif %}
+                                    {% else %}
+                                        {% if warranty.value == warranty.value|floatformat:0|add:0 %}
+                                            {{ warranty.value|floatformat:0 }}
+                                        {% else %}
+                                            {{ warranty.value }}
+                                        {% endif %}
+                                    {% endif %}
+                                </option>
+                                {% empty %}
+                                <option value="" disabled>{% trans "No warranties available" %}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div>
+                            <button type="button" 
+                                    @click="addWarrantyFromSelect($refs.warrantySelect)"
+                                    class="px-3 py-1.5 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700">
+                                {% trans "Add" %}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Selected Warranties -->
+                <div class="border border-gray-200 rounded-lg">
+                    <template x-if="warrantiesData.length === 0">
+                        <div class="p-6 text-center text-gray-500">
+                            {% trans "No warranties selected yet" %}
+                        </div>
+                    </template>
+                    <template x-if="warrantiesData.length > 0">
+                        <div class="divide-y divide-gray-200">
+                            <template x-for="(warranty, index) in warrantiesData" :key="warranty.id">
+                                <div class="p-4 flex justify-between items-center">
+                                    <div class="flex-1">
+                                        <div class="flex items-center space-x-2">
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                                <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                                </svg>
+                                                <span x-text="warranty.type"></span>
+                                            </span>
+                                            <span class="text-sm font-semibold text-gray-900">
+                                                <span x-show="warranty.type.toLowerCase().includes('hour')">
+                                                    <span x-text="(warranty.value % 1 !== 0) ? warranty.value + ' saat' : parseInt(warranty.value).toLocaleString('tr-TR') + ' saat'"></span>
+                                                </span>
+                                                <span x-show="warranty.type.toLowerCase().includes('month')">
+                                                    <span x-text="(warranty.value % 1 !== 0) ? warranty.value + ' ay' : parseInt(warranty.value).toLocaleString('tr-TR') + ' ay'"></span>
+                                                </span>
+                                                <span x-show="warranty.type.toLowerCase().includes('year')">
+                                                    <span x-text="(warranty.value % 1 !== 0) ? warranty.value + ' yıl' : parseInt(warranty.value).toLocaleString('tr-TR') + ' yıl'"></span>
+                                                </span>
+                                                <span x-show="!warranty.type.toLowerCase().includes('hour') && !warranty.type.toLowerCase().includes('month') && !warranty.type.toLowerCase().includes('year')">
+                                                    <span x-text="(warranty.value % 1 !== 0) ? warranty.value : parseInt(warranty.value).toLocaleString('tr-TR')"></span>
+                                                </span>
+                                            </span>
+                                        </div>
+                                        <p class="text-xs text-gray-500 mt-1">
+                                            <span x-show="warranty.type.toLowerCase().includes('hour')">
+                                                <span x-text="'Garanti: ' + warranty.type + ' - ' + ((warranty.value % 1 !== 0) ? warranty.value : parseInt(warranty.value).toLocaleString('tr-TR')) + ' saat kapsamı'"></span>
+                                            </span>
+                                            <span x-show="warranty.type.toLowerCase().includes('month')">
+                                                <span x-text="'Garanti: ' + warranty.type + ' - ' + ((warranty.value % 1 !== 0) ? warranty.value : parseInt(warranty.value).toLocaleString('tr-TR')) + ' ay kapsamı'"></span>
+                                            </span>
+                                            <span x-show="warranty.type.toLowerCase().includes('year')">
+                                                <span x-text="'Garanti: ' + warranty.type + ' - ' + ((warranty.value % 1 !== 0) ? warranty.value : parseInt(warranty.value).toLocaleString('tr-TR')) + ' yıl kapsamı'"></span>
+                                            </span>
+                                            <span x-show="!warranty.type.toLowerCase().includes('hour') && !warranty.type.toLowerCase().includes('month') && !warranty.type.toLowerCase().includes('year')">
+                                                <span x-text="'Garanti: ' + warranty.type + ' - ' + ((warranty.value % 1 !== 0) ? warranty.value : parseInt(warranty.value).toLocaleString('tr-TR')) + ' kapsamı'"></span>
+                                            </span>
+                                        </p>
+                                    </div>
+                                    <button type="button" 
+                                            @click="if(confirm('{% trans "Are you sure you want to remove this warranty?" %}')) { removeWarranty(index); }"
+                                            class="ml-4 text-red-600 hover:text-red-800 transition-colors">
+                                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        </svg>
+                                    </button>
+                                    <!-- Hidden input for form submission -->
+                                    <input type="hidden" name="warranties" :value="warranty.warranty_id">
+                                </div>
+                            </template>
+                        </div>
+                    </template>
+                </div>
+            </div>
+
+            <!-- Tab 5: Services -->
+            <div x-show="activeTab === 'services'" class="space-y-4">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-md font-semibold text-gray-700">{% trans "Services" %}</h3>
+                </div>
+                
+                <!-- Add Service Form -->
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
+                        <div>
+                            <label class="block text-xs font-medium text-gray-700 mb-1">{% trans "Select Service" %}</label>
+                            <select x-ref="serviceSelect" class="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-md">
+                                <option value="">{% trans "Select service" %}</option>
+                                {% for service in service_forms %}
+                                <option value="{{ service.id }}" data-name="{{ service.name|escapejs }}">
+                                    {{ service.name }}
+                                </option>
+                                {% empty %}
+                                <option value="" disabled>{% trans "No services available" %}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div>
+                            <button type="button" 
+                                    @click="addServiceFromSelect($refs.serviceSelect)"
+                                    class="px-3 py-1.5 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700">
+                                {% trans "Add" %}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Selected Services -->
+                <div class="border border-gray-200 rounded-lg">
+                    <template x-if="servicesData.length === 0">
+                        <div class="p-6 text-center text-gray-500">
+                            {% trans "No services selected yet" %}
+                        </div>
+                    </template>
+                    <template x-if="servicesData.length > 0">
+                        <div class="divide-y divide-gray-200">
+                            <template x-for="(service, index) in servicesData" :key="service.id">
+                                <div class="p-4 flex justify-between items-center">
+                                    <div>
+                                        <p class="text-sm font-medium text-gray-900" x-text="service.name"></p>
+                                    </div>
+                                    <button type="button" 
+                                            @click="if(confirm('{% trans "Are you sure you want to remove this service?" %}')) { removeService(index); }"
+                                            class="text-red-600 hover:text-red-800">
+                                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        </svg>
+                                    </button>
+                                    <!-- Hidden input for form submission -->
+                                    <input type="hidden" name="service_forms" :value="service.service_id">
+                                </div>
+                            </template>
+                        </div>
+                    </template>
+                </div>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="mt-8 flex justify-end space-x-3">
+                <a href="{% url 'item-master:item_master_detail' pk=item.pk %}" 
+                   class="px-3 py-1.5 text-sm border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50">
+                    {% trans "Cancel" %}
+                </a>
+                <button type="submit" 
+                        class="px-3 py-1.5 text-sm bg-blue-700 text-white rounded-md hover:bg-blue-800">
+                    {% trans "Update Item" %}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+
+<script>
+// Image upload functionality
+function imageUpload() {
+    return {
+        images: [],
+        isDragging: false,
+        
+        handleDrop(e) {
+            e.preventDefault();
+            this.isDragging = false;
+            const files = Array.from(e.dataTransfer.files);
+            this.processFiles(files);
+        },
+        
+        handleFileSelect(e) {
+            const files = Array.from(e.target.files);
+            this.processFiles(files);
+        },
+        
+        processFiles(files) {
+            files.forEach(file => {
+                if (file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        this.images.push({
+                            file: file,
+                            preview: e.target.result
+                        });
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+        },
+        
+        removeImage(index) {
+            this.images.splice(index, 1);
+        }
+    }
+}
+
+// Spec upload functionality
+function specUpload() {
+    return {
+        specs: [],
+        isDragging: false,
+        
+        handleDrop(e) {
+            e.preventDefault();
+            this.isDragging = false;
+            const files = Array.from(e.dataTransfer.files);
+            this.processFiles(files);
+        },
+        
+        handleFileSelect(e) {
+            const files = Array.from(e.target.files);
+            this.processFiles(files);
+        },
+        
+        processFiles(files) {
+            files.forEach(file => {
+                const allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'text/plain'];
+                if (allowedTypes.includes(file.type)) {
+                    const shortcode = document.getElementById('shortcode').value || 'ITEM';
+                    // Count existing specs (that haven't been deleted) + new specs already added
+                    const existingCount = this.specsData.length;
+                    const newCount = this.specs.length;
+                    const specNumber = existingCount + newCount + 1;
+                    const customName = `${shortcode}+SpectFile-${specNumber}`;
+                    
+                    this.specs.push({
+                        file: file,
+                        name: customName,
+                        originalName: file.name
+                    });
+                }
+            });
+        },
+        
+        removeSpec(index) {
+            this.specs.splice(index, 1);
+            // Renumber remaining specs
+            this.renumberSpecs();
+        },
+        
+        renumberSpecs() {
+            const shortcode = document.getElementById('shortcode').value || 'ITEM';
+            // Count existing specs that haven't been deleted
+            const existingCount = this.specsData.length;
+            this.specs.forEach((spec, index) => {
+                spec.name = `${shortcode}+SpectFile-${existingCount + index + 1}`;
+            });
+        }
+    }
+}
+</script>
+{% endblock %}

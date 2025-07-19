@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{{ company.name }}{% endblock %}
+{% block content %}
+<div class="max-w-5xl mx-auto mt-8 bg-white rounded-xl shadow p-8">
+  <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-8 border-b border-gray-200 pb-4">
+    <div>
+      <h2 class="text-3xl font-bold text-gray-800 mb-2">{{ company.name }}</h2>
+      <div class="text-gray-500 text-sm mb-2">{{ company.get_company_type_display }}</div>
+      <div class="flex flex-wrap gap-4 text-gray-600 text-sm">
+        <span><strong>{% trans 'Core Business' %}:</strong> {{ company.core_business.name|default:'-' }}</span>
+       
+          {% if company.active %}
+            <span class="inline-flex items-center text-green-600 font-semibold"><i class="fas fa-check-circle mr-1"></i> {% trans 'Active' %}</span>
+          {% else %}
+            <span class="inline-flex items-center text-red-500 font-semibold"><i class="fas fa-times-circle mr-1"></i> {% trans 'Inactive' %}</span>
+          {% endif %}
+        </span>
+      </div>
+    </div>
+    <div class="flex flex-col gap-2 mt-4 md:mt-0">
+      <div class="flex gap-2 mb-2">
+        <a href="{% url 'customer:customer_update' company.pk %}" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded text-sm flex items-center gap-2">
+          <i class="fas fa-edit"></i> {% trans 'Edit' %}
+        </a>
+        <a href="{% url 'customer:customer_list' %}" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded text-sm flex items-center gap-2">
+          <i class="fas fa-arrow-left"></i> {% trans 'Back to List' %}
+        </a>
+      </div>
+      <a href="mailto:{{ company.email }}" class="text-blue-700 hover:underline flex items-center gap-2"><i class="fas fa-envelope"></i> {{ company.email }}</a>
+      <a href="tel:{{ company.telephone }}" class="text-blue-700 hover:underline flex items-center gap-2"><i class="fas fa-phone"></i> {{ company.telephone }}</a>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+    <!-- Addresses -->
+    <div>
+      <h3 class="text-xl font-semibold mb-4 flex items-center gap-2"><i class="fas fa-map-marker-alt text-primary-600"></i> {% trans 'Addresses' %}</h3>
+      {% for address in company.address.all %}
+      <div class="mb-4 p-4 rounded-lg border border-gray-200 bg-gray-50">
+        <div class="font-semibold text-gray-700">{{ address.name }}</div>
+        <div class="text-gray-600 text-sm">{{ address.address }}</div>
+        <div class="text-gray-500 text-xs mt-1">
+          {{ address.city.name|default:'-' }}, {{ address.county.name|default:'-' }}, {{ address.district.name|default:'-' }}
+        </div>
+        <div class="text-gray-400 text-xs">{{ address.country.name|default:'-' }} | {{ address.zipcode|default:'-' }}</div>
+      </div>
+      {% empty %}
+      <div class="text-gray-400">{% trans 'No addresses found.' %}</div>
+      {% endfor %}
+    </div>
+    <!-- Contacts -->
+    <div>
+      <h3 class="text-xl font-semibold mb-4 flex items-center gap-2"><i class="fas fa-users text-primary-600"></i> {% trans 'Contacts' %}</h3>
+      {% for contact in company.contactperson_set.all %}
+      <div class="mb-4 p-4 rounded-lg border border-gray-200 bg-gray-50">
+        <div class="font-semibold text-gray-700">{{ contact.full_name }}</div>
+        <div class="text-gray-600 text-sm">{{ contact.title|default:'-' }}</div>
+        <div class="text-gray-500 text-xs mt-1 flex items-center gap-2">
+          <a href="mailto:{{ contact.email }}" class="text-blue-700 hover:underline flex items-center gap-1"><i class="fas fa-envelope"></i> {{ contact.email }}</a>
+          <a href="tel:{{ contact.telephone }}" class="text-blue-700 hover:underline flex items-center gap-1"><i class="fas fa-phone"></i> {{ contact.telephone }}</a>
+        </div>
+      </div>
+      {% empty %}
+      <div class="text-gray-400">{% trans 'No contacts found.' %}</div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}

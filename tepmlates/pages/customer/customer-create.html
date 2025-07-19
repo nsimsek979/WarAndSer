@@ -1,0 +1,386 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans 'Create Customer' %}{% endblock %}
+{% block content %}
+<div x-data="customerForm()" x-init="init()" class="max-w-5xl mx-auto mt-8 bg-white rounded-xl shadow p-8">
+  {# Inject JSON data for Alpine.js initialization #}
+  {{ managers|json_script:"managers-data" }}
+  {{ core_businesses|json_script:"core-businesses-data" }}
+  {{ countries|json_script:"countries-data" }}
+  {{ companies|json_script:"companies-data" }}
+  <script id="user-context-data" type="application/json">
+    {
+      "is_distributor_user": {% if is_distributor_user %}true{% else %}false{% endif %},
+      "default_related_manager_id": {% if default_related_manager_id %}"{{ default_related_manager_id }}"{% else %}null{% endif %}
+    }
+  </script>
+    <div class="bg-gray-25 pl-2 pr-8 border-b border-gray-200 mb-2">
+        <div class="flex justify-between items-center p-0">
+            <div>
+                <h2 class="text-2xl font-bold mb-6">{% trans 'Create Customer' %}</h2>
+                <p class="text-gray-600 mt-0.5 text-sm">{% trans "Customer Management" %}</p>
+            </div>
+          </div>
+    </div>
+  
+  <form method="post" class="bg-white rounded-lg pt-2 space-y-8">
+    {% csrf_token %}
+    
+    <!-- Hidden fields for form data that will be populated by Alpine.js before submission -->
+    <input type="hidden" name="name" x-model="form.name">
+    <input type="hidden" name="company_type" x-model="form.company_type">
+    <input type="hidden" name="core_business" x-model="form.core_business">
+    <input type="hidden" name="related_company" x-model="form.related_company">
+    <input type="hidden" name="related_manager" x-model="form.related_manager">
+    <input type="hidden" name="email" x-model="form.email">
+    <input type="hidden" name="telephone" x-model="form.telephone">
+    <input type="hidden" name="active" :value="form.active ? '1' : '0'">
+    
+    <!-- Dynamic hidden fields for contacts -->
+    <template x-for="(contact, idx) in form.contacts" :key="idx">
+      <div>
+        <input type="hidden" :name="`contacts[${idx}][full_name]`" x-model="contact.full_name">
+        <input type="hidden" :name="`contacts[${idx}][title]`" x-model="contact.title">
+        <input type="hidden" :name="`contacts[${idx}][email]`" x-model="contact.email">
+        <input type="hidden" :name="`contacts[${idx}][telephone]`" x-model="contact.telephone">
+      </div>
+    </template>
+    
+    <!-- Dynamic hidden fields for addresses -->
+    <template x-for="(address, idx) in form.addresses" :key="idx">
+      <div>
+        <input type="hidden" :name="`addresses[${idx}][name]`" x-model="address.name">
+        <input type="hidden" :name="`addresses[${idx}][country]`" x-model="address.country">
+        <input type="hidden" :name="`addresses[${idx}][city]`" x-model="address.city">
+        <input type="hidden" :name="`addresses[${idx}][county]`" x-model="address.county">
+        <input type="hidden" :name="`addresses[${idx}][district]`" x-model="address.district">
+        <input type="hidden" :name="`addresses[${idx}][zipcode]`" x-model="address.zipcode">
+        <input type="hidden" :name="`addresses[${idx}][address]`" x-model="address.address">
+      </div>
+    </template>
+    <div>
+      <div class="border-b border-gray-200 mb-6">
+        <nav class="-mb-px flex space-x-8" aria-label="Tabs">
+          <a :class="tab === 'general' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'" @click.prevent="tab = 'general'" href="#" class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">{% trans 'General Info' %}</a>
+          <a :class="tab === 'contacts' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'" @click.prevent="tab = 'contacts'" href="#" class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">{% trans 'Contacts' %}</a>
+          <a :class="tab === 'addresses' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'" @click.prevent="tab = 'addresses'" href="#" class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">{% trans 'Addresses' %}</a>
+        </nav>
+      </div>
+      <!-- General Info Tab -->
+      <div x-show="tab === 'general'" class="space-y-4">
+        <!-- 1st row: Name & Company Type -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700">{% trans 'Name' %}</label>
+            <div class="relative">
+              
+              <input type="text" x-model="form.name" name="name" required class="pl-10 mt-1 text-sm h-10 w-full rounded border border-blue-100 shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="{% trans 'Enter customer name' %}">
+              
+            </div>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700">{% trans 'Company Type' %}</label>
+            <div x-data="{ open: false, selected: form.company_type }" class="relative">
+              <button @click="{% if not is_distributor_user %}open = !open{% endif %}" type="button" 
+                      class="w-full border rounded py-1.5 px-2 text-left bg-white flex justify-between items-center text-sm mt-1 {% if is_distributor_user %}bg-gray-100 cursor-not-allowed{% endif %}">
+                <span x-text="selected ? (selected === 'main' ? '{% trans 'Main' %}' : selected === 'distributor' ? '{% trans 'Distributor' %}' : selected === 'enduser' ? '{% trans 'End User' %}' : '{% trans 'Select type' %}') : '{% trans 'Select type' %}'"></span>
+                {% if not is_distributor_user %}
+                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                {% endif %}
+              </button>
+              {% if not is_distributor_user %}
+              <div x-show="open" @click.away="open = false" class="absolute bg-white border rounded shadow mt-1 w-full z-10">
+                <div @click="selected = ''; form.company_type = ''; open = false" class="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm">{% trans 'Select type' %}</div>
+                <div @click="selected = 'main'; form.company_type = 'main'; open = false" class="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm">{% trans 'Main' %}</div>
+                <div @click="selected = 'distributor'; form.company_type = 'distributor'; open = false" class="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm">{% trans 'Distributor' %}</div>
+                <div @click="selected = 'enduser'; form.company_type = 'enduser'; open = false" class="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm">{% trans 'End User' %}</div>
+              </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+        <!-- 2nd row: Core Business & Related Manager -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700">{% trans 'Core Business' %}</label>
+            <select x-model="form.core_business" class="mt-1 text-sm h-10 w-full rounded border border-blue-100 shadow-sm focus:ring-blue-500 focus:border-blue-500">
+              <option value="">{% trans 'Select Core Business' %}</option>
+              {% for cb in core_businesses %}
+                <option value="{{ cb.id }}">{{ cb.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700">{% trans 'Related Company' %}</label>
+            <select x-model="form.related_company" 
+                    class="mt-1 text-sm h-10 w-full rounded border border-blue-100 shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                    {% if companies|length == 1 %}disabled{% endif %}>
+              <option value="">{% trans 'Select Related Company' %}</option>
+              {% for company in companies %}
+                <option value="{{ company.id }}" {% if companies|length == 1 %}selected{% endif %}>{{ company.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+        <!-- 3rd row: Related Manager -->
+        <div class="grid grid-cols-1 md:grid-cols-1 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700">{% trans 'Related Manager' %}</label>
+            <select x-model="form.related_manager" 
+                    class="mt-1 text-sm h-10 w-full rounded border border-blue-100 shadow-sm focus:ring-blue-500 focus:border-blue-500 {% if is_distributor_user %}bg-gray-100{% endif %}"
+                    {% if is_distributor_user %}disabled{% endif %}>
+              <option value="">{% trans 'Select Manager' %}</option>
+              {% for manager in managers %}
+                <option value="{{ manager.id }}" {% if default_related_manager_id and manager.id|stringformat:"s" == default_related_manager_id|stringformat:"s" %}selected{% endif %}>{{ manager.full_name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+        <!-- 3rd row: Email & Telephone -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700">{% trans 'Email' %}</label>
+            <input type="email" x-model="form.email" class="pl-10 mt-1 text-sm h-10 w-full rounded border border-blue-100 shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="{% trans 'Enter email' %}">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700">{% trans 'Telephone' %}</label>
+            <input type="text" x-model="form.telephone" class="pl-10 mt-1 text-sm h-10 w-full rounded border border-blue-100 shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="{% trans 'Enter telephone' %}">
+          </div>
+        </div>
+        <!-- 4th row: Fancy Active Toggle -->
+        <div class="flex items-center mt-6">
+          <label class="inline-flex items-center cursor-pointer">
+            <input type="checkbox" x-model="form.active" class="sr-only peer">
+            <div class="w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 transition-all duration-300 peer-checked:bg-blue-600 relative">
+              <div class="absolute left-1 top-1 w-4 h-4 bg-white rounded-full shadow transition-all duration-300 peer-checked:translate-x-5"></div>
+            </div>
+            <span class="ml-3 text-sm font-medium text-gray-700">{% trans 'Active' %}</span>
+          </label>
+        </div>
+      </div>
+      <!-- Contacts Tab -->
+      <div x-show="tab === 'contacts'" class="space-y-4">
+        <template x-for="(contact, idx) in form.contacts" :key="idx">
+          <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-2 bg-gray-50 p-4 rounded-lg border">
+            <div class="relative">
+              
+              <input type="text" x-model="contact.full_name" placeholder="{% trans 'Full Name' %}" class="pl-10 mt-1 text-sm h-10 w-full rounded border border-blue-100 shadow-sm focus:ring-blue-500 focus:border-blue-500">
+            </div>
+            <input type="text" x-model="contact.title" placeholder="{% trans 'Title' %}" class="pl-10 mt-1 text-sm h-10 w-full rounded border border-blue-100 shadow-sm focus:ring-blue-500 focus:border-blue-500">
+            <input type="email" x-model="contact.email" placeholder="{% trans 'Email' %}" class="pl-10 mt-1 text-sm h-10 w-full rounded border border-blue-100 shadow-sm focus:ring-blue-500 focus:border-blue-500">
+            <input type="text" x-model="contact.telephone" placeholder="{% trans 'Telephone' %}" class="pl-10 mt-1 text-sm h-10 w-full rounded border border-blue-100 shadow-sm focus:ring-blue-500 focus:border-blue-500">
+            <div class="flex justify-end items-center col-span-full">
+              <button type="button" @click="removeContact(idx)" class="text-red-500 hover:text-red-700 ml-2">{% trans 'Remove' %}</button>
+            </div>
+          </div>
+        </template>
+        <button type="button" @click="addContact" class="bg-blue-100 text-blue-700 px-4 py-2 rounded hover:bg-blue-200 flex items-center space-x-2">
+          <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span>{% trans 'Add Contact' %}</span>
+        </button>
+      </div>
+      <!-- Addresses Tab -->
+      <div x-show="tab === 'addresses'" class="space-y-4">
+        <template x-for="(address, idx) in form.addresses" :key="idx">
+          <div class="bg-gray-50 p-4 rounded-lg border mb-2">
+            <!-- 1st row: name/country/city -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-2">
+              <div>
+
+                <label class="block text-sm font-medium text-gray-700">{% trans 'Address Name' %}</label>
+                <input type="text" x-model="address.name" placeholder="{% trans 'Address Name' %}" class="pl-10 mt-1 text-sm h-10 w-full rounded border border-blue-100 shadow-sm focus:ring-blue-500 focus:border-blue-500">
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700">{% trans 'Country' %}</label>
+                <select x-model="address.country" @change="fetchCities(idx)" class="mt-1 text-sm h-10 w-full rounded border border-blue-100 shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                  <option value="">{% trans 'Select Country' %}</option>
+                  <template x-for="country in countries" :key="country.id">
+                    <option :value="country.id" x-text="country.name"></option>
+                  </template>
+                </select>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700">{% trans 'City' %}</label>
+                <select x-model="address.city" @change="fetchCounties(idx)" class="mt-1 text-sm h-10 w-full rounded border border-blue-100 shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                  <option value="">{% trans 'Select City' %}</option>
+                  <template x-for="city in address.cities || []" :key="city.id">
+                    <option :value="city.id" x-text="city.name"></option>
+                  </template>
+                </select>
+              </div>
+            </div>
+            <!-- 2nd row: county/district/zipcode -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-2">
+              <div>
+                <label class="block text-sm font-medium text-gray-700">{% trans 'County' %}</label>
+                <select x-model="address.county" @change="fetchDistricts(idx)" class="mt-1 text-sm h-10 w-full rounded border border-blue-100 shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                  <option value="">{% trans 'Select County' %}</option>
+                  <template x-for="county in address.counties || []" :key="county.id">
+                    <option :value="county.id" x-text="county.name"></option>
+                  </template>
+                </select>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700">{% trans 'District' %}</label>
+                <select x-model="address.district" class="mt-1 text-sm h-10 w-full rounded border border-blue-100 shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                  <option value="">{% trans 'Select District' %}</option>
+                  <template x-for="district in address.districts || []" :key="district.id">
+                    <option :value="district.id" x-text="district.name"></option>
+                  </template>
+                </select>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700">{% trans 'Zipcode' %}</label>
+                <input type="text" x-model="address.zipcode" placeholder="{% trans 'Zipcode' %}" class="mt-1 text-sm h-10 w-full rounded border border-blue-100 shadow-sm focus:ring-blue-500 focus:border-blue-500">
+              </div>
+            </div>
+            <!-- 3rd row: address (large) -->
+            <div class="mb-2">
+              <label class="block text-sm font-medium text-gray-700">{% trans 'Address' %}</label>
+              <textarea x-model="address.address" placeholder="{% trans 'Enter full address' %}" rows="3" class="mt-1 text-sm w-full rounded border border-blue-100 shadow-sm focus:ring-blue-500 focus:border-blue-500"></textarea>
+            </div>
+            <div class="flex justify-end items-center col-span-full">
+              <button type="button" @click="removeAddress(idx)" class="text-red-500 hover:text-red-700 ml-2">{% trans 'Remove' %}</button>
+            </div>
+          </div>
+        </template>
+        <button type="button" @click="addAddress" class="bg-blue-100 text-blue-700 px-4 py-2 rounded hover:bg-blue-200 flex items-center space-x-2">
+          <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span>{% trans 'Add Address' %}</span>
+        </button>
+      </div>
+    </div>
+    <div class="mt-8 flex justify-end">
+  <a href="{% url 'customer:customer_list' %}" class="bg-gray-200 text-gray-700 px-6 py-2 rounded hover:bg-gray-300 font-semibold mr-3 flex items-center">{% trans 'Cancel' %}</a>
+  <button type="submit" class="bg-primary-600 text-white px-6 py-2 rounded hover:bg-primary-700 font-semibold">{% trans 'Create Customer' %}</button>
+    </div>
+  </form>
+</div>
+
+<script>
+function customerForm() {
+  return {
+    tab: 'general',
+    form: {
+      name: '',
+      company_type: '',
+      core_business: '',
+      related_company: '',
+      related_manager: '',
+      email: '',
+      telephone: '',
+      active: true,
+      contacts: [],
+      addresses: []
+    },
+    countries: [],
+    coreBusinesses: [],
+    managers: [],
+    companies: [],
+    init() {
+      // Use injected JSON if available, otherwise fetch
+      const managersData = document.getElementById('managers-data');
+      const coreBusinessesData = document.getElementById('core-businesses-data');
+      const countriesData = document.getElementById('countries-data');
+      const companiesData = document.getElementById('companies-data');
+      
+      if (managersData) {
+        this.managers = JSON.parse(managersData.textContent);
+        console.log('Managers loaded:', this.managers);
+        if (this.managers.length > 0) {
+          console.log('Manager ID type:', typeof this.managers[0].id, 'Sample:', this.managers[0].id);
+        }
+      } else {
+        this.fetchManagers();
+      }
+      if (coreBusinessesData) {
+        this.coreBusinesses = JSON.parse(coreBusinessesData.textContent);
+      } else {
+        this.fetchCoreBusinesses();
+      }
+      if (countriesData) {
+        this.countries = JSON.parse(countriesData.textContent);
+      } else {
+        this.fetchCountries();
+      }
+      if (companiesData) {
+        this.companies = JSON.parse(companiesData.textContent);
+        // Auto-select if only one company (for distributor users)
+        if (this.companies.length === 1) {
+          this.form.related_company = this.companies[0].id.toString();
+        }
+      }
+      
+      // Auto-set values for distributor users
+      const userContextData = document.getElementById('user-context-data');
+      if (userContextData) {
+        const userContext = JSON.parse(userContextData.textContent);
+        if (userContext.is_distributor_user) {
+          this.form.company_type = 'enduser';
+          if (userContext.default_related_manager_id) {
+            this.form.related_manager = userContext.default_related_manager_id;
+          }
+        }
+      }
+    },
+    fetchCoreBusinesses() {
+      fetch('/customer/api/core-businesses/')
+        .then(res => res.json())
+        .then(data => { this.coreBusinesses = data; });
+    },
+    fetchManagers() {
+      fetch('/customer/api/managers/')
+        .then(res => res.json())
+        .then(data => { this.managers = data; });
+    },
+    fetchCountries() {
+      fetch('/customer/api/countries/')
+        .then(res => res.json())
+        .then(data => { this.countries = data; });
+    },
+    fetchCities(idx) {
+      const countryId = this.form.addresses[idx].country;
+      fetch(`/customer/api/cities/?country=${countryId}`)
+        .then(res => res.json())
+        .then(data => { this.form.addresses[idx].cities = data; });
+    },
+    fetchCounties(idx) {
+      const cityId = this.form.addresses[idx].city;
+      fetch(`/customer/api/counties/?city=${cityId}`)
+        .then(res => res.json())
+        .then(data => { this.form.addresses[idx].counties = data; });
+    },
+    fetchDistricts(idx) {
+      const countyId = this.form.addresses[idx].county;
+      fetch(`/customer/api/districts/?county=${countyId}`)
+        .then(res => res.json())
+        .then(data => { this.form.addresses[idx].districts = data; });
+    },
+    addContact() {
+      this.form.contacts.push({ full_name: '', title: '', email: '', telephone: '' });
+    },
+    removeContact(idx) {
+      const confirmed = confirm('{% trans "Are you sure you want to remove this contact?" %}');
+      if (confirmed) {
+        this.form.contacts.splice(idx, 1);
+      }
+    },
+    addAddress() {
+      this.form.addresses.push({ name: '', address: '', country: '', city: '', county: '', district: '', zipcode: '', cities: [], counties: [], districts: [] });
+    },
+    removeAddress(idx) {
+      const confirmed = confirm('{% trans "Are you sure you want to remove this address?" %}');
+      if (confirmed) {
+        this.form.addresses.splice(idx, 1);
+      }
+    },
+    submitForm() {
+      // Form will submit naturally since we removed @submit.prevent
+      // The hidden fields will carry all the Alpine.js data to the backend
+      return true;
+    }
+  }
+}
+</script>
+{% endblock %}
