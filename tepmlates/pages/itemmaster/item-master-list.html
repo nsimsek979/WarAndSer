@@ -70,6 +70,7 @@
                              <th class="px-6 py-4 text-left border-b border-gray-200">{% trans "Brand" %}</th>
                              <th class="px-6 py-4 text-left border-b border-gray-200">{% trans "Stock Type" %}</th>
                              <th class="px-6 py-4 text-left border-b border-gray-200">{% trans "Status" %}</th>
+                             <th class="px-6 py-4 text-center border-b border-gray-200">{% trans "Inventory" %}</th>
                              <th class="px-6 py-4 text-left border-b border-gray-200"></th>
                      </thead>
                      <tbody>
@@ -114,6 +115,26 @@
                                      <span class="inline-block bg-gray-200 text-gray-700 px-2 py-0.5 rounded text-xs font-semibold">{{ item.status.status }}</span>
                                  {% endif %}
                              </td>
+                             <td class="px-6 py-3 border-b border-r border-gray-100 bg-white text-center">
+                                 <div class="flex items-center justify-center space-x-1">
+                                     <a href="{% url 'item-master:inventory_item_list' %}?item_master={{ item.id }}" 
+                                        class="inline-flex items-center space-x-1 bg-blue-100 text-blue-800 hover:bg-blue-200 px-2 py-0.5 rounded text-xs font-semibold transition"
+                                        title="{% trans 'View Inventory Items' %}">
+                                         <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                             <path d="M4 6h16M4 10h16M4 14h16M4 18h16" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                         </svg>
+                                         <span>{{ item.inventory_count|default:0 }}</span>
+                                     </a>
+                                     {% if item.inventory_count > 0 %}
+                                     <span class="bg-green-100 text-green-700 px-1.5 py-0.5 rounded text-xs font-medium">
+                                         {{ item.available_count|default:0 }}
+                                     </span>
+                                     <span class="bg-orange-100 text-orange-700 px-1.5 py-0.5 rounded text-xs font-medium">
+                                         {{ item.in_use_count|default:0 }}
+                                     </span>
+                                     {% endif %}
+                                 </div>
+                             </td>
                              <td class="px-6 py-3 border-b bg-white text-right">
                                  <div class="flex items-center justify-end space-x-2">
                                      <a href="{% url 'item-master:item_master_detail' item.id %}" class="inline-flex items-center px-2 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded text-xs font-semibold transition" title="{% trans 'View' %}">
@@ -127,7 +148,7 @@
                          </tr>
                          {% empty %}
                          <tr>
-                             <td colspan="6" class="text-center py-8 text-gray-500">{% trans "no_data" %}</td>
+                             <td colspan="7" class="text-center py-8 text-gray-500">{% trans "no_data" %}</td>
                          </tr>
                          {% endfor %}
                      </tbody>

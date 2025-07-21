@@ -89,6 +89,79 @@ class WarrantyValue(models.Model):
     def __str__(self):
         return f"{self.warranty_type}: {self.value}"
 
+class ServicePeriodType(models.Model):
+    """Servis periyodu türleri (Ay bazlı, Çalışma saati bazlı, vb.)"""
+    type = models.CharField(max_length=100, help_text="Örn: Ay bazlı, Çalışma saati bazlı, Kilometre bazlı")
+    unit = models.CharField(max_length=50, help_text="Örn: ay, saat, km")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = 'Servis Periyodu Türü'
+        verbose_name_plural = 'Servis Periyodu Türleri'
+
+    def __str__(self):
+        return f"{self.type} ({self.unit})"
+
+class ServicePeriodValue(models.Model):
+    """Servis periyodu değerleri"""
+    service_period_type = models.ForeignKey(ServicePeriodType, on_delete=models.CASCADE)
+    value = models.FloatField(help_text="Örn: 6 ay, 3000 saat, 10000 km")
+    description = models.CharField(max_length=200, blank=True, help_text="Opsiyonel açıklama")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = 'Servis Periyodu Değeri'
+        verbose_name_plural = 'Servis Periyodu Değerleri'
+
+    def __str__(self):
+        return f"{self.value} {self.service_period_type.unit} - {self.service_period_type.type}"
+
+class MaintenanceSchedule(models.Model):
+    """Ana bakım programı - hangi ürün için hangi servis periyotları geçerli"""
+    item_master = models.ForeignKey('ItemMaster', on_delete=models.CASCADE, related_name='maintenance_schedules')
+    service_period_value = models.ForeignKey(ServicePeriodValue, on_delete=models.CASCADE)
+    is_critical = models.BooleanField(default=True, help_text="Kritik bakım mı?")
+    maintenance_description = models.TextField(blank=True, help_text="Bakım açıklaması")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = 'Bakım Programı'
+        verbose_name_plural = 'Bakım Programları'
+        unique_together = ('item_master', 'service_period_value')
+
+    def clean(self):
+        """Validate that no duplicate service period types exist for the same item"""
+        from django.core.exceptions import ValidationError
+        
+        if self.item_master and self.service_period_value:
+            # Check for existing maintenance schedules with the same service period type
+            existing_schedules = MaintenanceSchedule.objects.filter(
+                item_master=self.item_master,
+                service_period_value__service_period_type=self.service_period_value.service_period_type
+            )
+            
+            # If updating, exclude the current instance
+            if self.pk:
+                existing_schedules = existing_schedules.exclude(pk=self.pk)
+            
+            if existing_schedules.exists():
+                existing_schedule = existing_schedules.first()
+                raise ValidationError({
+                    'service_period_value': f'Bu item için "{self.service_period_value.service_period_type.type}" '
+                                          f'tipinde zaten bir bakım programı var: '
+                                          f'{existing_schedule.service_period_value.value} {existing_schedule.service_period_value.service_period_type.unit}'
+                })
+
+    def save(self, *args, **kwargs):
+        self.clean()
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.item_master.name} - {self.service_period_value}"
+
 class ServiceForm(models.Model):
     name = models.CharField(max_length=100)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -116,7 +189,7 @@ class AttributeType(models.Model):
 class AttributeUnit(models.Model):
     """Units of measurement for attributes"""
     name = models.CharField(max_length=50, unique=True)
-    symbol = models.CharField(max_length=10)
+    symbol = models.CharField(max_length=10, unique=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -127,6 +200,45 @@ class AttributeUnit(models.Model):
 
     def __str__(self):
         return f"{self.name} ({self.symbol})"
+
+
+class AttributeTypeUnit(models.Model):
+    """Relationship between AttributeType and AttributeUnit"""
+    attribute_type = models.ForeignKey(
+        AttributeType, 
+        on_delete=models.CASCADE, 
+        related_name='type_units'
+    )
+    attribute_unit = models.ForeignKey(
+        AttributeUnit, 
+        on_delete=models.CASCADE, 
+        related_name='unit_types'
+    )
+    is_default = models.BooleanField(
+        default=False, 
+        help_text="Is this the default unit for this attribute type?"
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = 'Attribute Type Unit'
+        verbose_name_plural = 'Attribute Type Units'
+        unique_together = ('attribute_type', 'attribute_unit')
+        ordering = ['attribute_type__name', '-is_default', 'attribute_unit__name']
+
+    def __str__(self):
+        default_text = " (Default)" if self.is_default else ""
+        return f"{self.attribute_type.name} - {self.attribute_unit.name}{default_text}"
+
+    def save(self, *args, **kwargs):
+        # If this is set as default, remove default from other units of the same type
+        if self.is_default:
+            AttributeTypeUnit.objects.filter(
+                attribute_type=self.attribute_type,
+                is_default=True
+            ).exclude(pk=self.pk).update(is_default=False)
+        super().save(*args, **kwargs)
 
 class ItemSparePart(models.Model):
     main_item = models.ForeignKey('ItemMaster', on_delete=models.CASCADE, related_name='main_item_spare_parts_set')
@@ -166,6 +278,12 @@ class ItemMaster(models.Model):
         ServiceForm, 
         blank=True
     )
+    service_periods = models.ManyToManyField(
+        ServicePeriodValue,
+        through='MaintenanceSchedule',
+        blank=True,
+        help_text="Bu ürün için geçerli servis periyotları"
+    )
     
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -190,24 +308,26 @@ class InventoryItem(models.Model):
     qr_code_image = models.ImageField(upload_to=get_qrcode_upload_path, null=True, blank=True)
 
     def __str__(self):
-        return f"{self.name.name} - {self.item_code}"
+        shortcode = self.name.shortcode if self.name.shortcode else "NO-CODE"
+        serial = self.serial_no if self.serial_no else f"INV-{self.pk}"
+        return f"{shortcode} - {serial}"
 
     def generate_qr_code(self):
         """Generate a QR code and save it to the qr_code_image field"""
-        if not self.item_code:
-            self.item_code = f"INV-{self.pk or 'TEMP'}"
+        if not self.serial_no:
+            self.serial_no = f"INV-{self.pk or 'TEMP'}"
         
         # Create QR code data (you can customize this JSON structure)
         qr_data = {
             'id': self.id,
-            'code': self.item_code,
+            'code': self.serial_no,
             'name': self.name.name,
             'serial': self.serial_no,
             'production_date': self.production_date.isoformat() if self.production_date else None
         }
         
         # Convert to string for QR code
-        qr_string = f"ID:{self.id}|CODE:{self.item_code}|NAME:{self.name.name}|SERIAL:{self.serial_no}"
+        qr_string = f"ID:{self.id}|CODE:{self.serial_no}|NAME:{self.name.name}|SERIAL:{self.serial_no}"
         
         # Create QR code
         qr = qrcode.QRCode(
@@ -228,7 +348,7 @@ class InventoryItem(models.Model):
         qr_buffer.seek(0)
         
         # Save to model field
-        filename = f"{self.item_code}_qr.png"
+        filename = f"{self.serial_no}_qr.png"
         self.qr_code_image.save(
             filename,
             File(qr_buffer),
@@ -236,8 +356,8 @@ class InventoryItem(models.Model):
         )
     
     def save(self, *args, **kwargs):
-        if not self.item_code:
-            self.item_code = f"INV-{self.pk or 'TEMP'}"
+        if not self.serial_no:
+            self.serial_no = f"INV-{self.pk or 'TEMP'}"
         
         # Save first to get an ID
         is_new = self.pk is None
@@ -272,8 +392,43 @@ class InventoryItemAttribute(models.Model):
         verbose_name = 'Item Attribute'
         verbose_name_plural = 'Item Attributes'
         ordering = ['attribute_type__name']
-        unique_together = ('inventory_item', 'attribute_type', 'unit', 'value')
+        # Removed unique_together to prevent deletion issues
+
+    def clean(self):
+        """Validate that the unit is compatible with the selected attribute type"""
+        from django.core.exceptions import ValidationError
+        
+        if self.unit and self.attribute_type:
+            # Check if there's a relationship between the attribute type and unit
+            if not AttributeTypeUnit.objects.filter(
+                attribute_type=self.attribute_type,
+                attribute_unit=self.unit
+            ).exists():
+                # Get available units for this attribute type
+                available_units = AttributeUnit.objects.filter(
+                    unit_types__attribute_type=self.attribute_type
+                ).values_list('name', flat=True)
+                
+                raise ValidationError({
+                    'unit': f'Unit "{self.unit.name}" is not compatible with attribute type "{self.attribute_type.name}". '
+                           f'Available units: {", ".join(available_units) if available_units else "None"}'
+                })
+
+    def save(self, *args, **kwargs):
+        # Only validate if both attribute_type and unit are set
+        if self.attribute_type and self.unit:
+            self.clean()
+        super().save(*args, **kwargs)
 
     def __str__(self):
         unit_display = f" {self.unit.symbol}" if self.unit else ""
-        return f"{self.attribute_type}: {self.value}{unit_display}"
+        attr_name = self.attribute_type.name if self.attribute_type else "Unknown"
+        return f"{attr_name}: {self.value}{unit_display}"
+
+    def get_available_units(self):
+        """Get available units for the current attribute type"""
+        if self.attribute_type:
+            return AttributeUnit.objects.filter(
+                unit_types__attribute_type=self.attribute_type
+            ).order_by('unit_types__is_default', 'name')
+        return AttributeUnit.objects.none()

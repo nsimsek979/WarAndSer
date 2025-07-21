@@ -1,9 +1,10 @@
 {% extends "base.html" %}
 {% load i18n %}
+{% load custom_filters %}
 
 {% block title %}{{ company.name }}{% endblock %}
 {% block content %}
-<div class="max-w-5xl mx-auto mt-8 bg-white rounded-xl shadow p-8">
+<div class="max-w-7xl mx-auto mt-8 bg-white rounded-xl shadow p-8">
   <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-8 border-b border-gray-200 pb-4">
     <div>
       <h2 class="text-3xl font-bold text-gray-800 mb-2">{{ company.name }}</h2>
@@ -66,6 +67,257 @@
       <div class="text-gray-400">{% trans 'No contacts found.' %}</div>
       {% endfor %}
     </div>
+  </div>
+
+  <!-- Working Hours Section -->
+  <div class="mt-8 border-t border-gray-200 pt-8">
+    <h3 class="text-xl font-semibold mb-4 flex items-center gap-2">
+      <i class="fas fa-clock text-green-600"></i> {% trans 'Working Hours Configuration' %}
+    </h3>
+    {% if company.working_hours %}
+      <div class="bg-green-50 border border-green-200 rounded-lg p-6">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <!-- Daily Working Hours -->
+          <div class="text-center">
+            <div class="text-3xl font-bold text-green-600 mb-2">{{ company.working_hours.daily_working_hours }}</div>
+            <div class="text-sm text-gray-600">{% trans 'Hours per Day' %}</div>
+          </div>
+          
+          <!-- Weekly Working Days -->
+          <div class="text-center">
+            <div class="text-3xl font-bold text-green-600 mb-2">{{ company.working_hours.get_working_days_per_week }}</div>
+            <div class="text-sm text-gray-600">{% trans 'Days per Week' %}</div>
+          </div>
+          
+          <!-- Weekly Total Hours -->
+          <div class="text-center">
+            <div class="text-3xl font-bold text-green-600 mb-2">{{ company.working_hours.weekly_working_hours }}</div>
+            <div class="text-sm text-gray-600">{% trans 'Hours per Week' %}</div>
+          </div>
+        </div>
+        
+        <!-- Weekend Work Status -->
+        <div class="mt-6 flex flex-wrap gap-4 justify-center">
+          <div class="flex items-center gap-2">
+            {% if company.working_hours.working_on_saturday %}
+              <i class="fas fa-check-circle text-green-500"></i>
+              <span class="text-green-700 font-medium">{% trans 'Working on Saturday' %}</span>
+            {% else %}
+              <i class="fas fa-times-circle text-gray-400"></i>
+              <span class="text-gray-500">{% trans 'Not working on Saturday' %}</span>
+            {% endif %}
+          </div>
+          <div class="flex items-center gap-2">
+            {% if company.working_hours.working_on_sunday %}
+              <i class="fas fa-check-circle text-green-500"></i>
+              <span class="text-green-700 font-medium">{% trans 'Working on Sunday' %}</span>
+            {% else %}
+              <i class="fas fa-times-circle text-gray-400"></i>
+              <span class="text-gray-500">{% trans 'Not working on Sunday' %}</span>
+            {% endif %}
+          </div>
+        </div>
+        
+        <!-- Info Note -->
+        <div class="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+          <div class="flex items-start gap-2">
+            <i class="fas fa-info-circle text-blue-500 mt-0.5"></i>
+            <div class="text-sm text-blue-700">
+              <strong>{% trans 'Usage:' %}</strong> {% trans 'These working hours are used to calculate service and warranty periods based on actual equipment usage time.' %}
+            </div>
+          </div>
+        </div>
+      </div>
+    {% else %}
+      <div class="bg-gray-50 border border-gray-200 rounded-lg p-6 text-center">
+        <i class="fas fa-clock text-gray-400 text-4xl mb-4"></i>
+        <div class="text-gray-500 mb-4">{% trans 'Working hours not configured for this customer.' %}</div>
+        <a href="{% url 'customer:customer_update' company.pk %}" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded text-sm inline-flex items-center gap-2">
+          <i class="fas fa-plus"></i> {% trans 'Configure Working Hours' %}
+        </a>
+      </div>
+    {% endif %}
+  </div>
+
+  <!-- Installations Section -->
+  <div class="mt-8 border-t border-gray-200 pt-8">
+    <h3 class="text-xl font-semibold mb-4 flex items-center gap-2">
+      <i class="fas fa-cogs text-blue-600"></i> 
+      {% if company.company_type == 'distributor' %}
+        {% trans 'Installations (Company & Related End Users)' %}
+      {% else %}
+        {% trans 'Installations' %}
+      {% endif %}
+    </h3>
+    {% if installations %}
+      <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+        <div class="overflow-x-auto min-w-full">
+          <table class="w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-48">{% trans 'Customer' %}</th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans 'Product' %}</th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-32">{% trans 'Serial No' %}</th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-32">{% trans 'Setup Date' %}</th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-40">{% trans 'Next Warranty End' %}</th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-40">{% trans 'Next Service Date' %}</th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-24">{% trans 'Actions' %}</th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+              {% for installation in installations %}
+              <tr class="hover:bg-gray-50 transition-colors">
+                <td class="px-4 py-4 whitespace-nowrap">
+                  <div>
+                    <div class="text-sm font-medium text-gray-900">{{ installation.customer.name }}</div>
+                    {% if installation.customer.phone %}
+                    <div class="text-sm text-gray-500">{{ installation.customer.phone }}</div>
+                    {% endif %}
+                  </div>
+                </td>
+                <td class="px-4 py-4 whitespace-nowrap">
+                  <div>
+                    <div class="text-sm font-medium text-gray-900">{{ installation.inventory_item.name.name }}</div>
+                    {% if installation.inventory_item.name.brand_name %}
+                    <div class="text-sm text-gray-500">{{ installation.inventory_item.name.brand_name }}</div>
+                    {% endif %}
+                  </div>
+                </td>
+                <td class="px-4 py-4 whitespace-nowrap">
+                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                    {{ installation.inventory_item.serial_no|default:"N/A" }}
+                  </span>
+                </td>
+                <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
+                  {{ installation.setup_date|date:"d.m.Y" }}
+                </td>
+                <td class="px-4 py-4 whitespace-nowrap">
+                  {% if installation.next_warranty_end %}
+                    <div class="text-sm text-gray-900">{{ installation.next_warranty_end|date:"d.m.Y" }}</div>
+                    {% now "Y-m-d" as today %}
+                    {% if installation.next_warranty_end|date:"Y-m-d" > today %}
+                      <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                        {% trans 'Active' %}
+                      </span>
+                    {% else %}
+                      <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                        {% trans 'Expired' %}
+                      </span>
+                    {% endif %}
+                  {% else %}
+                    <span class="text-sm text-gray-500">{% trans 'No warranty' %}</span>
+                  {% endif %}
+                </td>
+                <td class="px-4 py-4 whitespace-nowrap">
+                  {% if installation.next_service_date %}
+                    <div class="text-sm text-gray-900">{{ installation.next_service_date|date:"d.m.Y" }}</div>
+                    {% now "Y-m-d" as today %}
+                    {% if installation.next_service_date|date:"Y-m-d" <= today %}
+                      <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                        {% trans 'Overdue' %}
+                      </span>
+                    {% elif installation.next_service_date|timeuntil|slice:":1" == "1" %}
+                      <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                        {% trans 'This Week' %}
+                      </span>
+                    {% else %}
+                      <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                        {% trans 'Scheduled' %}
+                      </span>
+                    {% endif %}
+                  {% else %}
+                    <span class="text-sm text-gray-500">{% trans 'No service' %}</span>
+                  {% endif %}
+                </td>
+                <td class="px-4 py-4 whitespace-nowrap text-sm font-medium">
+                  <a href="{% url 'warranty_and_services:installation_detail' installation.id %}" 
+                     class="inline-flex items-center px-2 py-1 border border-gray-300 shadow-sm text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+                    <i class="fas fa-eye"></i>
+                  </a>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        
+        <!-- Pagination -->
+        {% if is_paginated %}
+        <div class="bg-white px-4 py-3 border-t border-gray-200 flex items-center justify-between">
+          <div class="flex-1 flex justify-between sm:hidden">
+            {% if page_obj.has_previous %}
+            <a href="?page={{ page_obj.previous_page_number }}" 
+               class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+              {% trans 'Previous' %}
+            </a>
+            {% endif %}
+            {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}" 
+               class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+              {% trans 'Next' %}
+            </a>
+            {% endif %}
+          </div>
+          <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+            <div>
+              <p class="text-sm text-gray-700">
+                <span class="font-medium">{{ page_obj.start_index }}</span>
+                -
+                <span class="font-medium">{{ page_obj.end_index }}</span>
+                {% trans 'of' %}
+                <span class="font-medium">{{ page_obj.paginator.count }}</span>
+                {% trans 'installations' %}
+              </p>
+            </div>
+            <div>
+              <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                {% if page_obj.has_previous %}
+                <a href="?page={{ page_obj.previous_page_number }}" 
+                   class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                  <span class="sr-only">{% trans 'Previous' %}</span>
+                  <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
+                  </svg>
+                </a>
+                {% endif %}
+                
+                {% for num in page_obj.paginator.page_range %}
+                {% if page_obj.number == num %}
+                <span class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-blue-50 text-sm font-medium text-blue-600">
+                  {{ num }}
+                </span>
+                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                <a href="?page={{ num }}" 
+                   class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+                  {{ num }}
+                </a>
+                {% endif %}
+                {% endfor %}
+                
+                {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}" 
+                   class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                  <span class="sr-only">{% trans 'Next' %}</span>
+                  <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                  </svg>
+                </a>
+                {% endif %}
+              </nav>
+            </div>
+          </div>
+        </div>
+        {% endif %}
+      </div>
+    {% else %}
+      <div class="bg-gray-50 border border-gray-200 rounded-lg p-6 text-center">
+        <i class="fas fa-cogs text-gray-400 text-4xl mb-4"></i>
+        <div class="text-gray-500 mb-4">{% trans 'No installations found for this customer.' %}</div>
+        <a href="{% url 'warranty_and_services:installation_list' %}" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded text-sm inline-flex items-center gap-2">
+          <i class="fas fa-plus"></i> {% trans 'View All Installations' %}
+        </a>
+      </div>
+    {% endif %}
   </div>
 </div>
 {% endblock %}

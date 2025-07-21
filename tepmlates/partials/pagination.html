@@ -8,13 +8,13 @@
     </div>
     <div class="flex space-x-2">
         {% if page_obj.has_previous %}
-            <a href="?page=1{% if search_query %}&search={{ search_query }}{% endif %}{% if current_sort %}&sort={{ current_sort }}{% endif %}{% if current_dir %}&dir={{ current_dir }}{% endif %}" 
+            <a href="?page=1{% if search_query %}&search={{ search_query }}{% endif %}{% if category_filter %}&category={{ category_filter }}{% endif %}{% if brand_filter %}&brand={{ brand_filter }}{% endif %}{% if stock_type_filter %}&stock_type={{ stock_type_filter }}{% endif %}{% if filter_type %}&filter={{ filter_type }}{% endif %}{% if current_sort %}&sort={{ current_sort }}{% endif %}{% if current_dir %}&dir={{ current_dir }}{% endif %}" 
                class="px-3 py-1 border rounded text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-700">
                 &laquo; İlk
             </a>
-            <a href="?page={{ page_obj.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if current_sort %}&sort={{ current_sort }}{% endif %}{% if current_dir %}&dir={{ current_dir }}{% endif %}" 
+            <a href="?page={{ page_obj.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if category_filter %}&category={{ category_filter }}{% endif %}{% if brand_filter %}&brand={{ brand_filter }}{% endif %}{% if stock_type_filter %}&stock_type={{ stock_type_filter }}{% endif %}{% if filter_type %}&filter={{ filter_type }}{% endif %}{% if current_sort %}&sort={{ current_sort }}{% endif %}{% if current_dir %}&dir={{ current_dir }}{% endif %}" 
                class="px-3 py-1 border rounded text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-700">
-                Sonraki
+                Önceki
             </a>
         {% endif %}
 
@@ -24,7 +24,7 @@
                     {{ num }}
                 </span>
             {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
-                <a href="?page={{ num }}{% if search_query %}&search={{ search_query }}{% endif %}{% if current_sort %}&sort={{ current_sort }}{% endif %}{% if current_dir %}&dir={{ current_dir }}{% endif %}" 
+                <a href="?page={{ num }}{% if search_query %}&search={{ search_query }}{% endif %}{% if category_filter %}&category={{ category_filter }}{% endif %}{% if brand_filter %}&brand={{ brand_filter }}{% endif %}{% if stock_type_filter %}&stock_type={{ stock_type_filter }}{% endif %}{% if filter_type %}&filter={{ filter_type }}{% endif %}{% if current_sort %}&sort={{ current_sort }}{% endif %}{% if current_dir %}&dir={{ current_dir }}{% endif %}" 
                    class="px-3 py-1 border rounded text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-700">
                     {{ num }}
                 </a>
@@ -32,11 +32,11 @@
         {% endfor %}
 
         {% if page_obj.has_next %}
-            <a href="?page={{ page_obj.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if current_sort %}&sort={{ current_sort }}{% endif %}{% if current_dir %}&dir={{ current_dir }}{% endif %}" 
+            <a href="?page={{ page_obj.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if category_filter %}&category={{ category_filter }}{% endif %}{% if brand_filter %}&brand={{ brand_filter }}{% endif %}{% if stock_type_filter %}&stock_type={{ stock_type_filter }}{% endif %}{% if filter_type %}&filter={{ filter_type }}{% endif %}{% if current_sort %}&sort={{ current_sort }}{% endif %}{% if current_dir %}&dir={{ current_dir }}{% endif %}" 
                class="px-3 py-1 border rounded text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-700">
                 Sonraki
             </a>
-            <a href="?page={{ page_obj.paginator.num_pages }}{% if search_query %}&search={{ search_query }}{% endif %}{% if current_sort %}&sort={{ current_sort }}{% endif %}{% if current_dir %}&dir={{ current_dir }}{% endif %}" 
+            <a href="?page={{ page_obj.paginator.num_pages }}{% if search_query %}&search={{ search_query }}{% endif %}{% if category_filter %}&category={{ category_filter }}{% endif %}{% if brand_filter %}&brand={{ brand_filter }}{% endif %}{% if stock_type_filter %}&stock_type={{ stock_type_filter }}{% endif %}{% if filter_type %}&filter={{ filter_type }}{% endif %}{% if current_sort %}&sort={{ current_sort }}{% endif %}{% if current_dir %}&dir={{ current_dir }}{% endif %}" 
                class="px-3 py-1 border rounded text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-700">
                 Son &raquo;
             </a>

@@ -248,6 +248,129 @@
             </div>
             {% endif %}
 
+            <!-- Maintenance Schedules -->
+            {% if item.maintenance_schedules.all %}
+            <div class="bg-white rounded-xl border border-gray-200 p-6">
+                <h3 class="text-md font-semibold text-gray-700 mb-4 pb-2 border-b border-gray-200">
+                    <svg class="inline-block w-5 h-5 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    {% trans "Maintenance Schedules" %}
+                </h3>
+                <div class="space-y-3">
+                    {% for schedule in item.maintenance_schedules.all %}
+                    <div class="p-4 border border-gray-200 rounded-lg hover:shadow-sm transition-shadow">
+                        <div class="flex items-start justify-between">
+                            <div class="flex-1">
+                                <div class="flex items-center space-x-3 mb-2">
+                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium 
+                                               {% if schedule.is_critical %}bg-red-100 text-red-800{% else %}bg-green-100 text-green-800{% endif %}">
+                                        {% if schedule.is_critical %}
+                                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L4.314 16.5c-.77.833.192 2.5 1.732 2.5z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                            </svg>
+                                            {% trans "Critical" %}
+                                        {% else %}
+                                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                            </svg>
+                                            {% trans "Standard" %}
+                                        {% endif %}
+                                    </span>
+                                    <span class="text-lg font-semibold text-gray-900">
+                                        {{ schedule.service_period_value.service_period_type.type }}
+                                    </span>
+                                </div>
+                                
+                                <div class="grid grid-cols-2 gap-4 mb-3">
+                                    <div>
+                                        <label class="block text-xs font-medium text-gray-500 mb-1">{% trans "Interval" %}</label>
+                                        <div class="flex items-center space-x-2">
+                                            <span class="text-xl font-bold text-blue-600">
+                                                {% if schedule.service_period_value.value == schedule.service_period_value.value|floatformat:0|add:0 %}
+                                                    {{ schedule.service_period_value.value|floatformat:0 }}
+                                                {% else %}
+                                                    {{ schedule.service_period_value.value }}
+                                                {% endif %}
+                                            </span>
+                                            <span class="text-sm text-gray-600 font-medium">
+                                                {{ schedule.service_period_value.service_period_type.unit }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div>
+                                        <label class="block text-xs font-medium text-gray-500 mb-1">{% trans "Type" %}</label>
+                                        <div class="flex items-center space-x-2">
+                                            {% if 'saat' in schedule.service_period_value.service_period_type.unit|lower or 'hour' in schedule.service_period_value.service_period_type.unit|lower %}
+                                                <svg class="w-5 h-5 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                                </svg>
+                                                <span class="text-sm text-orange-700 font-medium">{% trans "Usage Based" %}</span>
+                                            {% elif 'km' in schedule.service_period_value.service_period_type.unit|lower or 'kilometre' in schedule.service_period_value.service_period_type.unit|lower %}
+                                                <svg class="w-5 h-5 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path d="M13 10V3L4 14h7v7l9-11h-7z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                                </svg>
+                                                <span class="text-sm text-purple-700 font-medium">{% trans "Distance Based" %}</span>
+                                            {% else %}
+                                                <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                                </svg>
+                                                <span class="text-sm text-blue-700 font-medium">{% trans "Time Based" %}</span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                {% if schedule.maintenance_description %}
+                                <div>
+                                    <label class="block text-xs font-medium text-gray-500 mb-1">{% trans "Description" %}</label>
+                                    <p class="text-sm text-gray-700 bg-gray-50 p-2 rounded">{{ schedule.maintenance_description }}</p>
+                                </div>
+                                {% endif %}
+                                
+                                {% if schedule.service_period_value.description %}
+                                <div class="mt-2">
+                                    <span class="inline-flex items-center px-2 py-1 rounded text-xs bg-blue-50 text-blue-700">
+                                        <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        </svg>
+                                        {{ schedule.service_period_value.description }}
+                                    </span>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="mt-3 pt-3 border-t border-gray-100">
+                            <div class="flex justify-between items-center text-xs text-gray-500">
+                                <span>{% trans "Added" %}: {{ schedule.created_at|date:"M d, Y" }}</span>
+                                {% if schedule.updated_at != schedule.created_at %}
+                                    <span>{% trans "Updated" %}: {{ schedule.updated_at|date:"M d, Y" }}</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                
+                <div class="mt-4 p-3 bg-blue-50 rounded-lg">
+                    <div class="flex items-start space-x-2">
+                        <svg class="w-5 h-5 text-blue-500 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <div>
+                            <h4 class="text-sm font-medium text-blue-800">{% trans "Maintenance Info" %}</h4>
+                            <p class="text-xs text-blue-700 mt-1">
+                                {% trans "These schedules define when maintenance should be performed based on time, usage hours, or distance." %}
+                                {% trans "Critical maintenances are marked with priority indicators." %}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
             <!-- Specifications -->
             {% if item.specs.all %}
             <div class="bg-white rounded-xl border border-gray-200 p-6">

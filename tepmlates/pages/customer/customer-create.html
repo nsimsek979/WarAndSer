@@ -59,12 +59,18 @@
         <input type="hidden" :name="`addresses[${idx}][address]`" x-model="address.address">
       </div>
     </template>
+    
+    <!-- Hidden fields for working hours -->
+    <input type="hidden" name="daily_working_hours" x-model="form.working_hours.daily_working_hours">
+    <input type="hidden" name="working_on_saturday" :value="form.working_hours.working_on_saturday ? '1' : '0'">
+    <input type="hidden" name="working_on_sunday" :value="form.working_hours.working_on_sunday ? '1' : '0'">
     <div>
       <div class="border-b border-gray-200 mb-6">
         <nav class="-mb-px flex space-x-8" aria-label="Tabs">
           <a :class="tab === 'general' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'" @click.prevent="tab = 'general'" href="#" class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">{% trans 'General Info' %}</a>
           <a :class="tab === 'contacts' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'" @click.prevent="tab = 'contacts'" href="#" class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">{% trans 'Contacts' %}</a>
           <a :class="tab === 'addresses' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'" @click.prevent="tab = 'addresses'" href="#" class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">{% trans 'Addresses' %}</a>
+          <a :class="tab === 'working_hours' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'" @click.prevent="tab = 'working_hours'" href="#" class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">{% trans 'Working Hours' %}</a>
         </nav>
       </div>
       <!-- General Info Tab -->
@@ -72,39 +78,30 @@
         <!-- 1st row: Name & Company Type -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label class="block text-sm font-medium text-gray-700">{% trans 'Name' %}</label>
+            <label class="block text-xs font-medium text-gray-700">{% trans 'Name' %}</label>
             <div class="relative">
               
-              <input type="text" x-model="form.name" name="name" required class="pl-10 mt-1 text-sm h-10 w-full rounded border border-blue-100 shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="{% trans 'Enter customer name' %}">
+              <input type="text" x-model="form.name" name="name" required class="pl-10 w-full px-2 py-1.5 text-sm border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" placeholder="{% trans 'Enter customer name' %}">
               
             </div>
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700">{% trans 'Company Type' %}</label>
-            <div x-data="{ open: false, selected: form.company_type }" class="relative">
-              <button @click="{% if not is_distributor_user %}open = !open{% endif %}" type="button" 
-                      class="w-full border rounded py-1.5 px-2 text-left bg-white flex justify-between items-center text-sm mt-1 {% if is_distributor_user %}bg-gray-100 cursor-not-allowed{% endif %}">
-                <span x-text="selected ? (selected === 'main' ? '{% trans 'Main' %}' : selected === 'distributor' ? '{% trans 'Distributor' %}' : selected === 'enduser' ? '{% trans 'End User' %}' : '{% trans 'Select type' %}') : '{% trans 'Select type' %}'"></span>
-                {% if not is_distributor_user %}
-                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                {% endif %}
-              </button>
-              {% if not is_distributor_user %}
-              <div x-show="open" @click.away="open = false" class="absolute bg-white border rounded shadow mt-1 w-full z-10">
-                <div @click="selected = ''; form.company_type = ''; open = false" class="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm">{% trans 'Select type' %}</div>
-                <div @click="selected = 'main'; form.company_type = 'main'; open = false" class="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm">{% trans 'Main' %}</div>
-                <div @click="selected = 'distributor'; form.company_type = 'distributor'; open = false" class="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm">{% trans 'Distributor' %}</div>
-                <div @click="selected = 'enduser'; form.company_type = 'enduser'; open = false" class="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm">{% trans 'End User' %}</div>
-              </div>
-              {% endif %}
-            </div>
+            <label class="block text-xs font-medium text-gray-700">{% trans 'Company Type' %}</label>
+            <select x-model="form.company_type" 
+                    class="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 {% if is_distributor_user %}bg-gray-100{% endif %}"
+                    {% if is_distributor_user %}disabled{% endif %}>
+              <option value="">{% trans 'Select type' %}</option>
+              <option value="main">{% trans 'Main' %}</option>
+              <option value="distributor">{% trans 'Distributor' %}</option>
+              <option value="enduser">{% trans 'End User' %}</option>
+            </select>
           </div>
         </div>
         <!-- 2nd row: Core Business & Related Manager -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label class="block text-sm font-medium text-gray-700">{% trans 'Core Business' %}</label>
-            <select x-model="form.core_business" class="mt-1 text-sm h-10 w-full rounded border border-blue-100 shadow-sm focus:ring-blue-500 focus:border-blue-500">
+            <label class="block text-xs font-medium text-gray-700">{% trans 'Core Business' %}</label>
+            <select x-model="form.core_business" class="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
               <option value="">{% trans 'Select Core Business' %}</option>
               {% for cb in core_businesses %}
                 <option value="{{ cb.id }}">{{ cb.name }}</option>
@@ -112,9 +109,9 @@
             </select>
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700">{% trans 'Related Company' %}</label>
+            <label class="block text-xs font-medium text-gray-700">{% trans 'Related Company' %}</label>
             <select x-model="form.related_company" 
-                    class="mt-1 text-sm h-10 w-full rounded border border-blue-100 shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                    class="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                     {% if companies|length == 1 %}disabled{% endif %}>
               <option value="">{% trans 'Select Related Company' %}</option>
               {% for company in companies %}
@@ -126,9 +123,9 @@
         <!-- 3rd row: Related Manager -->
         <div class="grid grid-cols-1 md:grid-cols-1 gap-4">
           <div>
-            <label class="block text-sm font-medium text-gray-700">{% trans 'Related Manager' %}</label>
+            <label class="block text-xs font-medium text-gray-700">{% trans 'Related Manager' %}</label>
             <select x-model="form.related_manager" 
-                    class="mt-1 text-sm h-10 w-full rounded border border-blue-100 shadow-sm focus:ring-blue-500 focus:border-blue-500 {% if is_distributor_user %}bg-gray-100{% endif %}"
+                    class="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 {% if is_distributor_user %}bg-gray-100{% endif %}"
                     {% if is_distributor_user %}disabled{% endif %}>
               <option value="">{% trans 'Select Manager' %}</option>
               {% for manager in managers %}
@@ -140,12 +137,12 @@
         <!-- 3rd row: Email & Telephone -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label class="block text-sm font-medium text-gray-700">{% trans 'Email' %}</label>
-            <input type="email" x-model="form.email" class="pl-10 mt-1 text-sm h-10 w-full rounded border border-blue-100 shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="{% trans 'Enter email' %}">
+            <label class="block text-xs font-medium text-gray-700">{% trans 'Email' %}</label>
+            <input type="email" x-model="form.email" class="pl-10 w-full px-2 py-1.5 text-sm border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" placeholder="{% trans 'Enter email' %}">
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700">{% trans 'Telephone' %}</label>
-            <input type="text" x-model="form.telephone" class="pl-10 mt-1 text-sm h-10 w-full rounded border border-blue-100 shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="{% trans 'Enter telephone' %}">
+            <label class="block text-xs font-medium text-gray-700">{% trans 'Telephone' %}</label>
+            <input type="text" x-model="form.telephone" class="pl-10 w-full px-2 py-1.5 text-sm border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" placeholder="{% trans 'Enter telephone' %}">
           </div>
         </div>
         <!-- 4th row: Fancy Active Toggle -->
@@ -165,11 +162,11 @@
           <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-2 bg-gray-50 p-4 rounded-lg border">
             <div class="relative">
               
-              <input type="text" x-model="contact.full_name" placeholder="{% trans 'Full Name' %}" class="pl-10 mt-1 text-sm h-10 w-full rounded border border-blue-100 shadow-sm focus:ring-blue-500 focus:border-blue-500">
+              <input type="text" x-model="contact.full_name" placeholder="{% trans 'Full Name' %}" class="pl-10 w-full px-2 py-1.5 text-sm border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
             </div>
-            <input type="text" x-model="contact.title" placeholder="{% trans 'Title' %}" class="pl-10 mt-1 text-sm h-10 w-full rounded border border-blue-100 shadow-sm focus:ring-blue-500 focus:border-blue-500">
-            <input type="email" x-model="contact.email" placeholder="{% trans 'Email' %}" class="pl-10 mt-1 text-sm h-10 w-full rounded border border-blue-100 shadow-sm focus:ring-blue-500 focus:border-blue-500">
-            <input type="text" x-model="contact.telephone" placeholder="{% trans 'Telephone' %}" class="pl-10 mt-1 text-sm h-10 w-full rounded border border-blue-100 shadow-sm focus:ring-blue-500 focus:border-blue-500">
+            <input type="text" x-model="contact.title" placeholder="{% trans 'Title' %}" class="pl-10 w-full px-2 py-1.5 text-sm border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+            <input type="email" x-model="contact.email" placeholder="{% trans 'Email' %}" class="pl-10 w-full px-2 py-1.5 text-sm border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+            <input type="text" x-model="contact.telephone" placeholder="{% trans 'Telephone' %}" class="pl-10 w-full px-2 py-1.5 text-sm border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
             <div class="flex justify-end items-center col-span-full">
               <button type="button" @click="removeContact(idx)" class="text-red-500 hover:text-red-700 ml-2">{% trans 'Remove' %}</button>
             </div>
@@ -188,12 +185,12 @@
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-2">
               <div>
 
-                <label class="block text-sm font-medium text-gray-700">{% trans 'Address Name' %}</label>
-                <input type="text" x-model="address.name" placeholder="{% trans 'Address Name' %}" class="pl-10 mt-1 text-sm h-10 w-full rounded border border-blue-100 shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                <label class="block text-xs font-medium text-gray-700">{% trans 'Address Name' %}</label>
+                <input type="text" x-model="address.name" placeholder="{% trans 'Address Name' %}" class="pl-10 w-full px-2 py-1.5 text-sm border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
               </div>
               <div>
-                <label class="block text-sm font-medium text-gray-700">{% trans 'Country' %}</label>
-                <select x-model="address.country" @change="fetchCities(idx)" class="mt-1 text-sm h-10 w-full rounded border border-blue-100 shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                <label class="block text-xs font-medium text-gray-700">{% trans 'Country' %}</label>
+                <select x-model="address.country" @change="fetchCities(idx)" class="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
                   <option value="">{% trans 'Select Country' %}</option>
                   <template x-for="country in countries" :key="country.id">
                     <option :value="country.id" x-text="country.name"></option>
@@ -201,8 +198,8 @@
                 </select>
               </div>
               <div>
-                <label class="block text-sm font-medium text-gray-700">{% trans 'City' %}</label>
-                <select x-model="address.city" @change="fetchCounties(idx)" class="mt-1 text-sm h-10 w-full rounded border border-blue-100 shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                <label class="block text-xs font-medium text-gray-700">{% trans 'City' %}</label>
+                <select x-model="address.city" @change="fetchCounties(idx)" class="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
                   <option value="">{% trans 'Select City' %}</option>
                   <template x-for="city in address.cities || []" :key="city.id">
                     <option :value="city.id" x-text="city.name"></option>
@@ -213,8 +210,8 @@
             <!-- 2nd row: county/district/zipcode -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-2">
               <div>
-                <label class="block text-sm font-medium text-gray-700">{% trans 'County' %}</label>
-                <select x-model="address.county" @change="fetchDistricts(idx)" class="mt-1 text-sm h-10 w-full rounded border border-blue-100 shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                <label class="block text-xs font-medium text-gray-700">{% trans 'County' %}</label>
+                <select x-model="address.county" @change="fetchDistricts(idx)" class="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
                   <option value="">{% trans 'Select County' %}</option>
                   <template x-for="county in address.counties || []" :key="county.id">
                     <option :value="county.id" x-text="county.name"></option>
@@ -222,8 +219,8 @@
                 </select>
               </div>
               <div>
-                <label class="block text-sm font-medium text-gray-700">{% trans 'District' %}</label>
-                <select x-model="address.district" class="mt-1 text-sm h-10 w-full rounded border border-blue-100 shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                <label class="block text-xs font-medium text-gray-700">{% trans 'District' %}</label>
+                <select x-model="address.district" class="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
                   <option value="">{% trans 'Select District' %}</option>
                   <template x-for="district in address.districts || []" :key="district.id">
                     <option :value="district.id" x-text="district.name"></option>
@@ -231,13 +228,13 @@
                 </select>
               </div>
               <div>
-                <label class="block text-sm font-medium text-gray-700">{% trans 'Zipcode' %}</label>
-                <input type="text" x-model="address.zipcode" placeholder="{% trans 'Zipcode' %}" class="mt-1 text-sm h-10 w-full rounded border border-blue-100 shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                <label class="block text-xs font-medium text-gray-700">{% trans 'Zipcode' %}</label>
+                <input type="text" x-model="address.zipcode" placeholder="{% trans 'Zipcode' %}" class="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
               </div>
             </div>
             <!-- 3rd row: address (large) -->
             <div class="mb-2">
-              <label class="block text-sm font-medium text-gray-700">{% trans 'Address' %}</label>
+              <label class="block text-xs font-medium text-gray-700">{% trans 'Address' %}</label>
               <textarea x-model="address.address" placeholder="{% trans 'Enter full address' %}" rows="3" class="mt-1 text-sm w-full rounded border border-blue-100 shadow-sm focus:ring-blue-500 focus:border-blue-500"></textarea>
             </div>
             <div class="flex justify-end items-center col-span-full">
@@ -249,6 +246,96 @@
           <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
           <span>{% trans 'Add Address' %}</span>
         </button>
+      </div>
+      
+      <!-- Working Hours Tab -->
+      <div x-show="tab === 'working_hours'" class="space-y-6">
+        <div class="bg-white rounded-lg border border-gray-200 p-6">
+          <div class="flex items-center mb-4">
+            <svg class="w-6 h-6 text-green-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <h3 class="text-lg font-semibold text-gray-900">{% trans 'Working Hours Configuration' %}</h3>
+          </div>
+          
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- Daily Working Hours -->
+            <div class="space-y-2">
+              <label class="block text-sm font-medium text-gray-700">{% trans 'Daily Working Hours' %}</label>
+              <div class="relative">
+                <input 
+                  type="number" 
+                  x-model.number="form.working_hours.daily_working_hours" 
+                  min="1" 
+                  max="24" 
+                  class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                  placeholder="8">
+                <span class="absolute right-3 top-2 text-sm text-gray-500">{% trans 'hours' %}</span>
+              </div>
+              <p class="text-xs text-gray-500">{% trans 'Maximum 24 hours per day' %}</p>
+            </div>
+            
+            <!-- Saturday Work -->
+            <div class="space-y-2">
+              <label class="block text-sm font-medium text-gray-700">{% trans 'Saturday Work' %}</label>
+              <div class="flex items-center space-x-3">
+                <label class="inline-flex items-center cursor-pointer">
+                  <input type="checkbox" x-model="form.working_hours.working_on_saturday" class="sr-only peer">
+                  <div class="w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-4 peer-focus:ring-blue-300 transition-all duration-300 peer-checked:bg-blue-600 relative">
+                    <div class="absolute left-1 top-1 w-4 h-4 bg-white rounded-full shadow transition-all duration-300 peer-checked:translate-x-5"></div>
+                  </div>
+                  <span class="ml-3 text-sm text-gray-700" x-text="form.working_hours.working_on_saturday ? '{% trans "Working" %}' : '{% trans "Not Working" %}'"></span>
+                </label>
+              </div>
+            </div>
+            
+            <!-- Sunday Work -->
+            <div class="space-y-2">
+              <label class="block text-sm font-medium text-gray-700">{% trans 'Sunday Work' %}</label>
+              <div class="flex items-center space-x-3">
+                <label class="inline-flex items-center cursor-pointer">
+                  <input type="checkbox" x-model="form.working_hours.working_on_sunday" class="sr-only peer">
+                  <div class="w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-4 peer-focus:ring-blue-300 transition-all duration-300 peer-checked:bg-blue-600 relative">
+                    <div class="absolute left-1 top-1 w-4 h-4 bg-white rounded-full shadow transition-all duration-300 peer-checked:translate-x-5"></div>
+                  </div>
+                  <span class="ml-3 text-sm text-gray-700" x-text="form.working_hours.working_on_sunday ? '{% trans "Working" %}' : '{% trans "Not Working" %}'"></span>
+                </label>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Weekly Summary -->
+          <div class="mt-6 p-4 bg-blue-50 rounded-lg">
+            <div class="flex items-start space-x-3">
+              <svg class="w-5 h-5 text-blue-500 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 00-2 2z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <div>
+                <h4 class="text-sm font-medium text-blue-800">{% trans 'Weekly Summary' %}</h4>
+                <div class="mt-1 text-sm text-blue-700">
+                  <p><strong x-text="(form.working_hours.daily_working_hours || 0) * 5 + (form.working_hours.working_on_saturday ? (form.working_hours.daily_working_hours || 0) : 0) + (form.working_hours.working_on_sunday ? (form.working_hours.daily_working_hours || 0) : 0)"></strong> {% trans 'hours per week' %}</p>
+                  <p><strong x-text="5 + (form.working_hours.working_on_saturday ? 1 : 0) + (form.working_hours.working_on_sunday ? 1 : 0)"></strong> {% trans 'working days per week' %}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Info Box -->
+          <div class="mt-4 p-3 bg-gray-50 rounded-lg">
+            <div class="flex items-start space-x-2">
+              <svg class="w-5 h-5 text-gray-500 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <div>
+                <h5 class="text-sm font-medium text-gray-800">{% trans 'Information' %}</h5>
+                <p class="text-xs text-gray-600 mt-1">
+                  {% trans 'These working hours will be used to calculate service and warranty periods based on actual usage time.' %}
+                  {% trans 'You can modify these settings later if needed.' %}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
     <div class="mt-8 flex justify-end">
@@ -272,7 +359,12 @@ function customerForm() {
       telephone: '',
       active: true,
       contacts: [],
-      addresses: []
+      addresses: [],
+      working_hours: {
+        daily_working_hours: 8,
+        working_on_saturday: false,
+        working_on_sunday: false
+      }
     },
     countries: [],
     coreBusinesses: [],

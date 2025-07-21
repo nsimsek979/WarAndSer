@@ -1,9 +1,67 @@
 from django.contrib import admin
+from django import forms
 from .models import (
     Status, StockType, Brand, Category, ItemImage, ItemSpec,
     WarrantyType, WarrantyValue, ServiceForm, ItemSparePart, ItemMaster,
-    AttributeType, AttributeUnit, InventoryItem, InventoryItemAttribute
+    AttributeType, AttributeUnit, AttributeTypeUnit, InventoryItem, InventoryItemAttribute,
+    ServicePeriodType, ServicePeriodValue, MaintenanceSchedule
 )
+
+
+class InventoryItemAttributeForm(forms.ModelForm):
+    class Meta:
+        model = InventoryItemAttribute
+        fields = '__all__'
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        
+        # If attribute_type is already selected, filter units
+        if 'attribute_type' in self.data:
+            try:
+                attribute_type_id = int(self.data.get('attribute_type'))
+                self.fields['unit'].queryset = AttributeUnit.objects.filter(
+                    unit_types__attribute_type_id=attribute_type_id
+                ).order_by('unit_types__is_default', 'name')
+            except (ValueError, TypeError):
+                self.fields['unit'].queryset = AttributeUnit.objects.none()
+        elif self.instance.pk and self.instance.attribute_type:
+            self.fields['unit'].queryset = AttributeUnit.objects.filter(
+                unit_types__attribute_type=self.instance.attribute_type
+            ).order_by('unit_types__is_default', 'name')
+        else:
+            self.fields['unit'].queryset = AttributeUnit.objects.none()
+        
+        # Add CSS classes for dynamic filtering
+        self.fields['attribute_type'].widget.attrs.update({
+            'class': 'attribute-type-select',
+            'data-url': '/admin/get-attribute-units/'  # We'll create this view
+        })
+        self.fields['unit'].widget.attrs.update({
+            'class': 'attribute-unit-select'
+        })
+    
+    def clean(self):
+        cleaned_data = super().clean()
+        attribute_type = cleaned_data.get('attribute_type')
+        unit = cleaned_data.get('unit')
+        
+        if unit and attribute_type:
+            # Check if the unit is compatible with the attribute type
+            if not AttributeTypeUnit.objects.filter(
+                attribute_type=attribute_type,
+                attribute_unit=unit
+            ).exists():
+                available_units = AttributeUnit.objects.filter(
+                    unit_types__attribute_type=attribute_type
+                ).values_list('name', flat=True)
+                
+                raise forms.ValidationError({
+                    'unit': f'Unit "{unit.name}" is not compatible with attribute type "{attribute_type.name}". '
+                           f'Available units: {", ".join(available_units) if available_units else "None"}'
+                })
+        
+        return cleaned_data
 
 
 # Inline classes for ItemMaster
@@ -61,14 +119,37 @@ class ItemUsedAsSparePartInline(admin.TabularInline):
         return formset
 
 
+class MaintenanceScheduleInline(admin.TabularInline):
+    """Inline for managing maintenance schedules in ItemMaster"""
+    model = MaintenanceSchedule
+    extra = 1
+    fields = ('service_period_value', 'is_critical', 'maintenance_description')
+    verbose_name = "Bakım Programı"
+    verbose_name_plural = "Bakım Programları"
+
+
 # Inline classes for InventoryItem
 class InventoryItemAttributeInline(admin.TabularInline):
     model = InventoryItemAttribute
+    form = InventoryItemAttributeForm
     extra = 1
     fields = ('attribute_type', 'value', 'unit', 'notes')
-    autocomplete_fields = ['attribute_type', 'unit']
+    autocomplete_fields = ['attribute_type']
     verbose_name = "Attribute"
     verbose_name_plural = "Attributes"
+    
+    class Media:
+        js = ('admin/js/attribute_unit_filter.js',)
+
+
+class InventoryItemInline(admin.TabularInline):
+    model = InventoryItem
+    fk_name = 'name'  # Specify which foreign key to use
+    extra = 0
+    fields = ('serial_no', 'production_date', 'in_used')
+   
+    verbose_name = "Inventory Item"
+    verbose_name_plural = "Inventory Items"
 
 
 class InventoryItemInline(admin.TabularInline):
@@ -134,6 +215,30 @@ class ServiceFormAdmin(admin.ModelAdmin):
     list_filter = ('created_at',)
 
 
+@admin.register(ServicePeriodType)
+class ServicePeriodTypeAdmin(admin.ModelAdmin):
+    list_display = ('type', 'unit', 'created_at', 'updated_at')
+    search_fields = ('type', 'unit')
+    list_filter = ('created_at',)
+    fields = ('type', 'unit')
+
+
+@admin.register(ServicePeriodValue)
+class ServicePeriodValueAdmin(admin.ModelAdmin):
+    list_display = ('service_period_type', 'value', 'description', 'created_at', 'updated_at')
+    list_filter = ('service_period_type', 'created_at')
+    search_fields = ('service_period_type__type', 'description')
+    fields = ('service_period_type', 'value', 'description')
+
+
+@admin.register(MaintenanceSchedule)
+class MaintenanceScheduleAdmin(admin.ModelAdmin):
+    list_display = ('item_master', 'service_period_value', 'is_critical', 'created_at')
+    list_filter = ('is_critical', 'service_period_value__service_period_type', 'created_at')
+    search_fields = ('item_master__name', 'item_master__shortcode', 'maintenance_description')
+    fields = ('item_master', 'service_period_value', 'is_critical', 'maintenance_description')
+
+
 @admin.register(AttributeType)
 class AttributeTypeAdmin(admin.ModelAdmin):
     list_display = ('name', 'is_required', 'created_at', 'updated_at')
@@ -142,12 +247,32 @@ class AttributeTypeAdmin(admin.ModelAdmin):
     fields = ('name', 'description', 'is_required')
 
 
+@admin.register(AttributeTypeUnit)
+class AttributeTypeUnitAdmin(admin.ModelAdmin):
+    list_display = ('attribute_type', 'attribute_unit', 'is_default', 'created_at')
+    list_filter = ('attribute_type', 'is_default', 'created_at')
+    search_fields = ('attribute_type__name', 'attribute_unit__name', 'attribute_unit__symbol')
+    fields = ('attribute_type', 'attribute_unit', 'is_default')
+    autocomplete_fields = ['attribute_type', 'attribute_unit']
+    
+    def get_form(self, request, obj=None, **kwargs):
+        form = super().get_form(request, obj, **kwargs)
+        # Add help text
+        form.base_fields['is_default'].help_text = "Only one unit can be default per attribute type"
+        return form
+
+
 @admin.register(AttributeUnit)
 class AttributeUnitAdmin(admin.ModelAdmin):
-    list_display = ('name', 'symbol', 'created_at', 'updated_at')
+    list_display = ('name', 'symbol', 'get_attribute_types', 'created_at', 'updated_at')
     search_fields = ('name', 'symbol')
     list_filter = ('created_at',)
     fields = ('name', 'symbol')
+    
+    def get_attribute_types(self, obj):
+        types = obj.unit_types.values_list('attribute_type__name', flat=True)
+        return ", ".join(types) if types else "No types assigned"
+    get_attribute_types.short_description = 'Attribute Types'
 
 
 @admin.register(ItemSparePart)
@@ -208,7 +333,7 @@ class ItemMasterAdmin(admin.ModelAdmin):
         }),
     )
     
-    inlines = [ItemImageInline, ItemSpecInline, ItemSparePartInline, ItemUsedAsSparePartInline, InventoryItemInline]
+    inlines = [ItemImageInline, ItemSpecInline, ItemSparePartInline, ItemUsedAsSparePartInline, MaintenanceScheduleInline, InventoryItemInline]
 
 
 @admin.register(InventoryItem)
@@ -248,10 +373,11 @@ class InventoryItemAdmin(admin.ModelAdmin):
 
 @admin.register(InventoryItemAttribute)
 class InventoryItemAttributeAdmin(admin.ModelAdmin):
+    form = InventoryItemAttributeForm
     list_display = ('inventory_item_code', 'attribute_type', 'value', 'unit', 'created_at')
     list_filter = ('attribute_type', 'unit', 'created_at')
     search_fields = ('inventory_item__item_code', 'attribute_type__name', 'value')
-    autocomplete_fields = ['inventory_item', 'attribute_type', 'unit']
+    autocomplete_fields = ['inventory_item', 'attribute_type']
     
     fieldsets = (
         ('Attribute Information', {

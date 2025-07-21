@@ -1,0 +1,376 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load static %}
+
+{% block title %}{% trans 'Update Inventory Item' %}{% endblock %}
+{% block content %}
+<div class="pl-8 pr-8 space-y-6">
+    <!-- Header -->
+    <div class="bg-gray-25 pl-8 pr-8">
+        <div class="flex justify-between items-center p-0">
+            <div>
+                <h2 class="text-md font-semibold text-gray-700">{% trans "Update Inventory Item" %}</h2>
+                <p class="text-gray-600 mt-0.5 text-sm">{% trans "Edit inventory item details" %} - {{ inventory_item.name.name }}</p>
+            </div>
+            <div class="flex space-x-2">
+                <a href="{% url 'item-master:inventory_item_list' %}" class="inline-flex items-center space-x-2
+                         bg-gray-100 text-gray-700 border border-gray-200 px-3 py-1.5 rounded-md hover:bg-gray-200 text-sm">
+                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path d="M15 19l-7-7 7-7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <span>{% trans "Back to List" %}</span>
+                </a>
+                <a href="{% url 'item-master:inventory_item_detail' pk=inventory_item.pk %}" class="inline-flex items-center space-x-2
+                         bg-purple-100 text-purple-700 border border-purple-200 px-3 py-1.5 rounded-md hover:bg-purple-200 text-sm">
+                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path d="M1.5 12s4-7 10.5-7 10.5 7 10.5 7-4 7-10.5 7S1.5 12 1.5 12z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <span>{% trans "View Details" %}</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Messages -->
+    {% if messages %}
+    <div class="space-y-2">
+        {% for message in messages %}
+        <div class="{% if message.tags == 'error' %}bg-red-50 border border-red-200 text-red-700{% elif message.tags == 'success' %}bg-green-50 border border-green-200 text-green-700{% else %}bg-blue-50 border border-blue-200 text-blue-700{% endif %} px-4 py-3 rounded-md">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Tabbed Update Form -->
+    <div x-data="{
+        activeTab: 'basic',
+        attributesData: [
+            {% for attr in current_attributes %}
+            {
+                id: {{ attr.id }},
+                attribute_type: '{{ attr.attribute_type.id }}',
+                value: '{{ attr.value|escapejs }}',
+                unit: '{{ attr.unit.id|default:"" }}'
+            }{% if not forloop.last %},{% endif %}
+            {% endfor %}
+        ],
+        availableUnits: {
+            {% for attr_type in attribute_types %}
+            '{{ attr_type.id }}': [
+                {% for type_unit in attr_type.type_units.all %}
+                {
+                    id: '{{ type_unit.attribute_unit.id }}',
+                    name: '{{ type_unit.attribute_unit.name|escapejs }}',
+                    symbol: '{{ type_unit.attribute_unit.symbol|escapejs }}',
+                    is_default: {% if type_unit.is_default %}true{% else %}false{% endif %}
+                }{% if not forloop.last %},{% endif %}
+                {% endfor %}
+            ]{% if not forloop.last %},{% endif %}
+            {% endfor %}
+        },
+        selectedItemMaster: {
+            id: '{{ inventory_item.name.id }}',
+            shortcode: '{{ inventory_item.name.shortcode|escapejs }}',
+            name: '{{ inventory_item.name.name|escapejs }}',
+            category: '{{ inventory_item.name.category.category_name|default:"No Category"|escapejs }}',
+            brand: '{{ inventory_item.name.brand_name.name|default:"No Brand"|escapejs }}'
+        },
+        addAttribute() {
+            this.attributesData.push({
+                id: Date.now(),
+                attribute_type: '',
+                value: '',
+                unit: ''
+            });
+        },
+        removeAttribute(index) {
+            this.attributesData.splice(index, 1);
+        },
+        init() {
+            // Pre-load units for existing attributes (don't auto-select default)
+            this.attributesData.forEach((attr, index) => {
+                if (attr.attribute_type) {
+                    this.updateUnitsForAttribute(index, attr.attribute_type, true);
+                }
+            });
+        },
+        async updateUnitsForAttribute(index, attributeTypeId, isInitialLoad = false) {
+            if (!attributeTypeId) {
+                this.attributesData[index].unit = '';
+                return;
+            }
+            
+            // Check if units are already loaded for this attribute type
+            if (this.availableUnits[attributeTypeId] && this.availableUnits[attributeTypeId].length > 0) {
+                // If no unit is selected AND this is NOT initial load AND this is a new attribute, set default unit
+                if (!this.attributesData[index].unit && !isInitialLoad) {
+                    const defaultUnit = this.availableUnits[attributeTypeId].find(unit => unit.is_default);
+                    if (defaultUnit) {
+                        this.attributesData[index].unit = defaultUnit.id;
+                    }
+                }
+                return; // Units already loaded
+            }
+            
+            try {
+                const response = await fetch(`/item-master/ajax/get-attribute-units/?attribute_type_id=${attributeTypeId}`);
+                const data = await response.json();
+                this.availableUnits[attributeTypeId] = data.units || [];
+                
+                // Reset unit if current unit is not compatible
+                const currentUnit = this.attributesData[index].unit;
+                if (currentUnit) {
+                    const isCompatible = data.units.some(unit => unit.id == currentUnit);
+                    if (!isCompatible) {
+                        this.attributesData[index].unit = '';
+                    }
+                }
+                
+                // If no unit is selected AND this is NOT initial load, try to set default unit
+                if (!this.attributesData[index].unit && !isInitialLoad) {
+                    const defaultUnit = data.units.find(unit => unit.is_default);
+                    if (defaultUnit) {
+                        this.attributesData[index].unit = defaultUnit.id;
+                    }
+                }
+            } catch (error) {
+                console.error('Error fetching units:', error);
+                this.availableUnits[attributeTypeId] = [];
+            }
+        },
+        getAvailableUnits(attributeTypeId) {
+            const units = this.availableUnits[attributeTypeId] || [];
+            return units;
+        },
+        updateSelectedItemMaster(selectElement) {
+            const selectedOption = selectElement.options[selectElement.selectedIndex];
+            if (selectedOption.value) {
+                this.selectedItemMaster = {
+                    id: selectedOption.value,
+                    name: selectedOption.dataset.name,
+                    shortcode: selectedOption.dataset.shortcode,
+                    category: selectedOption.dataset.category,
+                    brand: selectedOption.dataset.brand
+                };
+            } else {
+                this.selectedItemMaster = null;
+            }
+        }
+    }" x-init="init()" class="bg-white rounded-xl border border-gray-200">
+        
+        <!-- Tab Navigation -->
+        <div class="border-b border-gray-200">
+            <nav class="flex space-x-8 px-6 pt-4" aria-label="Tabs">
+                <button @click="activeTab = 'basic'" 
+                        :class="activeTab === 'basic' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'"
+                        class="whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm">
+                    {% trans "Basic Info" %}
+                </button>
+                <button @click="activeTab = 'attributes'"
+                        :class="activeTab === 'attributes' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'"
+                        class="whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm">
+                    {% trans "Attributes" %}
+                </button>
+            </nav>
+        </div>
+
+        <form method="post" class="p-6">
+            {% csrf_token %}
+            
+            <!-- Tab 1: Basic Information -->
+            <div x-show="activeTab === 'basic'" class="space-y-4">
+                <h3 class="text-md font-semibold text-gray-700 mb-4">{% trans "Basic Information" %}</h3>
+                
+                <!-- Item Master Selection -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="md:col-span-2">
+                        <label for="item_master" class="block text-xs font-medium text-gray-700 mb-1">
+                            {% trans "Item Master" %} <span class="text-red-500">*</span>
+                        </label>
+                        <select id="item_master" 
+                                name="item_master" 
+                                @change="updateSelectedItemMaster($event.target)"
+                                class="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                                required>
+                            <option value="">{% trans "Choose an item master..." %}</option>
+                            {% for item in item_masters %}
+                                <option value="{{ item.id }}" 
+                                        data-name="{{ item.name }}"
+                                        data-shortcode="{{ item.shortcode }}"
+                                        data-category="{{ item.category.category_name|default:'No Category' }}"
+                                        data-brand="{{ item.brand_name.name|default:'No Brand' }}"
+                                        {% if item.id == inventory_item.name.id %}selected{% endif %}>
+                                    {{ item.shortcode }} - {{ item.name }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Selected Item Master Details -->
+                <div x-show="selectedItemMaster" class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                    <h4 class="text-sm font-medium text-gray-700 mb-3">{% trans "Selected Item Master Details" %}</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 text-sm">
+                        <div>
+                            <span class="font-medium text-gray-500">{% trans "Shortcode" %}:</span>
+                            <span x-text="selectedItemMaster?.shortcode" class="block text-gray-900"></span>
+                        </div>
+                        <div>
+                            <span class="font-medium text-gray-500">{% trans "Category" %}:</span>
+                            <span x-text="selectedItemMaster?.category" class="block text-gray-900"></span>
+                        </div>
+                        <div>
+                            <span class="font-medium text-gray-500">{% trans "Brand" %}:</span>
+                            <span x-text="selectedItemMaster?.brand" class="block text-gray-900"></span>
+                        </div>
+                        <div>
+                            <span class="font-medium text-gray-500">{% trans "Name" %}:</span>
+                            <span x-text="selectedItemMaster?.name" class="block text-gray-900"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quantity and Serial Number -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="quantity" class="block text-xs font-medium text-gray-700 mb-1">
+                            {% trans "Quantity" %} <span class="text-red-500">*</span>
+                        </label>
+                        <input type="number" 
+                               id="quantity" 
+                               name="quantity" 
+                               value="{{ inventory_item.quantity }}"
+                               min="1"
+                               class="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" 
+                               required>
+                    </div>
+                    
+                    <div>
+                        <label for="serial_no" class="block text-xs font-medium text-gray-700 mb-1">
+                            {% trans "Serial Number" %}
+                        </label>
+                        <input type="text" 
+                               id="serial_no" 
+                               name="serial_no" 
+                               value="{{ inventory_item.serial_no }}"
+                               class="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                </div>
+
+                <!-- In Used Status -->
+                <div class="flex items-center">
+                    <input type="checkbox" 
+                           id="in_used" 
+                           name="in_used" 
+                           {% if inventory_item.in_used %}checked{% endif %}
+                           class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                    <label for="in_used" class="ml-2 text-xs text-gray-700">
+                        {% trans "Item is currently in use" %}
+                    </label>
+                </div>
+            </div>
+
+            <!-- Tab 2: Attributes -->
+            <div x-show="activeTab === 'attributes'" class="space-y-4">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-md font-semibold text-gray-700">{% trans "Item Attributes" %}</h3>
+                    <button type="button" 
+                            @click="addAttribute()"
+                            class="inline-flex items-center px-3 py-1.5 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 4v16m8-8H4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        {% trans "Add Attribute" %}
+                    </button>
+                </div>
+                
+                <p class="text-sm text-gray-600">{% trans "Add specific attributes for this inventory item." %}</p>
+                
+                <!-- Attributes List -->
+                <div class="space-y-3">
+                    <template x-for="(attribute, index) in attributesData" :key="attribute.id">
+                        <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-end p-3 bg-gray-50 rounded-lg border border-gray-200">
+                            <!-- Attribute Type -->
+                            <div class="md:col-span-4">
+                                <label class="block text-xs font-medium text-gray-700 mb-1">{% trans "Attribute Type" %}</label>
+                                <select x-model="attribute.attribute_type" 
+                                        name="attribute_type[]"
+                                        @change="updateUnitsForAttribute(index, $event.target.value, false)"
+                                        class="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                                    <option value="">{% trans "Select type..." %}</option>
+                                    {% for attr_type in attribute_types %}
+                                        <option value="{{ attr_type.id }}">{{ attr_type.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            
+                            <!-- Value -->
+                            <div class="md:col-span-4">
+                                <label class="block text-xs font-medium text-gray-700 mb-1">{% trans "Value" %}</label>
+                                <input type="text" 
+                                       x-model="attribute.value"
+                                       name="attribute_value[]"
+                                       class="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+                            
+                            <!-- Unit -->
+                            <div class="md:col-span-3">
+                                <label class="block text-xs font-medium text-gray-700 mb-1">{% trans "Unit" %}</label>
+                                <select x-model="attribute.unit" 
+                                        name="attribute_unit[]"
+                                        :disabled="!attribute.attribute_type"
+                                        class="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                                    <option value="">{% trans "No unit" %}</option>
+                                    <template x-for="unit in getAvailableUnits(attribute.attribute_type)">
+                                        <option :value="unit.id" 
+                                                :selected="unit.id == attribute.unit"
+                                                x-text="unit.name + ' (' + unit.symbol + ')'"></option>
+                                    </template>
+                                </select>
+                            </div>
+                            
+                            <!-- Remove Button -->
+                            <div class="md:col-span-1">
+                                <button type="button" 
+                                        @click="removeAttribute(index)"
+                                        class="w-full px-2 py-1.5 bg-red-100 text-red-600 rounded-md hover:bg-red-200 focus:outline-none focus:ring-1 focus:ring-red-500">
+                                    <svg class="h-4 w-4 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </template>
+                    
+                    <!-- Empty state when no attributes -->
+                    <div x-show="attributesData.length === 0" class="text-center py-8 text-gray-500">
+                        <svg class="h-12 w-12 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path d="M7 7h.01M7 3h5c.512 0 .853.05 1.14.142M2 13v8a1 1 0 001 1h8a1 1 0 001-1v-3M2 13h3M2 13l8-8 2.5 2.5M13 2.5l-2.5 2.5M13 2.5L16 6l-3.5 3.5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <p class="text-sm">{% trans "No attributes added yet. Click 'Add Attribute' to get started." %}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="flex justify-end space-x-3 pt-6 border-t border-gray-200 mt-6">
+                <a href="{% url 'item-master:inventory_item_detail' pk=inventory_item.pk %}" 
+                   class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path d="M6 18L18 6M6 6l12 12" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    {% trans "Cancel" %}
+                </a>
+                <button type="submit" 
+                        class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path d="M5 13l4 4L19 7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    {% trans "Update Inventory Item" %}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     "item_master",
     "customer",
     "custom_user",
+    "warranty_and_services",
 ]
 
 MIDDLEWARE = [

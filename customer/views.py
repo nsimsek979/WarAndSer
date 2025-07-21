@@ -1,9 +1,10 @@
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
 from django.shortcuts import render
+from django.http import JsonResponse
 from django.utils.translation import gettext as _
-from .models import Company, City, Country, County, District, CoreBusiness
+from .models import Company, City, Country, County, District, CoreBusiness, WorkingHours
 from custom_user.permissions import get_company_queryset_for_user
 from django.db import models
 from django.core.paginator import Paginator
@@ -25,8 +26,46 @@ def api_managers(request):
 
 @login_required(login_url='login')
 def customer_detail(request, pk):
+	from django.db.models import Min
+	from django.core.paginator import Paginator
 	company = get_object_or_404(Company, pk=pk)
-	return render(request, 'pages/customer/customer-detail.html', {'company': company})
+	
+	# Get installations for this customer
+	from warranty_and_services.models import Installation
+	
+	# Base installations for this company
+	installations = Installation.objects.filter(customer=company)
+	
+	# If this company is a distributor, also include installations from related end users
+	if company.company_type == 'distributor':
+		related_endusers = Company.objects.filter(related_company=company)
+		installations = Installation.objects.filter(
+			models.Q(customer=company) | models.Q(customer__in=related_endusers)
+		)
+	
+	installations = installations.select_related(
+		'inventory_item__name',
+		'customer'
+	).prefetch_related(
+		'warranty_followups',
+		'service_followups'
+	).annotate(
+		next_warranty_end=Min('warranty_followups__end_of_warranty_date'),
+		next_service_date=Min('service_followups__next_service_date')
+	).order_by('-setup_date')
+	
+	# Pagination for installations
+	paginator = Paginator(installations, 10)  # 10 installations per page
+	page_number = request.GET.get('page')
+	page_obj = paginator.get_page(page_number)
+	
+	context = {
+		'company': company,
+		'installations': page_obj,
+		'page_obj': page_obj,
+		'is_paginated': page_obj.has_other_pages(),
+	}
+	return render(request, 'pages/customer/customer-detail.html', context)
 
 
 
@@ -59,7 +98,7 @@ from django.http import JsonResponse
 from django.shortcuts import redirect
 from django.contrib import messages
 from django.db import transaction
-from .models import ContactPerson, Address
+from .models import ContactPerson, Address, WorkingHours
 
 @login_required(login_url='login')
 def customer_create(request):
@@ -140,6 +179,19 @@ def customer_create(request):
 							zipcode=address.get('zipcode', ''),
 							address=address.get('address', '')
 						)
+				
+				# Create working hours if provided
+				daily_hours = request.POST.get('daily_working_hours')
+				if daily_hours:
+					try:
+						WorkingHours.objects.create(
+							customer=company,
+							daily_working_hours=int(daily_hours),
+							working_on_saturday=request.POST.get('working_on_saturday') == '1',
+							working_on_sunday=request.POST.get('working_on_sunday') == '1'
+						)
+					except (ValueError, TypeError):
+						pass  # Skip if invalid data
 				
 				messages.success(request, _('Customer created successfully!'))
 				return redirect('customer:customer_detail', pk=company.pk)
@@ -265,6 +317,26 @@ def customer_update(request, pk):
 							address=address.get('address', '')
 						)
 				
+				# Update or create working hours
+				daily_hours = request.POST.get('daily_working_hours')
+				if daily_hours:
+					try:
+						working_hours, created = WorkingHours.objects.get_or_create(
+							customer=company,
+							defaults={
+								'daily_working_hours': int(daily_hours),
+								'working_on_saturday': request.POST.get('working_on_saturday') == '1',
+								'working_on_sunday': request.POST.get('working_on_sunday') == '1'
+							}
+						)
+						if not created:
+							working_hours.daily_working_hours = int(daily_hours)
+							working_hours.working_on_saturday = request.POST.get('working_on_saturday') == '1'
+							working_hours.working_on_sunday = request.POST.get('working_on_sunday') == '1'
+							working_hours.save()
+					except (ValueError, TypeError):
+						pass  # Skip if invalid data
+				
 				messages.success(request, _('Customer updated successfully!'))
 				return redirect('customer:customer_detail', pk=company.pk)
 				
@@ -308,21 +380,58 @@ def customer_update(request, pk):
 		# Add related location data for dropdowns
 		if address.country:
 			addr_data['cities'] = list(City.objects.filter(country=address.country).values('id', 'name'))
+		else:
+			addr_data['cities'] = []
 		if address.city:
 			addr_data['counties'] = list(County.objects.filter(city=address.city).values('id', 'name'))
+		else:
+			addr_data['counties'] = []
 		if address.county:
 			addr_data['districts'] = list(District.objects.filter(county=address.county).values('id', 'name'))
+		else:
+			addr_data['districts'] = []
 		addresses.append(addr_data)
 	
+	
+	
+	# Get working hours data
+	try:
+		working_hours = company.working_hours
+		working_hours_data = {
+			'daily_working_hours': working_hours.daily_working_hours,
+			'working_on_saturday': working_hours.working_on_saturday,
+			'working_on_sunday': working_hours.working_on_sunday
+		}
+	except WorkingHours.DoesNotExist:
+		working_hours_data = {
+			'daily_working_hours': 8,
+			'working_on_saturday': False,
+			'working_on_sunday': False
+		}
+	
+	# Prepare company data for JSON
+	company_data = {
+		'name': company.name,
+		'company_type': company.company_type,
+		'core_business': company.core_business.id if company.core_business else None,
+		'related_company': company.related_company.id if company.related_company else None,
+		'related_manager': company.related_manager.id if company.related_manager else None,
+		'email': company.email,
+		'telephone': company.telephone,
+		'active': company.active,
+	}
+
 	# Pass user context for template logic
 	context = {
 		'company': company,
+		'company_data': company_data,
 		'managers': managers,
 		'core_businesses': core_businesses,
 		'countries': countries,
 		'companies': companies,
 		'contacts': contacts,
 		'addresses': addresses,
+		'working_hours': working_hours_data,
 		'is_distributor_user': user.role in ['manager_distributor', 'salesmanager_distributor', 'service_distributor'],
 		'default_related_manager_id': user.company.related_manager.id if (user.role in ['manager_distributor', 'salesmanager_distributor', 'service_distributor'] and user.company and user.company.related_manager) else None,
 	}

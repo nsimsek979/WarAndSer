@@ -31,6 +31,7 @@ urlpatterns = [
     path('set_language/', set_language, name='set_language'),
     path('item-master/', include('item_master.urls')),
     path('customer/', include('customer.urls')),
+    path('warranty-services/', include('warranty_and_services.urls')),
 ]
 
 # Serve static and media files from development server if DEBUG is True

@@ -88,6 +88,19 @@
             }{% if not forloop.last %},{% endif %}
             {% endfor %}
         ],
+        maintenanceData: [
+            {% for maintenance in current_maintenance_schedules %}
+            {
+                period_id: '{{ maintenance.service_period_value.id }}',
+                type: '{{ maintenance.service_period_value.service_period_type.type|escapejs }}',
+                value: '{{ maintenance.service_period_value.value }}',
+                unit: '{{ maintenance.service_period_value.service_period_type.unit|escapejs }}',
+                description: '{{ maintenance.maintenance_description|escapejs }}',
+                is_critical: {{ maintenance.is_critical|yesno:"true,false" }},
+                id: {{ maintenance.id }}
+            }{% if not forloop.last %},{% endif %}
+            {% endfor %}
+        ],
         sparePartSearch: '',
         addSparePart(item) {
             if (item && !this.sparePartsData.find(sp => sp.spare_part_id === item.id)) {
@@ -166,6 +179,62 @@
         },
         removeService(index) {
             this.servicesData.splice(index, 1);
+        },
+        addMaintenanceFromSelect(selectElement) {
+            const selectedOption = selectElement.options[selectElement.selectedIndex];
+            if (selectedOption.value) {
+                const periodId = selectedOption.value;
+                const type = selectedOption.dataset.type;
+                const value = selectedOption.dataset.value;
+                const unit = selectedOption.dataset.unit;
+                
+                // Check if this type already exists
+                const existingType = this.maintenanceData.find(m => m.type === type);
+                if (existingType) {
+                    this.showErrorMessage(`Bu tip servis periyodu zaten eklenmiş: ${type}. Önce mevcut olanı silin.`);
+                    selectElement.value = '';
+                    return;
+                }
+                
+                if (!this.maintenanceData.find(m => m.period_id === periodId)) {
+                    this.maintenanceData.push({
+                        period_id: periodId,
+                        type: type,
+                        value: value,
+                        unit: unit,
+                        description: '',
+                        is_critical: true,
+                        id: Date.now()
+                    });
+                    this.showSuccessMessage(`${type} - ${value} ${unit} bakım programı eklendi.`);
+                }
+                selectElement.value = '';
+            }
+        },
+        removeMaintenance(index) {
+            const maintenance = this.maintenanceData[index];
+            this.maintenanceData.splice(index, 1);
+            this.showSuccessMessage(`${maintenance.type} bakım programı kaldırıldı.`);
+        },
+        showSuccessMessage(message) {
+            // Create and show a temporary success message
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'fixed top-4 right-4 bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-md shadow-lg z-50';
+            messageDiv.textContent = message;
+            document.body.appendChild(messageDiv);
+            setTimeout(() => {
+                document.body.removeChild(messageDiv);
+            }, 3000);
+        },
+        showErrorMessage(message) {
+            // Create and show a temporary error message
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'fixed top-4 right-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md shadow-lg z-50';
+            messageDiv.textContent = message;
+            document.body.appendChild(messageDiv);
+            setTimeout(() => {
+                document.body.removeChild(messageDiv);
+            }, 4000);
         }
     }" class="bg-white shadow-sm rounded-lg">
         
@@ -196,6 +265,11 @@
                         :class="activeTab === 'services' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'"
                         class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
                     {% trans "Services" %}
+                </button>
+                <button @click="activeTab = 'maintenance'"
+                        :class="activeTab === 'maintenance' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'"
+                        class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
+                    {% trans "Maintenance" %}
                 </button>
             </nav>
         </div>
@@ -342,7 +416,7 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
                         <div>
                             <label class="block text-xs font-medium text-gray-700 mb-1">{% trans "Select Spare Part" %}</label>
-                            <select x-ref="sparePartSelect" class="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-md">
+                            <select x-ref="sparePartSelect" class="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
                                 <option value="">{% trans "Select spare part" %}</option>
                                 {% for spare_item in spare_part_items %}
                                 <option value="{{ spare_item.id }}" data-name="{{ spare_item.name|escapejs }}" data-shortcode="{{ spare_item.shortcode|escapejs }}" data-category="{{ spare_item.category.category_name|default:'-'|escapejs }}">
@@ -549,7 +623,7 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
                         <div>
                             <label class="block text-xs font-medium text-gray-700 mb-1">{% trans "Select Warranty" %}</label>
-                            <select x-ref="warrantySelect" class="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-md">
+                            <select x-ref="warrantySelect" class="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
                                 <option value="">{% trans "Select warranty" %}</option>
                                 {% for warranty in warranty_values %}
                                 <option value="{{ warranty.id }}" data-type="{{ warranty.warranty_type.type }}" data-value="{{ warranty.value }}">
@@ -671,7 +745,7 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
                         <div>
                             <label class="block text-xs font-medium text-gray-700 mb-1">{% trans "Select Service" %}</label>
-                            <select x-ref="serviceSelect" class="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-md">
+                            <select x-ref="serviceSelect" class="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
                                 <option value="">{% trans "Select service" %}</option>
                                 {% for service in service_forms %}
                                 <option value="{{ service.id }}" data-name="{{ service.name|escapejs }}">
@@ -715,6 +789,104 @@
                                     </button>
                                     <!-- Hidden input for form submission -->
                                     <input type="hidden" name="service_forms" :value="service.service_id">
+                                </div>
+                            </template>
+                        </div>
+                    </template>
+                </div>
+            </div>
+
+            <!-- Tab 6: Maintenance -->
+            <div x-show="activeTab === 'maintenance'" class="space-y-4">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-md font-semibold text-gray-700">{% trans "Maintenance Schedules" %}</h3>
+                </div>
+                
+                <!-- Add Maintenance Form -->
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
+                        <div>
+                            <label class="block text-xs font-medium text-gray-700 mb-1">{% trans "Select Service Period" %}</label>
+                            <select x-ref="maintenanceSelect" class="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                                <option value="">{% trans "Select maintenance period" %}</option>
+                                {% for period in service_period_values %}
+                                <option value="{{ period.id }}" 
+                                        data-type="{{ period.service_period_type.type }}" 
+                                        data-value="{{ period.value }}" 
+                                        data-unit="{{ period.service_period_type.unit }}">
+                                    {{ period.service_period_type.type }} - {{ period.value }} {{ period.service_period_type.unit }}
+                                    {% if period.description %} ({{ period.description }}){% endif %}
+                                </option>
+                                {% empty %}
+                                <option value="" disabled>{% trans "No service periods available" %}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div>
+                            <button type="button" 
+                                    @click="addMaintenanceFromSelect($refs.maintenanceSelect)"
+                                    class="px-3 py-1.5 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700">
+                                {% trans "Add" %}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Selected Maintenance Schedules -->
+                <div class="border border-gray-200 rounded-lg">
+                    <template x-if="maintenanceData.length === 0">
+                        <div class="p-6 text-center text-gray-500">
+                            {% trans "No maintenance schedules selected yet" %}
+                        </div>
+                    </template>
+                    <template x-if="maintenanceData.length > 0">
+                        <div class="divide-y divide-gray-200">
+                            <template x-for="(maintenance, index) in maintenanceData" :key="maintenance.id">
+                                <div class="p-4 space-y-3">
+                                    <div class="flex justify-between items-start">
+                                        <div class="flex-1">
+                                            <div class="flex items-center space-x-2">
+                                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                                    </svg>
+                                                    <span x-text="maintenance.type"></span>
+                                                </span>
+                                                <span class="text-sm font-semibold text-gray-900">
+                                                    <span x-text="maintenance.value + ' ' + maintenance.unit"></span>
+                                                </span>
+                                                <div class="flex items-center space-x-1">
+                                                    <input type="checkbox" 
+                                                           x-model="maintenance.is_critical"
+                                                           class="h-3 w-3 text-red-600 border-gray-300 rounded focus:ring-red-500">
+                                                    <label class="text-xs text-gray-600">{% trans "Critical" %}</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <button type="button" 
+                                                @click="removeMaintenance(index)"
+                                                class="ml-4 text-red-600 hover:text-red-800 transition-colors">
+                                            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                    
+                                    <!-- Maintenance Description -->
+                                    <div>
+                                        <label class="block text-xs font-medium text-gray-700 mb-1">{% trans "Maintenance Description" %}</label>
+                                        <textarea x-model="maintenance.description" 
+                                                  class="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" 
+                                                  rows="2" 
+                                                  placeholder="{% trans 'Enter maintenance description (optional)' %}"></textarea>
+                                    </div>
+                                    
+                                    <!-- Hidden inputs for form submission -->
+                                    <div class="hidden">
+                                        <input type="hidden" name="maintenance_periods" :value="maintenance.period_id">
+                                        <input type="hidden" name="maintenance_descriptions" :value="maintenance.description">
+                                        <input type="hidden" name="maintenance_is_critical" :value="index" x-show="maintenance.is_critical">
+                                    </div>
                                 </div>
                             </template>
                         </div>

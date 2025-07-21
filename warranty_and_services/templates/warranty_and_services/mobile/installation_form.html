@@ -1,0 +1,1090 @@
+{% load static %}
+{% load i18n %}
+<!DOCTYPE html>
+<html lang="tr" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Installation Form - Mobile</title>
+    <link rel="shortcut icon" type="image/x-icon" href="{% static 'konnektom-logo.png' %}">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com?v=3.4.0"></script>
+    
+    <!-- Alpine.js -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+
+    <!-- Tailwind Configuration -->
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            corePlugins: {
+                preflight: true,
+            },
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {"50":"#eff6ff","100":"#dbeafe","200":"#bfdbfe","300":"#93c5fd","400":"#60a5fa","500":"#3b82f6","600":"#2563eb","700":"#1d4ed8","800":"#1e40af","900":"#1e3a8a"},
+                        gray: {
+                            25: "#fcfcfd",
+                            50: "#f9fafb",
+                            100: "#f3f4f6", 
+                            200: "#e5e7eb",
+                            300: "#d1d5db",
+                            400: "#9ca3af",
+                            500: "#6b7280",
+                            600: "#4b5563",
+                            700: "#374151",
+                            800: "#1f2937",
+                            900: "#111827"
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Mobile optimizations -->
+    <style>
+        /* Mobile font rendering optimization */
+        * {
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        /* Fix mobile input styles */
+        button, input, select, textarea {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+        }
+        
+        /* Prevent zoom on input focus */
+        input[type="text"], input[type="email"], input[type="tel"], input[type="number"], textarea, select {
+            font-size: 16px;
+        }
+        
+        /* Mobile focus styles */
+        button:focus,
+        input:focus,
+        select:focus,
+        textarea:focus {
+            outline: 2px solid #3b82f6;
+            outline-offset: 2px;
+        }
+    </style>
+</head>
+<body class="h-full bg-gray-50" x-data="installationForm()">
+    <div class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+        <!-- Header -->
+        <div class="bg-white shadow-sm border-b sticky top-0 z-20">
+            <div class="px-4 py-3">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-3">
+                        <button @click="goBack()" class="p-2 text-gray-500 hover:text-gray-700">
+                            <i class="fas fa-arrow-left"></i>
+                        </button>
+                        <div>
+                            <h1 class="text-lg font-semibold text-gray-900">Installation Form</h1>
+                            <p class="text-sm text-gray-500">Kurulum Bilgileri</p>
+                        </div>
+                    </div>
+                    <button @click="showHelp = !showHelp" class="p-2 text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-question-circle"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="px-4 py-6 space-y-6">
+            <!-- Selected Item Display -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <h2 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                    <i class="fas fa-box text-blue-600 mr-2"></i>
+                    Seçilen Ürün
+                </h2>
+                <div class="space-y-3">
+                    <div class="bg-blue-50 rounded-lg p-4">
+                        <div class="text-sm text-blue-600 font-medium">{{ item.name.name }}</div>
+                        <div class="text-xs text-blue-500">Seri No: {{ item.serial_no }}</div>
+                    </div>
+                    
+                    <!-- Check if item is already installed -->
+                    {% if item.in_used %}
+                    <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+                        <div class="flex items-center">
+                            <i class="fas fa-exclamation-triangle text-red-600 mr-3"></i>
+                            <div>
+                                <p class="text-sm font-medium text-red-800">Kurulum Yapılamaz</p>
+                                <p class="text-sm text-red-600">This item is already in use, it is not allowed to install</p>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Customer Selection -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <h2 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                    <i class="fas fa-user-tie text-green-600 mr-2"></i>
+                    Müşteri Seçimi
+                </h2>
+                
+                <!-- Customer Search/Select -->
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            Müşteri Ara
+                        </label>
+                        <div class="relative">
+                            <input 
+                                type="text" 
+                                x-model="customerSearch"
+                                @input="searchCustomers()"
+                                placeholder="Müşteri adı veya firma adı..."
+                                class="w-full px-4 py-3 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            >
+                            <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                        </div>
+                    </div>
+
+                    <!-- Customer Results -->
+                    <div x-show="customerResults.length > 0" class="space-y-2">
+                        <template x-for="customer in customerResults" :key="customer.id">
+                            <div @click="selectCustomer(customer)" 
+                                 class="p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors">
+                                <div class="font-medium text-gray-900" x-text="customer.name"></div>
+                                <div class="text-sm text-gray-500" x-text="customer.email || 'Email yok'"></div>
+                                <div class="text-xs text-gray-400" x-text="customer.company_type_display"></div>
+                            </div>
+                        </template>
+                    </div>
+
+                    <!-- Selected Customer -->
+                    <div x-show="selectedCustomer" class="bg-green-50 border border-green-200 rounded-lg p-4">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <div class="font-medium text-green-900" x-text="selectedCustomer?.name"></div>
+                                <div class="text-sm text-green-700" x-text="selectedCustomer?.email"></div>
+                            </div>
+                            <button @click="clearCustomer()" class="text-green-600 hover:text-green-800">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- No Customer Found / New Customer Button -->
+                    <div x-show="customerSearch && customerResults.length === 0 && !selectedCustomer" 
+                         class="text-center py-4 border-2 border-dashed border-gray-300 rounded-lg">
+                        <div class="text-gray-500 mb-3">Müşteri bulunamadı</div>
+                        <button @click="showNewCustomerForm = true" 
+                                class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                            <i class="fas fa-plus mr-2"></i>
+                            Yeni Müşteri Oluştur
+                        </button>
+                    </div>
+
+                    <!-- Always Visible New Customer Button -->
+                    <div class="text-center py-2">
+                        <button @click="showNewCustomerForm = true" 
+                                class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors">
+                            <i class="fas fa-plus mr-2"></i>
+                            Yeni Müşteri Ekle
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- New Customer Form (Collapsible) -->
+            <div x-show="showNewCustomerForm" x-transition class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-semibold text-gray-900 flex items-center">
+                        <i class="fas fa-user-plus text-blue-600 mr-2"></i>
+                        Yeni Müşteri Oluştur
+                    </h3>
+                    <button @click="closeNewCustomerForm()" class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+
+                <div class="space-y-4">
+                    <!-- Company Name -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            Firma Adı *
+                        </label>
+                        <input 
+                            type="text" 
+                            x-model="newCustomer.name"
+                            placeholder="Firma adını girin..."
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            required
+                        >
+                    </div>
+
+                    <!-- Tax Number -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            Vergi Numarası
+                        </label>
+                        <input 
+                            type="text" 
+                            x-model="newCustomer.tax_number"
+                            placeholder="Vergi numarasını girin..."
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        >
+                    </div>
+
+                    <!-- Email -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            Email
+                        </label>
+                        <input 
+                            type="email" 
+                            x-model="newCustomer.email"
+                            placeholder="Email adresini girin..."
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        >
+                    </div>
+
+                    <!-- Phone -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            Telefon
+                        </label>
+                        <input 
+                            type="tel" 
+                            x-model="newCustomer.telephone"
+                            placeholder="Telefon numarasını girin..."
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        >
+                    </div>
+
+                    <!-- Address -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            Adres *
+                        </label>
+                        <textarea 
+                            x-model="newCustomer.address"
+                            placeholder="Firma adres bilgilerini girin..."
+                            rows="3"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            required
+                        ></textarea>
+                    </div>
+
+                    <!-- City -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            Şehir
+                        </label>
+                        <input 
+                            type="text" 
+                            x-model="newCustomer.city"
+                            placeholder="Şehir..."
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        >
+                    </div>
+
+                    <!-- Contact Person -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            İletişim Kişisi *
+                        </label>
+                        <input 
+                            type="text" 
+                            x-model="newCustomer.contact_person"
+                            placeholder="İletişim kişisi adı..."
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            required
+                        >
+                    </div>
+
+                    <!-- Contact Phone -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            İletişim Telefonu
+                        </label>
+                        <input 
+                            type="tel" 
+                            x-model="newCustomer.contact_phone"
+                            placeholder="İletişim kişisi telefon numarası..."
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        >
+                    </div>
+
+                    <!-- Contact Email -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            İletişim Email
+                        </label>
+                        <input 
+                            type="email" 
+                            x-model="newCustomer.contact_email"
+                            placeholder="İletişim kişisi email adresi..."
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        >
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="flex space-x-3 pt-4">
+                        <button @click="createCustomer()" 
+                                :disabled="!newCustomer.name"
+                                :class="!newCustomer.name ? 'bg-gray-300 cursor-not-allowed' : 'bg-green-600 hover:bg-green-700'"
+                                class="flex-1 text-white py-3 px-4 rounded-lg font-medium transition-colors">
+                            <i class="fas fa-save mr-2"></i>
+                            Müşteriyi Kaydet
+                        </button>
+                        <button @click="closeNewCustomerForm()" 
+                                class="px-4 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">
+                            İptal
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Installation Details -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <h2 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                    <i class="fas fa-tools text-orange-600 mr-2"></i>
+                    Kurulum Detayları
+                </h2>
+                
+                <div class="space-y-4">
+                    <!-- Setup Date -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            Kurulum Tarihi *
+                        </label>
+                        <input 
+                            type="datetime-local" 
+                            x-model="installation.setup_date"
+                            :max="getCurrentDateTime()"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            required
+                        >
+                        <div class="text-xs text-gray-500 mt-1">
+                            Kurulum tarihi bugünden ileri olamaz
+                        </div>
+                    </div>
+
+                    <!-- Installation Address -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            Kurulum Adresi
+                        </label>
+                        <textarea 
+                            x-model="installation.location_address"
+                            placeholder="Kurulum yapılacak adres..."
+                            rows="3"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        ></textarea>
+                    </div>
+
+                    <!-- GPS Location -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            GPS Konumu
+                        </label>
+                        <div class="space-y-2">
+                            <button @click="getCurrentLocation()" 
+                                    :disabled="gettingLocation"
+                                    class="w-full bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors disabled:bg-gray-400">
+                                <i :class="gettingLocation ? 'fas fa-spinner fa-spin' : 'fas fa-map-marker-alt'" class="mr-2"></i>
+                                <span x-text="gettingLocation ? 'Konum alınıyor...' : 'Mevcut Konumu Al'"></span>
+                            </button>
+                            
+                            <div x-show="installation.location_latitude && installation.location_longitude" 
+                                 class="bg-green-50 border border-green-200 rounded-lg p-3">
+                                <div class="text-sm text-green-800">
+                                    <i class="fas fa-check-circle mr-2"></i>
+                                    Konum: <span x-text="installation.location_latitude"></span>, <span x-text="installation.location_longitude"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Installation Notes -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            Kurulum Notları
+                        </label>
+                        <textarea 
+                            x-model="installation.notes"
+                            placeholder="Kurulum ile ilgili özel notlar..."
+                            rows="4"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        ></textarea>
+                    </div>
+
+                    <!-- Fotoğraf ve Dosya Yükleme -->
+                    <div class="space-y-4">
+                        <!-- Fotoğraf Çekme -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                <i class="fas fa-camera mr-2"></i>Fotoğraf Çek
+                            </label>
+                            <div class="flex space-x-2">
+                                <button 
+                                    type="button"
+                                    @click="takePhoto()"
+                                    class="flex-1 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <i class="fas fa-camera mr-2"></i>Kamera Aç
+                                </button>
+                                <button 
+                                    type="button"
+                                    @click="selectPhoto()"
+                                    class="flex-1 bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500">
+                                    <i class="fas fa-image mr-2"></i>Galeri
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Fotoğraf Önizleme -->
+                        <div x-show="photos.length > 0" class="grid grid-cols-2 gap-2">
+                            <template x-for="(photo, index) in photos" :key="index">
+                                <div class="relative">
+                                    <img :src="photo.url" :alt="'Fotoğraf ' + (index + 1)" class="w-full h-32 object-cover rounded-lg border">
+                                    <button 
+                                        type="button"
+                                        @click="removePhoto(index)"
+                                        class="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-600">
+                                        ×
+                                    </button>
+                                    <div class="absolute bottom-1 left-1 bg-black bg-opacity-50 text-white text-xs px-1 rounded">
+                                        <span x-text="photo.name"></span>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+
+                        <!-- Dosya Yükleme -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                <i class="fas fa-file mr-2"></i>Dosya Ekle
+                            </label>
+                            <input 
+                                type="file" 
+                                @change="handleFileUpload($event)"
+                                multiple
+                                accept="image/*,.pdf,.doc,.docx,.xls,.xlsx"
+                                class="hidden"
+                                x-ref="fileInput">
+                            <button 
+                                type="button"
+                                @click="$refs.fileInput.click()"
+                                class="w-full bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500">
+                                <i class="fas fa-paperclip mr-2"></i>Dosya Seç
+                            </button>
+                        </div>
+
+                        <!-- Dosya Listesi -->
+                        <div x-show="files.length > 0" class="space-y-2">
+                            <template x-for="(file, index) in files" :key="index">
+                                <div class="flex items-center justify-between bg-gray-50 p-2 rounded-lg">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-file mr-2 text-gray-500"></i>
+                                        <span class="text-sm" x-text="file.name"></span>
+                                        <span class="text-xs text-gray-500 ml-2" x-text="formatFileSize(file.size)"></span>
+                                    </div>
+                                    <button 
+                                        type="button"
+                                        @click="removeFile(index)"
+                                        class="text-red-500 hover:text-red-700">
+                                        <i class="fas fa-trash text-sm"></i>
+                                    </button>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Submit Button -->
+            <div class="pb-8">
+                <button @click="submitInstallation()" 
+                        :disabled="!selectedCustomer || !installation.setup_date || submitting"
+                        :class="(!selectedCustomer || !installation.setup_date || submitting) ? 'bg-gray-300 cursor-not-allowed' : 'bg-green-600 hover:bg-green-700'"
+                        class="w-full text-white py-4 px-6 rounded-lg font-semibold text-lg transition-colors">
+                    <i :class="submitting ? 'fas fa-spinner fa-spin' : 'fas fa-check'" class="mr-2"></i>
+                    <span x-text="submitting ? 'Kurulum kaydediliyor...' : 'Kurulumu Tamamla'"></span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Loading Overlay -->
+        <div x-show="loading" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+            <div class="bg-white rounded-lg p-6 flex items-center space-x-3">
+                <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+                <span class="text-gray-700" x-text="loadingMessage"></span>
+            </div>
+        </div>
+
+        <!-- Error Message -->
+        <div x-show="errorMessage" class="fixed top-4 left-4 right-4 bg-red-50 border border-red-200 rounded-lg p-4 z-50">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                    <i class="fas fa-exclamation-triangle text-red-600 mr-3"></i>
+                    <p class="text-red-800" x-text="errorMessage"></p>
+                </div>
+                <button @click="errorMessage = ''" class="text-red-600 hover:text-red-800">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Success Message -->
+        <div x-show="successMessage" class="fixed top-4 left-4 right-4 bg-green-50 border border-green-200 rounded-lg p-4 z-50">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                    <i class="fas fa-check-circle text-green-600 mr-3"></i>
+                    <p class="text-green-800" x-text="successMessage"></p>
+                </div>
+                <button @click="successMessage = ''" class="text-green-600 hover:text-green-800">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Help Modal -->
+        <div x-show="showHelp" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <div class="bg-white rounded-xl max-w-md w-full p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-semibold text-gray-900">Yardım</h3>
+                    <button @click="showHelp = false" class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="space-y-3 text-sm text-gray-600">
+                    <p><strong>Müşteri Seçimi:</strong> Mevcut müşteriyi arayın veya yeni müşteri oluşturun.</p>
+                    <p><strong>Kurulum Tarihi:</strong> Kurulumun yapıldığı tarih ve saati girin.</p>
+                    <p><strong>GPS Konumu:</strong> Otomatik konum almak için "Mevcut Konumu Al" butonunu kullanın.</p>
+                    <p><strong>Kurulum Notları:</strong> Özel durumlar veya dikkat edilmesi gereken noktaları yazın.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Alpine.js Component -->
+    <script>
+        function installationForm() {
+            return {
+                // Item data (passed from backend)
+                item: {
+                    id: {{ item.id }},
+                    name: "{{ item.name.name|escapejs }}",
+                    serial_no: "{{ item.serial_no|escapejs }}"
+                },
+                
+                // Customer data
+                customerSearch: '',
+                customerResults: [],
+                selectedCustomer: null,
+                showNewCustomerForm: false,
+                
+                // New customer form
+                newCustomer: {
+                    name: '',
+                    tax_number: '',
+                    email: '',
+                    telephone: '',
+                    address: '',
+                    city: '',
+                    contact_person: '',
+                    contact_phone: '',
+                    contact_email: ''
+                },
+                
+                // Installation data
+                installation: {
+                    setup_date: new Date().toISOString().slice(0, 16), // Current date/time
+                    location_address: '',
+                    location_latitude: null,
+                    location_longitude: null,
+                    notes: ''
+                },
+                
+                // Photos and files
+                photos: [],
+                files: [],
+                
+                // UI states
+                loading: false,
+                loadingMessage: '',
+                submitting: false,
+                gettingLocation: false,
+                errorMessage: '',
+                successMessage: '',
+                showHelp: false,
+
+                init() {
+                    console.log('Installation form initialized with item:', this.item);
+                },
+
+                goBack() {
+                    if (confirm('Formdan çıkmak istediğinize emin misiniz? Girilen bilgiler kaybolacak.')) {
+                        window.location.href = '/warranty-services/installation/mobile/';
+                    }
+                },
+
+                async searchCustomers() {
+                    if (this.customerSearch.length < 2) {
+                        this.customerResults = [];
+                        return;
+                    }
+
+                    try {
+                        const response = await fetch(`/warranty-services/api/customers/search/`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRFToken': this.getCsrfToken()
+                            },
+                            body: JSON.stringify({ 
+                                search: this.customerSearch 
+                            })
+                        });
+
+                        const data = await response.json();
+                        if (data.success) {
+                            this.customerResults = data.customers;
+                        } else {
+                            this.customerResults = [];
+                        }
+                    } catch (error) {
+                        console.error('Customer search error:', error);
+                        this.customerResults = [];
+                    }
+                },
+
+                selectCustomer(customer) {
+                    this.selectedCustomer = customer;
+                    this.customerResults = [];
+                    this.customerSearch = customer.name;
+                },
+
+                clearCustomer() {
+                    this.selectedCustomer = null;
+                    this.customerSearch = '';
+                    this.customerResults = [];
+                },
+
+                closeNewCustomerForm() {
+                    this.showNewCustomerForm = false;
+                    this.newCustomer = {
+                        name: '',
+                        tax_number: '',
+                        email: '',
+                        telephone: '',
+                        address: '',
+                        city: '',
+                        contact_person: '',
+                        contact_phone: '',
+                        contact_email: ''
+                    };
+                },
+
+                async createCustomer() {
+                    if (!this.newCustomer.name.trim()) {
+                        this.errorMessage = 'Firma adı gereklidir.';
+                        return;
+                    }
+
+                    if (!this.newCustomer.address.trim()) {
+                        this.errorMessage = 'Adres gereklidir.';
+                        return;
+                    }
+
+                    if (!this.newCustomer.contact_person.trim()) {
+                        this.errorMessage = 'İletişim kişisi gereklidir.';
+                        return;
+                    }
+
+                    this.loading = true;
+                    this.loadingMessage = 'Müşteri oluşturuluyor...';
+
+                    try {
+                        const customerData = {
+                            name: this.newCustomer.name.trim(),
+                            tax_number: this.newCustomer.tax_number.trim(),
+                            email: this.newCustomer.email.trim(),
+                            telephone: this.newCustomer.telephone.trim(),
+                            address: this.newCustomer.address.trim(),
+                            city: this.newCustomer.city.trim(),
+                            contact_person: this.newCustomer.contact_person.trim(),
+                            contact_phone: this.newCustomer.contact_phone.trim(),
+                            contact_email: this.newCustomer.contact_email.trim()
+                        };
+
+                        const response = await fetch(`/warranty-services/api/customers/create/`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRFToken': this.getCsrfToken()
+                            },
+                            body: JSON.stringify(customerData)
+                        });
+
+                        const data = await response.json();
+                        
+                        if (data.success) {
+                            this.selectedCustomer = data.customer;
+                            this.customerSearch = data.customer.name;
+                            this.closeNewCustomerForm();
+                            this.successMessage = 'Müşteri başarıyla oluşturuldu.';
+                            
+                            // Auto-hide success message
+                            setTimeout(() => {
+                                this.successMessage = '';
+                            }, 3000);
+                        } else {
+                            this.errorMessage = data.message || 'Müşteri oluşturulamadı.';
+                        }
+                    } catch (error) {
+                        console.error('Customer creation error:', error);
+                        this.errorMessage = 'Müşteri oluşturulurken bir hata oluştu.';
+                    } finally {
+                        this.loading = false;
+                    }
+                },
+
+                getCurrentLocation() {
+                    if (!navigator.geolocation) {
+                        this.errorMessage = 'Bu tarayıcı GPS konumu desteklemiyor.';
+                        return;
+                    }
+
+                    this.gettingLocation = true;
+
+                    navigator.geolocation.getCurrentPosition(
+                        (position) => {
+                            this.installation.location_latitude = position.coords.latitude.toFixed(8);
+                            this.installation.location_longitude = position.coords.longitude.toFixed(8);
+                            this.gettingLocation = false;
+                            this.successMessage = 'GPS konumu başarıyla alındı.';
+                            
+                            setTimeout(() => {
+                                this.successMessage = '';
+                            }, 3000);
+                        },
+                        (error) => {
+                            this.gettingLocation = false;
+                            console.error('Geolocation error:', error);
+                            
+                            switch (error.code) {
+                                case error.PERMISSION_DENIED:
+                                    this.errorMessage = 'Konum izni reddedildi. Lütfen tarayıcı ayarlarından izin verin.';
+                                    break;
+                                case error.POSITION_UNAVAILABLE:
+                                    this.errorMessage = 'Konum bilgisi alınamadı.';
+                                    break;
+                                case error.TIMEOUT:
+                                    this.errorMessage = 'Konum alma işlemi zaman aşımına uğradı.';
+                                    break;
+                                default:
+                                    this.errorMessage = 'Konum alınırken bilinmeyen bir hata oluştu.';
+                                    break;
+                            }
+                        },
+                        {
+                            enableHighAccuracy: true,
+                            timeout: 10000,
+                            maximumAge: 60000
+                        }
+                    );
+                },
+
+                async submitInstallation() {
+                    if (!this.selectedCustomer) {
+                        this.errorMessage = 'Lütfen bir müşteri seçin.';
+                        return;
+                    }
+
+                    if (!this.installation.setup_date) {
+                        this.errorMessage = 'Lütfen kurulum tarihini girin.';
+                        return;
+                    }
+
+                    // Check if setup date is in the future
+                    const setupDate = new Date(this.installation.setup_date);
+                    const currentDate = new Date();
+                    if (setupDate > currentDate) {
+                        this.errorMessage = 'Kurulum tarihi bugünden ileri olamaz.';
+                        return;
+                    }
+
+                    this.submitting = true;
+                    this.loading = true;
+                    this.loadingMessage = 'Kurulum kaydediliyor...';
+
+                    try {
+                        // Create FormData for file uploads
+                        const formData = new FormData();
+                        
+                        // Add installation data
+                        formData.append('item_id', this.item.id);
+                        formData.append('customer_id', this.selectedCustomer.id);
+                        
+                        // Convert setup_date to ISO string with timezone
+                        const setupDate = new Date(this.installation.setup_date);
+                        formData.append('setup_date', setupDate.toISOString());
+                        
+                        formData.append('location_address', this.installation.location_address);
+                        if (this.installation.location_latitude) {
+                            formData.append('location_latitude', this.installation.location_latitude);
+                        }
+                        if (this.installation.location_longitude) {
+                            formData.append('location_longitude', this.installation.location_longitude);
+                        }
+                        formData.append('installation_notes', this.installation.notes);
+                        
+                        // Add photos
+                        this.photos.forEach((photo, index) => {
+                            formData.append(`photos`, photo.file);
+                        });
+                        
+                        // Add files
+                        this.files.forEach((file, index) => {
+                            formData.append(`files`, file.file);
+                        });
+
+                        const response = await fetch(`/warranty-services/api/installation/create/`, {
+                            method: 'POST',
+                            headers: {
+                                'X-CSRFToken': this.getCsrfToken()
+                                // Don't set Content-Type, let browser set it for FormData
+                            },
+                            body: formData
+                        });
+
+                        const data = await response.json();
+                        
+                        if (data.success) {
+                            this.successMessage = 'Kurulum başarıyla kaydedildi!';
+                            
+                            // Redirect to installation detail or success page
+                            setTimeout(() => {
+                                window.location.href = `/warranty-services/installation/${data.installation.id}/`;
+                            }, 2000);
+                        } else {
+                            this.errorMessage = data.message || 'Kurulum kaydedilemedi.';
+                        }
+                    } catch (error) {
+                        console.error('Installation submission error:', error);
+                        this.errorMessage = 'Kurulum kaydedilirken bir hata oluştu.';
+                    } finally {
+                        this.submitting = false;
+                        this.loading = false;
+                    }
+                },
+
+                // Photo management functions
+                async takePhoto() {
+                    try {
+                        // Check if device supports camera
+                        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                            // Fallback to file input for devices without camera support
+                            this.selectPhoto();
+                            return;
+                        }
+
+                        // Try to get camera stream
+                        let stream;
+                        try {
+                            stream = await navigator.mediaDevices.getUserMedia({ 
+                                video: { 
+                                    facingMode: { ideal: 'environment' }, // Back camera for mobile
+                                    width: { ideal: 1280 },
+                                    height: { ideal: 720 }
+                                } 
+                            });
+                        } catch (error) {
+                            console.log('Camera access failed, falling back to file input:', error);
+                            // Fallback to file input if camera access fails
+                            this.selectPhoto();
+                            return;
+                        }
+
+                        // Create camera modal
+                        const modal = document.createElement('div');
+                        modal.className = 'fixed inset-0 bg-black bg-opacity-75 z-50 flex items-center justify-center';
+                        modal.innerHTML = `
+                            <div class="bg-white rounded-lg p-4 max-w-lg w-full mx-4">
+                                <div class="text-center mb-4">
+                                    <h3 class="text-lg font-semibold">Fotoğraf Çek</h3>
+                                </div>
+                                <div class="relative mb-4">
+                                    <video class="w-full rounded-lg" autoplay playsinline></video>
+                                    <canvas class="hidden"></canvas>
+                                </div>
+                                <div class="flex space-x-2">
+                                    <button id="captureBtn" class="flex-1 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">
+                                        <i class="fas fa-camera mr-2"></i>Çek
+                                    </button>
+                                    <button id="cancelBtn" class="flex-1 bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600">
+                                        <i class="fas fa-times mr-2"></i>İptal
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+
+                        document.body.appendChild(modal);
+                        const modalVideo = modal.querySelector('video');
+                        const canvas = modal.querySelector('canvas');
+                        const captureBtn = modal.querySelector('#captureBtn');
+                        const cancelBtn = modal.querySelector('#cancelBtn');
+
+                        modalVideo.srcObject = stream;
+
+                        // Capture photo
+                        captureBtn.onclick = () => {
+                            const context = canvas.getContext('2d');
+                            canvas.width = modalVideo.videoWidth;
+                            canvas.height = modalVideo.videoHeight;
+                            context.drawImage(modalVideo, 0, 0);
+                            
+                            canvas.toBlob((blob) => {
+                                const file = new File([blob], `photo-${Date.now()}.jpg`, { type: 'image/jpeg' });
+                                this.processPhoto(file);
+                                
+                                // Clean up
+                                stream.getTracks().forEach(track => track.stop());
+                                document.body.removeChild(modal);
+                            }, 'image/jpeg', 0.8);
+                        };
+
+                        // Cancel
+                        cancelBtn.onclick = () => {
+                            stream.getTracks().forEach(track => track.stop());
+                            document.body.removeChild(modal);
+                        };
+
+                    } catch (error) {
+                        console.error('Camera error:', error);
+                        // For any camera errors, fallback to file input
+                        this.selectPhoto();
+                    }
+                },
+
+                selectPhoto() {
+                    const input = document.createElement('input');
+                    input.type = 'file';
+                    input.accept = 'image/*';
+                    input.multiple = true;
+                    
+                    input.onchange = (event) => {
+                        Array.from(event.target.files).forEach(file => {
+                            this.processPhoto(file);
+                        });
+                    };
+                    
+                    input.click();
+                },
+
+                processPhoto(file) {
+                    if (!file.type.startsWith('image/')) {
+                        this.errorMessage = 'Lütfen sadece resim dosyası seçin.';
+                        return;
+                    }
+
+                    if (file.size > 5 * 1024 * 1024) { // 5MB limit
+                        this.errorMessage = 'Resim dosyası 5MB\'dan küçük olmalıdır.';
+                        return;
+                    }
+
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        const photoData = {
+                            file: file,
+                            url: e.target.result,
+                            name: file.name,
+                            size: file.size,
+                            type: file.type,
+                            timestamp: new Date().toISOString()
+                        };
+                        
+                        this.photos.push(photoData);
+                        console.log('Photo added:', photoData.name);
+                    };
+                    
+                    reader.readAsDataURL(file);
+                },
+
+                removePhoto(index) {
+                    if (confirm('Bu fotoğrafı silmek istediğinize emin misiniz?')) {
+                        this.photos.splice(index, 1);
+                    }
+                },
+
+                // File management functions
+                handleFileUpload(event) {
+                    Array.from(event.target.files).forEach(file => {
+                        this.processFile(file);
+                    });
+                    // Clear input
+                    event.target.value = '';
+                },
+
+                processFile(file) {
+                    if (file.size > 10 * 1024 * 1024) { // 10MB limit
+                        this.errorMessage = 'Dosya 10MB\'dan küçük olmalıdır.';
+                        return;
+                    }
+
+                    const fileData = {
+                        file: file,
+                        name: file.name,
+                        size: file.size,
+                        type: file.type,
+                        timestamp: new Date().toISOString()
+                    };
+                    
+                    this.files.push(fileData);
+                    console.log('File added:', fileData.name);
+                },
+
+                removeFile(index) {
+                    if (confirm('Bu dosyayı silmek istediğinize emin misiniz?')) {
+                        this.files.splice(index, 1);
+                    }
+                },
+
+                formatFileSize(bytes) {
+                    if (bytes === 0) return '0 Bytes';
+                    const k = 1024;
+                    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+                    const i = Math.floor(Math.log(bytes) / Math.log(k));
+                    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+                },
+
+                getCurrentDateTime() {
+                    // Return current date and time in the format needed for datetime-local input
+                    const now = new Date();
+                    // Adjust for timezone
+                    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+                    return now.toISOString().slice(0, 16);
+                },
+
+                getCsrfToken() {
+                    return document.querySelector('[name=csrfmiddlewaretoken]')?.value || '';
+                }
+            }
+        }
+    </script>
+
+    <!-- CSRF Token -->
+    {% csrf_token %}
+</body>
+</html>

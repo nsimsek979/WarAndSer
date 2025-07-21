@@ -1,0 +1,227 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}Servis Detay - {{ service.installation.customer.name }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><i class="fas fa-tools me-2"></i>Servis Detayı</h2>
+                <a href="{% url 'warranty_and_services:service_tracking_list' %}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left me-1"></i>Geri Dön
+                </a>
+            </div>
+
+            <div class="row">
+                <div class="col-md-8">
+                    <!-- Servis Bilgileri -->
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5><i class="fas fa-info-circle me-2"></i>Servis Bilgileri</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <table class="table table-borderless">
+                                        <tr>
+                                            <td><strong>Müşteri:</strong></td>
+                                            <td>{{ service.installation.customer.name }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Ürün:</strong></td>
+                                            <td>{{ service.installation.inventory_item.name.name }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Seri No:</strong></td>
+                                            <td><code>{{ service.installation.inventory_item.serial_no|default:"N/A" }}</code></td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Kurulum Tarihi:</strong></td>
+                                            <td>{{ service.installation.setup_date|date:"d.m.Y H:i" }}</td>
+                                        </tr>
+                                    </table>
+                                </div>
+                                <div class="col-md-6">
+                                    <table class="table table-borderless">
+                                        <tr>
+                                            <td><strong>Servis Türü:</strong></td>
+                                            <td>
+                                                <span class="badge bg-{% if service.service_type == 'time_term' %}info{% else %}secondary{% endif %} fs-6">
+                                                    {{ service.get_service_type_display }}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Servis Değeri:</strong></td>
+                                            <td>
+                                                <strong>{{ service.service_value }}</strong>
+                                                {% if service.service_type == 'time_term' %}ay{% else %}saat{% endif %}
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Sonraki Servis:</strong></td>
+                                            <td>{{ service.next_service_date|date:"d.m.Y H:i" }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Durum:</strong></td>
+                                            <td>
+                                                {% if service.is_completed %}
+                                                    <span class="badge bg-success fs-6">Tamamlandı</span>
+                                                {% else %}
+                                                    {% now "Y-m-d" as today %}
+                                                    {% if service.next_service_date|date:"Y-m-d" <= today %}
+                                                        <span class="badge bg-danger fs-6">Geciken Servis</span>
+                                                    {% elif service.next_service_date|timeuntil|slice:":1" == "1" %}
+                                                        <span class="badge bg-warning fs-6">Bu Hafta</span>
+                                                    {% else %}
+                                                        <span class="badge bg-info fs-6">Bekliyor</span>
+                                                    {% endif %}
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Hesaplama Notları -->
+                    {% if service.calculation_notes %}
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5><i class="fas fa-calculator me-2"></i>Hesaplama Detayları</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle me-2"></i>
+                                {{ service.calculation_notes }}
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Kurulum Bilgileri -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h5><i class="fas fa-cogs me-2"></i>Kurulum Bilgileri</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p><strong>Kurucu:</strong> {{ service.installation.installer|default:"Belirtilmemiş" }}</p>
+                                    <p><strong>Kurulum Yeri:</strong> {{ service.installation.installation_location|default:"Belirtilmemiş" }}</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p><strong>Oluşturulma:</strong> {{ service.installation.created_at|date:"d.m.Y H:i" }}</p>
+                                    <p><strong>Son Güncelleme:</strong> {{ service.installation.updated_at|date:"d.m.Y H:i" }}</p>
+                                </div>
+                            </div>
+                            {% if service.installation.notes %}
+                            <div class="mt-3">
+                                <strong>Notlar:</strong>
+                                <p class="mt-2">{{ service.installation.notes|linebreaks }}</p>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <!-- Durum Kartı -->
+                    <div class="card mb-4">
+                        <div class="card-header text-center">
+                            <h5>Servis Durumu</h5>
+                        </div>
+                        <div class="card-body text-center">
+                            {% if service.is_completed %}
+                                <div class="text-success mb-3">
+                                    <i class="fas fa-check-circle fa-4x"></i>
+                                </div>
+                                <h4 class="text-success">Tamamlandı</h4>
+                                <p class="text-muted">
+                                    {% if service.completion_date %}
+                                        {{ service.completion_date|date:"d.m.Y" }} tarihinde
+                                    {% endif %}
+                                </p>
+                                {% if service.completion_notes %}
+                                <div class="alert alert-success mt-3">
+                                    <small>{{ service.completion_notes }}</small>
+                                </div>
+                                {% endif %}
+                            {% else %}
+                                {% now "Y-m-d" as today %}
+                                {% if service.next_service_date|date:"Y-m-d" <= today %}
+                                    <div class="text-danger mb-3">
+                                        <i class="fas fa-exclamation-triangle fa-4x"></i>
+                                    </div>
+                                    <h4 class="text-danger">Geciken</h4>
+                                    <p class="text-muted">Servis gecikmede</p>
+                                {% else %}
+                                    <div class="text-info mb-3">
+                                        <i class="fas fa-clock fa-4x"></i>
+                                    </div>
+                                    <h4 class="text-info">Bekliyor</h4>
+                                    <p class="text-muted">
+                                        {% with remaining=service.next_service_date|timeuntil %}
+                                            {{ remaining }} kaldı
+                                        {% endwith %}
+                                    </p>
+                                {% endif %}
+                                
+                                <button class="btn btn-success mt-3" onclick="markCompleted()">
+                                    <i class="fas fa-check me-2"></i>Tamamlandı Olarak İşaretle
+                                </button>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Bu Ürünün Diğer Servisleri -->
+                    {% if service.installation.service_followups.count > 1 %}
+                    <div class="card">
+                        <div class="card-header">
+                            <h5><i class="fas fa-list me-2"></i>Bu Ürünün Diğer Servisleri</h5>
+                        </div>
+                        <div class="card-body">
+                            {% for other_service in service.installation.service_followups.all %}
+                                {% if other_service.id != service.id %}
+                                <div class="d-flex justify-content-between align-items-center mb-2 p-2 bg-light rounded">
+                                    <div>
+                                        <span class="badge bg-{% if other_service.service_type == 'time_term' %}info{% else %}secondary{% endif %}">
+                                            {{ other_service.get_service_type_display }}
+                                        </span>
+                                        <small class="text-muted ms-2">
+                                            {{ other_service.service_value }}
+                                            {% if other_service.service_type == 'time_term' %}ay{% else %}saat{% endif %}
+                                        </small>
+                                        {% if other_service.is_completed %}
+                                            <span class="badge bg-success ms-2">✓</span>
+                                        {% endif %}
+                                    </div>
+                                    <a href="{% url 'warranty_and_services:service_detail' other_service.id %}" 
+                                       class="btn btn-sm btn-outline-primary">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                </div>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function markCompleted() {
+    if (confirm('Bu servisi tamamlandı olarak işaretlemek istediğinizden emin misiniz?')) {
+        // AJAX call to mark service as completed
+        // Bu kısmı daha sonra implement edebiliriz
+        alert('Bu özellik yakında eklenecek!');
+    }
+}
+</script>
+{% endblock %}

@@ -67,7 +67,7 @@ msgstr "TümKategoriler"
 
 #: .\item_master\views.py:10
 msgid "All Brands"
-msgstr "Tüm Markaralr"
+msgstr "Tüm Markalar"
 
 #: .\item_master\views.py:11
 msgid "Sort By"
