@@ -1,5 +1,6 @@
 
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import permission_required
 from django.shortcuts import render, get_object_or_404, redirect
 from django.core.paginator import Paginator
 from django.db.models import Q
@@ -24,6 +25,49 @@ def inventory_item_list(request):
     items = InventoryItem.objects.select_related(
         'name', 'name__category', 'name__brand_name', 'name__stock_type', 'created_by'
     ).prefetch_related('attributes', 'attributes__attribute_type', 'attributes__unit').all()
+    
+    # Apply role-based filtering for distributor and sales manager users
+    user = request.user
+    if hasattr(user, 'role') and user.role in ['manager_distributor', 'service_distributor']:
+        # Distributor users can only see in-use items installed at their sub-companies
+        if hasattr(user, 'company') and user.company:
+            # Get all companies under this distributor (including the distributor itself)
+            from warranty_and_services.utils import get_user_accessible_companies
+            accessible_company_ids = get_user_accessible_companies(user)
+            
+            # Filter items that are in use and installed at accessible companies
+            from warranty_and_services.models import Installation
+            installed_item_ids = Installation.objects.filter(
+                customer_id__in=accessible_company_ids
+            ).values_list('inventory_item_id', flat=True)
+            
+            # Show only items that are installed at accessible companies
+            items = items.filter(id__in=installed_item_ids)
+        else:
+            # If distributor user has no company assigned, show no items
+            items = items.none()
+    elif hasattr(user, 'role') and user.role == 'sales_manager':
+        # Sales Manager can see:
+        # 1. All available items (in_used=False)
+        # 2. In-use items installed at their accessible companies
+        if hasattr(user, 'company') and user.company:
+            from warranty_and_services.utils import get_user_accessible_companies
+            accessible_company_ids = get_user_accessible_companies(user)
+            
+            from warranty_and_services.models import Installation
+            # Get in-use items installed at accessible companies
+            accessible_in_use_item_ids = Installation.objects.filter(
+                customer_id__in=accessible_company_ids
+            ).values_list('inventory_item_id', flat=True)
+            
+            # Filter: available items OR in-use items at accessible companies
+            items = items.filter(
+                Q(in_used=False) |  # All available items
+                Q(id__in=accessible_in_use_item_ids)  # In-use items at accessible companies
+            )
+        else:
+            # If sales manager has no company assigned, show only available items
+            items = items.filter(in_used=False)
     
     # Apply search filter
     if search_query:
@@ -77,10 +121,58 @@ def inventory_item_list(request):
         except ItemMaster.DoesNotExist:
             pass
     
-    # Get stats
-    total_items = InventoryItem.objects.count()
-    in_use_items = InventoryItem.objects.filter(in_used=True).count()
-    available_items = InventoryItem.objects.filter(in_used=False).count()
+    # Get stats - apply same filtering logic for distributor and sales manager users
+    if hasattr(user, 'role') and user.role in ['manager_distributor', 'service_distributor']:
+        # For distributor users, stats should only include their accessible items
+        if hasattr(user, 'company') and user.company:
+            from warranty_and_services.utils import get_user_accessible_companies
+            accessible_company_ids = get_user_accessible_companies(user)
+            
+            from warranty_and_services.models import Installation
+            installed_item_ids = Installation.objects.filter(
+                customer_id__in=accessible_company_ids
+            ).values_list('inventory_item_id', flat=True)
+            
+            stats_queryset = InventoryItem.objects.filter(id__in=installed_item_ids)
+            total_items = stats_queryset.count()
+            in_use_items = stats_queryset.filter(in_used=True).count()
+            available_items = stats_queryset.filter(in_used=False).count()
+        else:
+            total_items = 0
+            in_use_items = 0
+            available_items = 0
+    elif hasattr(user, 'role') and user.role == 'sales_manager':
+        # For sales manager, stats should include available items + accessible in-use items
+        if hasattr(user, 'company') and user.company:
+            from warranty_and_services.utils import get_user_accessible_companies
+            accessible_company_ids = get_user_accessible_companies(user)
+            
+            from warranty_and_services.models import Installation
+            accessible_in_use_item_ids = Installation.objects.filter(
+                customer_id__in=accessible_company_ids
+            ).values_list('inventory_item_id', flat=True)
+            
+            # Calculate stats for accessible items
+            all_available_items = InventoryItem.objects.filter(in_used=False).count()
+            accessible_in_use_items = InventoryItem.objects.filter(
+                id__in=accessible_in_use_item_ids,
+                in_used=True
+            ).count()
+            
+            total_items = all_available_items + accessible_in_use_items
+            in_use_items = accessible_in_use_items
+            available_items = all_available_items
+        else:
+            # If sales manager has no company, show only available items
+            all_items = InventoryItem.objects.all()
+            total_items = all_items.count()
+            in_use_items = all_items.filter(in_used=True).count()
+            available_items = all_items.filter(in_used=False).count()
+    else:
+        # For main company users, show all items
+        total_items = InventoryItem.objects.count()
+        in_use_items = InventoryItem.objects.filter(in_used=True).count()
+        available_items = InventoryItem.objects.filter(in_used=False).count()
     
     context = {
         'items': page_obj,
@@ -120,10 +212,87 @@ def inventory_item_detail(request, pk):
         pk=pk
     )
     
+    # Check if distributor or sales manager user has access to this item
+    user = request.user
+    if hasattr(user, 'role') and user.role in ['manager_distributor', 'service_distributor']:
+        if hasattr(user, 'company') and user.company:
+            from warranty_and_services.utils import get_user_accessible_companies
+            accessible_company_ids = get_user_accessible_companies(user)
+            
+            # Check if this item is installed at any accessible company
+            from warranty_and_services.models import Installation
+            item_installations = Installation.objects.filter(
+                inventory_item=item,
+                customer_id__in=accessible_company_ids
+            )
+            
+            if not item_installations.exists():
+                # Item is not accessible to this distributor user
+                from django.core.exceptions import PermissionDenied
+                raise PermissionDenied("Bu ürüne erişim izniniz bulunmamaktadır.")
+        else:
+            from django.core.exceptions import PermissionDenied
+            raise PermissionDenied("Şirket bilginiz tanımlı değil.")
+    elif hasattr(user, 'role') and user.role == 'sales_manager':
+        # Sales manager can access:
+        # 1. Available items (in_used=False)
+        # 2. In-use items installed at accessible companies
+        if item.in_used:  # If item is in use, check if it's at accessible company
+            if hasattr(user, 'company') and user.company:
+                from warranty_and_services.utils import get_user_accessible_companies
+                accessible_company_ids = get_user_accessible_companies(user)
+                
+                from warranty_and_services.models import Installation
+                item_installations = Installation.objects.filter(
+                    inventory_item=item,
+                    customer_id__in=accessible_company_ids
+                )
+                
+                if not item_installations.exists():
+                    from django.core.exceptions import PermissionDenied
+                    raise PermissionDenied("Bu kullanımda olan ürüne erişim izniniz bulunmamaktadır.")
+            else:
+                from django.core.exceptions import PermissionDenied
+                raise PermissionDenied("Şirket bilginiz tanımlı değil.")
+        # If item is available (in_used=False), sales manager can always access it
+    
     # Get related inventory items for the same ItemMaster
-    related_items = InventoryItem.objects.filter(
+    related_items_queryset = InventoryItem.objects.filter(
         name=item.name
-    ).exclude(pk=item.pk).select_related('created_by').order_by('-created_at')[:5]
+    ).exclude(pk=item.pk).select_related('created_by').order_by('-created_at')
+    
+    # Apply same filtering logic for related items if user is distributor or sales manager
+    if hasattr(user, 'role') and user.role in ['manager_distributor', 'service_distributor']:
+        if hasattr(user, 'company') and user.company:
+            # Filter related items to only show those installed at accessible companies
+            from warranty_and_services.models import Installation
+            accessible_related_item_ids = Installation.objects.filter(
+                customer_id__in=accessible_company_ids
+            ).values_list('inventory_item_id', flat=True).distinct()
+            
+            related_items = related_items_queryset.filter(id__in=accessible_related_item_ids)[:5]
+        else:
+            related_items = InventoryItem.objects.none()  # No items if no company
+    elif hasattr(user, 'role') and user.role == 'sales_manager':
+        if hasattr(user, 'company') and user.company:
+            from warranty_and_services.utils import get_user_accessible_companies
+            accessible_company_ids = get_user_accessible_companies(user)
+            
+            # Filter related items: available items OR in-use items at accessible companies
+            from warranty_and_services.models import Installation
+            accessible_in_use_item_ids = Installation.objects.filter(
+                customer_id__in=accessible_company_ids
+            ).values_list('inventory_item_id', flat=True).distinct()
+            
+            related_items = related_items_queryset.filter(
+                Q(in_used=False) |  # Available items
+                Q(id__in=accessible_in_use_item_ids)  # In-use items at accessible companies
+            )[:5]
+        else:
+            # Show only available items if no company assigned
+            related_items = related_items_queryset.filter(in_used=False)[:5]
+    else:
+        related_items = related_items_queryset[:5]
     
     # Get spare parts for the main item
     from .models import ItemSparePart
@@ -263,6 +432,7 @@ def item_master_detail(request, pk):
     return render(request, 'pages/itemmaster/item-master-detail.html', context)
 
 @login_required(login_url='login')
+@permission_required('item_master.add_itemmaster', raise_exception=True)
 def item_master_create(request):
     from django.contrib import messages
     from django.shortcuts import redirect
@@ -430,6 +600,7 @@ def item_master_create(request):
     return render(request, 'pages/itemmaster/item-master-create.html', context)
 
 @login_required(login_url='login')
+@permission_required('item_master.change_itemmaster', raise_exception=True)
 def item_master_update(request, pk):
     from django.contrib import messages
     from django.shortcuts import redirect
@@ -634,6 +805,7 @@ def item_master_update(request, pk):
     return render(request, 'pages/itemmaster/item-master-update.html', context)
 
 @login_required(login_url='login')
+@permission_required('item_master.add_inventoryitem', raise_exception=True)
 def inventory_item_create(request):
     from django.utils.translation import gettext as _
     from django.contrib import messages
@@ -739,6 +911,7 @@ def inventory_item_create(request):
 
 
 @login_required
+@permission_required('item_master.change_inventoryitem', raise_exception=True)
 def inventory_item_update(request, pk):
     """Update an existing inventory item"""
     from django.contrib import messages
@@ -749,6 +922,49 @@ def inventory_item_update(request, pk):
     except InventoryItem.DoesNotExist:
         messages.error(request, _('Inventory item not found.'))
         return redirect('item-master:inventory_item_list')
+    
+    # Check if distributor or sales manager user has access to this item
+    user = request.user
+    if hasattr(user, 'role') and user.role in ['manager_distributor', 'service_distributor']:
+        if hasattr(user, 'company') and user.company:
+            from warranty_and_services.utils import get_user_accessible_companies
+            accessible_company_ids = get_user_accessible_companies(user)
+            
+            # Check if this item is installed at any accessible company
+            from warranty_and_services.models import Installation
+            item_installations = Installation.objects.filter(
+                inventory_item=inventory_item,
+                customer_id__in=accessible_company_ids
+            )
+            
+            if not item_installations.exists():
+                messages.error(request, _('Bu ürüne erişim izniniz bulunmamaktadır.'))
+                return redirect('item-master:inventory_item_list')
+        else:
+            messages.error(request, _('Şirket bilginiz tanımlı değil.'))
+            return redirect('item-master:inventory_item_list')
+    elif hasattr(user, 'role') and user.role == 'sales_manager':
+        # Sales manager can update:
+        # 1. Available items (in_used=False)
+        # 2. In-use items installed at accessible companies
+        if inventory_item.in_used:  # If item is in use, check accessibility
+            if hasattr(user, 'company') and user.company:
+                from warranty_and_services.utils import get_user_accessible_companies
+                accessible_company_ids = get_user_accessible_companies(user)
+                
+                from warranty_and_services.models import Installation
+                item_installations = Installation.objects.filter(
+                    inventory_item=inventory_item,
+                    customer_id__in=accessible_company_ids
+                )
+                
+                if not item_installations.exists():
+                    messages.error(request, _('Bu kullanımda olan ürüne erişim izniniz bulunmamaktadır.'))
+                    return redirect('item-master:inventory_item_list')
+            else:
+                messages.error(request, _('Şirket bilginiz tanımlı değil.'))
+                return redirect('item-master:inventory_item_list')
+        # If item is available (in_used=False), sales manager can always update it
     
     if request.method == 'POST':
         try:
@@ -876,6 +1092,49 @@ def inventory_item_delete(request, pk):
     except InventoryItem.DoesNotExist:
         messages.error(request, _('Inventory item not found.'))
         return redirect('item-master:inventory_item_list')
+    
+    # Check if distributor or sales manager user has access to this item
+    user = request.user
+    if hasattr(user, 'role') and user.role in ['manager_distributor', 'service_distributor']:
+        if hasattr(user, 'company') and user.company:
+            from warranty_and_services.utils import get_user_accessible_companies
+            accessible_company_ids = get_user_accessible_companies(user)
+            
+            # Check if this item is installed at any accessible company
+            from warranty_and_services.models import Installation
+            item_installations = Installation.objects.filter(
+                inventory_item=inventory_item,
+                customer_id__in=accessible_company_ids
+            )
+            
+            if not item_installations.exists():
+                messages.error(request, _('Bu ürüne erişim izniniz bulunmamaktadır.'))
+                return redirect('item-master:inventory_item_list')
+        else:
+            messages.error(request, _('Şirket bilginiz tanımlı değil.'))
+            return redirect('item-master:inventory_item_list')
+    elif hasattr(user, 'role') and user.role == 'sales_manager':
+        # Sales manager can delete:
+        # 1. Available items (in_used=False)
+        # 2. In-use items installed at accessible companies
+        if inventory_item.in_used:  # If item is in use, check accessibility
+            if hasattr(user, 'company') and user.company:
+                from warranty_and_services.utils import get_user_accessible_companies
+                accessible_company_ids = get_user_accessible_companies(user)
+                
+                from warranty_and_services.models import Installation
+                item_installations = Installation.objects.filter(
+                    inventory_item=inventory_item,
+                    customer_id__in=accessible_company_ids
+                )
+                
+                if not item_installations.exists():
+                    messages.error(request, _('Bu kullanımda olan ürüne erişim izniniz bulunmamaktadır.'))
+                    return redirect('item-master:inventory_item_list')
+            else:
+                messages.error(request, _('Şirket bilginiz tanımlı değil.'))
+                return redirect('item-master:inventory_item_list')
+        # If item is available (in_used=False), sales manager can always delete it
     
     if request.method == 'POST':
         try:

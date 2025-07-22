@@ -1,0 +1,16 @@
+<html>
+  <body>
+    <h2>{% if language == 'tr' %}Kurulum Tamamlandı{% else %}Installation Completed{% endif %}</h2>
+    <p>{% if language == 'tr' %}Kurulum detayları aşağıdadır:{% else %}Installation details are below:{% endif %}</p>
+    <ul>
+      <li>{% if language == 'tr' %}Kurulum Tarihi:{% else %}Setup Date:{% endif %} {{ installation.setup_date }}</li>
+      <li>{% if language == 'tr' %}Kurulan Ürün:{% else %}Installed Item:{% endif %} {{ installation.inventory_item }}</li>
+      <li>{% if language == 'tr' %}Müşteri Firma:{% else %}Customer Company:{% endif %} {{ installation.customer.name }}</li>
+      <li>{% if language == 'tr' %}Kurulum Adresi:{% else %}Installation Address:{% endif %} {{ installation.location_address }}</li>
+      <li>{% if language == 'tr' %}Kurulum Notları:{% else %}Installation Notes:{% endif %} {{ installation.installation_notes }}</li>
+      <li>{% if language == 'tr' %}Garanti Bitiş Tarihi:{% else %}Warranty End Date:{% endif %} {{ warranty_end_date }}</li>
+      <li>{% if language == 'tr' %}En Yakın Servis Tarihi:{% else %}Next Service Date:{% endif %} {{ next_service_date }}</li>
+    </ul>
+    <p>{% if language == 'tr' %}Ek olarak PDF dosyası ektedir.{% else %}PDF attachment is included.{% endif %}</p>
+  </body>
+</html>

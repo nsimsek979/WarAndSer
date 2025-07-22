@@ -5,7 +5,7 @@
 {% block title %}Garanti Takip{% endblock %}
 
 {% block content %}
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+<div class="max-w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
     <!-- Header -->
     <div class="flex justify-between items-center mb-8">
         <div class="flex items-center">
@@ -25,7 +25,7 @@
     </div>
 
     <!-- Stats Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 xl:gap-6 mb-8">
         <div class="bg-white overflow-hidden shadow-lg rounded-lg border border-gray-200">
             <div class="p-6">
                 <div class="flex items-center">
@@ -38,8 +38,9 @@
                     </div>
                     <div class="ml-5 w-0 flex-1">
                         <dl>
-                            <dt class="text-sm font-medium text-gray-500 truncate">Toplam Garanti</dt>
+                            <dt class="text-sm font-medium text-gray-500 truncate">Toplam Ürün</dt>
                             <dd class="text-2xl font-semibold text-gray-900">{{ stats.total }}</dd>
+                            <dd class="text-xs text-gray-400">Garanti takipli ürün sayısı</dd>
                         </dl>
                     </div>
                 </div>
@@ -60,6 +61,7 @@
                         <dl>
                             <dt class="text-sm font-medium text-gray-500 truncate">Aktif Garanti</dt>
                             <dd class="text-2xl font-semibold text-gray-900">{{ stats.active }}</dd>
+                            <dd class="text-xs text-gray-400">Garantisi devam eden ürünler</dd>
                         </dl>
                     </div>
                 </div>
@@ -80,6 +82,7 @@
                         <dl>
                             <dt class="text-sm font-medium text-gray-500 truncate">Süresi Yaklaşan</dt>
                             <dd class="text-2xl font-semibold text-gray-900">{{ stats.expiring_soon }}</dd>
+                            <dd class="text-xs text-gray-400">30 gün içinde süresi dolacak</dd>
                         </dl>
                     </div>
                 </div>
@@ -100,6 +103,7 @@
                         <dl>
                             <dt class="text-sm font-medium text-gray-500 truncate">Süresi Geçen</dt>
                             <dd class="text-2xl font-semibold text-gray-900">{{ stats.expired }}</dd>
+                            <dd class="text-xs text-gray-400">Garantisi sona eren ürünler</dd>
                         </dl>
                     </div>
                 </div>
@@ -113,16 +117,16 @@
             <h3 class="text-lg font-medium text-gray-900">Filtreler</h3>
         </div>
         <div class="p-6">
-            <form method="GET" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <form method="GET" class="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Arama</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Arama</label>
                     <input type="text" name="search" 
                            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                            placeholder="Müşteri, ürün veya seri no..." 
                            value="{{ search_query }}">
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Durum</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Durum</label>
                     <select name="filter" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
                         <option value="all" {% if filter_type == 'all' %}selected{% endif %}>Tümü</option>
                         <option value="active" {% if filter_type == 'active' %}selected{% endif %}>Aktif Garantiler</option>
@@ -130,21 +134,24 @@
                         <option value="expired" {% if filter_type == 'expired' %}selected{% endif %}>Süresi Geçen</option>
                     </select>
                 </div>
-                <div class="flex items-end space-x-2">
-                    <button type="submit" 
-                            class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                        </svg>
-                        Filtrele
-                    </button>
-                    <a href="{% url 'warranty_and_services:warranty_tracking_list' %}" 
-                       class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
-                        </svg>
-                        Temizle
-                    </a>
+                <div class="col-span-2">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">&nbsp;</label>
+                    <div class="flex items-center space-x-2">
+                        <button type="submit" 
+                                class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                            </svg>
+                            Filtrele
+                        </button>
+                        <a href="{% url 'warranty_and_services:warranty_tracking_list' %}" 
+                           class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                            </svg>
+                            Temizle
+                        </a>
+                    </div>
                 </div>
             </form>
         </div>
@@ -156,40 +163,40 @@
             <h3 class="text-lg font-medium text-gray-900">Garanti Listesi</h3>
         </div>
         <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200">
+            <table class="w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50">
                     <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Müşteri</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ürün</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Seri No</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Garanti Türü</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Garanti Değeri</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kurulum Tarihi</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Garanti Bitiş</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kalan Gün</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Durum</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">İşlemler</th>
+                        <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Müşteri</th>
+                        <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ürün</th>
+                        <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Seri No</th>
+                        <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Garanti Türü</th>
+                        <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Garanti Değeri</th>
+                        <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kurulum Tarihi</th>
+                        <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Garanti Bitiş</th>
+                        <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kalan Gün</th>
+                        <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Durum</th>
+                        <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">İşlemler</th>
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
                     {% for warranty in warranties %}
                     <tr class="hover:bg-gray-50">
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm font-medium text-gray-900">{{ warranty.installation.customer.name }}</div>
+                        <td class="px-3 py-4 whitespace-nowrap">
+                            <div class="text-sm font-medium text-gray-900 max-w-xs truncate" title="{{ warranty.installation.customer.name }}">{{ warranty.installation.customer.name }}</div>
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm text-gray-900">{{ warranty.installation.inventory_item.name.name }}</div>
+                        <td class="px-3 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-900 max-w-xs truncate" title="{{ warranty.installation.inventory_item.name.name }}">{{ warranty.installation.inventory_item.name.name }}</div>
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
+                        <td class="px-3 py-4 whitespace-nowrap">
                             <code class="px-2 py-1 text-xs font-mono bg-gray-100 rounded">{{ warranty.installation.inventory_item.serial_no|default:"N/A" }}</code>
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
+                        <td class="px-3 py-4 whitespace-nowrap">
                             <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full 
                                          {% if warranty.warranty_type == 'time_term' %}bg-blue-100 text-blue-800{% else %}bg-gray-100 text-gray-800{% endif %}">
                                 {{ warranty.get_warranty_type_display }}
                             </span>
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
+                        <td class="px-3 py-4 whitespace-nowrap">
                             <div class="text-sm font-medium text-gray-900">
                                 {% if warranty.warranty_type == 'time_term' %}
                                     {{ warranty.warranty_value|floatformat:"0" }} yıl
@@ -198,20 +205,20 @@
                                 {% endif %}
                             </div>
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        <td class="px-3 py-4 whitespace-nowrap text-sm text-gray-900">
                             {{ warranty.installation.setup_date|date:"d.m.Y" }}
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        <td class="px-3 py-4 whitespace-nowrap text-sm text-gray-900">
                             {{ warranty.end_of_warranty_date|date:"d.m.Y" }}
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
+                        <td class="px-3 py-4 whitespace-nowrap">
                             {% if warranty.is_active %}
                                 <span class="text-sm text-green-600 font-medium">{{ warranty.days_remaining }} gün</span>
                             {% else %}
                                 <span class="text-sm text-red-600 font-medium">Süresi geçmiş</span>
                             {% endif %}
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
+                        <td class="px-3 py-4 whitespace-nowrap">
                             {% if warranty.is_active %}
                                 {% if warranty.days_remaining <= 30 %}
                                     <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">
@@ -228,7 +235,7 @@
                                 </span>
                             {% endif %}
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <td class="px-3 py-4 whitespace-nowrap text-sm font-medium">
                             <a href="{% url 'warranty_and_services:warranty_detail' warranty.id %}" 
                                class="text-indigo-600 hover:text-indigo-900">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

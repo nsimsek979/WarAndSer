@@ -153,3 +153,12 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # Custom user model
 AUTH_USER_MODEL = "custom_user.CustomUser"
+
+# Email settings
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'shipstore.app@gmail.com'  # Your Gmail address
+EMAIL_HOST_PASSWORD = 'jstz iios mkao qxes'  # Use App Password if 2FA is enabled
+DEFAULT_FROM_EMAIL = 'shipstore.app@gmail.com'  # Your Gmail address

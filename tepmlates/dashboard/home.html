@@ -60,7 +60,7 @@
                     </div>
                     <div class="ml-5 w-0 flex-1">
                         <dl>
-                            <dt class="text-sm font-medium text-gray-500 truncate">Aktif Garanti</dt>
+                            <dt class="text-sm font-medium text-gray-500 truncate">Garanti Süresi Devam Eden Item</dt>
                             <dd class="text-2xl font-semibold text-gray-900">{{ active_warranties|default:"0" }}</dd>
                         </dl>
                     </div>
@@ -68,7 +68,7 @@
             </div>
             <div class="bg-gray-50 px-6 py-3">
                 <div class="text-sm">
-                    <a href="{% url 'warranty_and_services:warranty_tracking_list' %}?filter=active" class="font-medium text-green-600 hover:text-green-500">
+                    <a href="{% url 'warranty_and_services:installation_list' %}?filter=active_warranty" class="font-medium text-green-600 hover:text-green-500">
                         Detayları Gör 
                         <span aria-hidden="true"> &rarr;</span>
                     </a>

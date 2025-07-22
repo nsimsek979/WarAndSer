@@ -40,11 +40,13 @@
                                     <span class="ms-3">{% trans "Item Master List" %}</span>
                                 </a>
                             </li>
+                            {% if perms.item_master.add_itemmaster %}
                             <li>
                                 <a href="/item-master/create/" class="flex items-center p-1.5 text-sm text-black hover:text-blue-500 focus:text-blue-500 rounded-lg dark:text-white dark:hover:bg-gray-700 group">
                                     <span class="ms-3">{% trans "Add New Item" %}</span>
                                 </a>
                             </li>
+                            {% endif %}
                             <li>
                                 <a href="/item-master/inventory/" class="flex items-center p-1.5 text-sm text-black hover:text-blue-500 focus:text-blue-500 rounded-lg dark:text-white dark:hover:bg-gray-700 group">
                                     <span class="ms-3">{% trans "Inventory Items" %}</span>
@@ -55,11 +57,13 @@
                                     <span class="ms-3">{% trans "Stock Item List" %}</span>
                                 </a>
                             </li>
+                            {% if perms.item_master.add_inventoryitem %}
                             <li>
-                                <a href="#" class="flex items-center p-1.5 text-sm text-black  hover:text-blue-500 focus:text-blue-500  rounded-lg dark:text-white dark:hover:bg-gray-700 group">
+                                <a href="{% url 'item-master:inventory_item_create' %}" class="flex items-center p-1.5 text-sm text-black  hover:text-blue-500 focus:text-blue-500  rounded-lg dark:text-white dark:hover:bg-gray-700 group">
                                     <span class="ms-3">{% trans "Add Stock Item" %}</span>
                                 </a>
                             </li>
+                            {% endif %}
                         </ul>
                     </li>
                     <!-- Customer Menu (dropdown) -->
@@ -80,11 +84,13 @@
                                     <span class="ms-3">{% trans "Customer List" %}</span>
                                 </a>
                             </li>
+                            {% if perms.customer.add_company %}
                             <li>
                                 <a href="{% url 'customer:customer_create' %}" class="flex items-center p-1.5 text-sm text-black hover:text-blue-500 focus:text-blue-500 rounded-lg dark:text-white dark:hover:bg-gray-700 group">
                                     <span class="ms-3">{% trans "Add New Customer" %}</span>
                                 </a>
                             </li>
+                            {% endif %}
                         </ul>
                     </li>
                     

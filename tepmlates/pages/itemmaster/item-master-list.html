@@ -19,11 +19,13 @@
                 <h2 class="text-md font-semibold text-gray-700">{% trans "Item Master" %}</h2>
                 <p class="text-gray-600 mt-0.5 text-sm">{% trans "Item Master Management" %}</p>
             </div>
+            {% if perms.item_master.add_itemmaster %}
             <a href="{% url 'item-master:item_master_create' %}" class="inline-flex items-center space-x-2
                          bg-blue-700 text-white border border-gray-200 px-3 py-1.5 rounded-md hover:bg-blue-900 text-sm">
                 <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                 <span>{% trans "Add New Item" %}</span>
             </a>
+            {% endif %}
         </div>
     </div>
 
@@ -140,9 +142,11 @@
                                      <a href="{% url 'item-master:item_master_detail' item.id %}" class="inline-flex items-center px-2 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded text-xs font-semibold transition" title="{% trans 'View' %}">
                                          <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M1.5 12s4-7 10.5-7 10.5 7 10.5 7-4 7-10.5 7S1.5 12 1.5 12z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="12" r="3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                                      </a>
+                                     {% if perms.item_master.change_itemmaster %}
                                      <a href="{% url 'item-master:item_master_update' item.id %}" class="inline-flex items-center px-2 py-1.5 bg-blue-600 hover:bg-blue-800 text-white rounded text-xs font-semibold transition" title="{% trans 'Edit' %}">
                                          <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15.232 5.232l3.536 3.536M9 13l6-6 3 3-6 6H9v-3z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                                      </a>
+                                     {% endif %}
                                  </div>
                              </td>
                          </tr>

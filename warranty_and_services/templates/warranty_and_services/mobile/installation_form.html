@@ -338,6 +338,78 @@
                         >
                     </div>
 
+                    <!-- Working Hours Section -->
+                    <div class="bg-blue-50 rounded-lg p-4 space-y-4">
+                        <h4 class="text-md font-semibold text-blue-900 flex items-center">
+                            <i class="fas fa-clock text-blue-600 mr-2"></i>
+                            Çalışma Saatleri
+                        </h4>
+                        
+                        <!-- Daily Working Hours -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                Günlük Çalışma Saati
+                            </label>
+                            <div class="relative">
+                                <input 
+                                    type="number" 
+                                    x-model.number="newCustomer.daily_working_hours" 
+                                    min="1" 
+                                    max="24" 
+                                    placeholder="8"
+                                    class="w-full px-4 py-3 pr-16 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                >
+                                <span class="absolute right-3 top-1/2 transform -translate-y-1/2 text-sm text-gray-500">saat</span>
+                            </div>
+                            <p class="text-xs text-gray-500 mt-1">Günde maksimum 24 saat</p>
+                        </div>
+                        
+                        <!-- Weekend Work -->
+                        <div class="grid grid-cols-2 gap-4">
+                            <!-- Saturday Work -->
+                            <div class="space-y-2">
+                                <label class="block text-sm font-medium text-gray-700">Cumartesi Çalışması</label>
+                                <div class="flex items-center space-x-3">
+                                    <label class="inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" x-model="newCustomer.working_on_saturday" class="sr-only peer">
+                                        <div class="w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-4 peer-focus:ring-blue-300 transition-all duration-300 peer-checked:bg-blue-600 relative">
+                                            <div class="absolute left-1 top-1 w-4 h-4 bg-white rounded-full shadow transition-all duration-300 peer-checked:translate-x-5"></div>
+                                        </div>
+                                        <span class="ml-3 text-sm text-gray-700" x-text="newCustomer.working_on_saturday ? 'Çalışıyor' : 'Çalışmıyor'"></span>
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <!-- Sunday Work -->
+                            <div class="space-y-2">
+                                <label class="block text-sm font-medium text-gray-700">Pazar Çalışması</label>
+                                <div class="flex items-center space-x-3">
+                                    <label class="inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" x-model="newCustomer.working_on_sunday" class="sr-only peer">
+                                        <div class="w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-4 peer-focus:ring-blue-300 transition-all duration-300 peer-checked:bg-blue-600 relative">
+                                            <div class="absolute left-1 top-1 w-4 h-4 bg-white rounded-full shadow transition-all duration-300 peer-checked:translate-x-5"></div>
+                                        </div>
+                                        <span class="ml-3 text-sm text-gray-700" x-text="newCustomer.working_on_sunday ? 'Çalışıyor' : 'Çalışmıyor'"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Weekly Summary -->
+                        <div class="bg-white rounded-lg p-3 border border-blue-200">
+                            <div class="text-sm text-blue-800">
+                                <div class="flex justify-between">
+                                    <span>Haftalık Toplam:</span>
+                                    <span class="font-semibold" x-text="((newCustomer.daily_working_hours || 8) * 5 + ((newCustomer.working_on_saturday ? (newCustomer.daily_working_hours || 8) : 0) + (newCustomer.working_on_sunday ? (newCustomer.daily_working_hours || 8) : 0))) + ' saat'"></span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span>Çalışma Günü:</span>
+                                    <span class="font-semibold" x-text="(5 + (newCustomer.working_on_saturday ? 1 : 0) + (newCustomer.working_on_sunday ? 1 : 0)) + ' gün'"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Action Buttons -->
                     <div class="flex space-x-3 pt-4">
                         <button @click="createCustomer()" 
@@ -604,7 +676,10 @@
                     city: '',
                     contact_person: '',
                     contact_phone: '',
-                    contact_email: ''
+                    contact_email: '',
+                    daily_working_hours: 8,
+                    working_on_saturday: false,
+                    working_on_sunday: false
                 },
                 
                 // Installation data
@@ -692,7 +767,10 @@
                         city: '',
                         contact_person: '',
                         contact_phone: '',
-                        contact_email: ''
+                        contact_email: '',
+                        daily_working_hours: 8,
+                        working_on_saturday: false,
+                        working_on_sunday: false
                     };
                 },
 
@@ -725,7 +803,10 @@
                             city: this.newCustomer.city.trim(),
                             contact_person: this.newCustomer.contact_person.trim(),
                             contact_phone: this.newCustomer.contact_phone.trim(),
-                            contact_email: this.newCustomer.contact_email.trim()
+                            contact_email: this.newCustomer.contact_email.trim(),
+                            daily_working_hours: this.newCustomer.daily_working_hours || 8,
+                            working_on_saturday: this.newCustomer.working_on_saturday,
+                            working_on_sunday: this.newCustomer.working_on_sunday
                         };
 
                         const response = await fetch(`/warranty-services/api/customers/create/`, {

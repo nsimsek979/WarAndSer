@@ -6,6 +6,12 @@ from datetime import datetime, timedelta
 from decimal import Decimal
 from django.utils import timezone
 import os
+from django.core.mail import EmailMultiAlternatives
+from django.template.loader import render_to_string
+from django.conf import settings
+import logging
+from io import BytesIO
+from xhtml2pdf import pisa
 
 User = get_user_model()
 
@@ -107,6 +113,62 @@ class Installation(models.Model):
     def __str__(self):
         return f"{self.inventory_item} - {self.customer.name} ({self.setup_date.strftime('%d.%m.%Y')})"
 
+    def send_installation_notification(self):
+        language = 'tr' if self.customer and self.customer.company_type == 'enduser' and self.customer.name.endswith('A.Ş.') else 'en'
+        # Garanti bitiş ve en yakın servis tarihini bul
+        warranty = self.warranty_followups.order_by('end_of_warranty_date').last()
+        service = self.service_followups.filter(is_completed=False).order_by('next_service_date').first()
+        warranty_end_date = warranty.end_of_warranty_date.strftime('%d.%m.%Y') if warranty else '-'
+        next_service_date = service.next_service_date.strftime('%d.%m.%Y') if service else '-'
+        context = {
+            'installation': self,
+            'language': language,
+            'warranty_end_date': warranty_end_date,
+            'next_service_date': next_service_date
+        }
+        subject = 'Kurulum Tamamlandı' if language == 'tr' else 'Installation Completed'
+        html_content = render_to_string('emails/installation_notification.html', context)
+        from_email = settings.DEFAULT_FROM_EMAIL
+        # PDF oluştur
+        pdf_buffer = BytesIO()
+        pisa_status = pisa.CreatePDF(html_content, dest=pdf_buffer)
+        pdf_buffer.seek(0)
+        # Alıcıları topla
+        recipients = set()
+        if self.customer and self.customer.email:
+            recipients.add(self.customer.email)
+        # ContactPerson
+        if hasattr(self.customer, 'contactperson_set'):
+            for contact in self.customer.contactperson_set.all():
+                if contact.email:
+                    recipients.add(contact.email)
+        # Kurulum yapan kullanıcı
+        if self.user and self.user.email:
+            recipients.add(self.user.email)
+        # Kurulum yapan firmanın manager ve servis personeli
+        if self.user.company:
+            for u in self.user.company.customuser_set.filter(role__in=[
+                'manager_main', 'salesmanager_main', 'service_main',
+                'manager_distributor', 'salesmanager_distributor', 'service_distributor']):
+                if u.email:
+                    recipients.add(u.email)
+            # Related manager
+            if self.user.company.related_manager and self.user.company.related_manager.email:
+                recipients.add(self.user.company.related_manager.email)
+        # Mail gönder
+        try:
+            email = EmailMultiAlternatives(
+                subject,
+                html_content,
+                from_email,
+                list(recipients)
+            )
+            email.attach_alternative(html_content, "text/html")
+            email.attach('installation_details.pdf', pdf_buffer.read(), 'application/pdf')
+            email.send()
+        except Exception as e:
+            logging.error(f"Kurulum bildirimi gönderilemedi: {e}")
+
     def save(self, *args, **kwargs):
         """Mark inventory item as in use when installation is saved"""
         # Handle inventory item changes for existing installations
@@ -136,6 +198,8 @@ class Installation(models.Model):
         # Create warranty follow-ups for new installations
         if is_new_installation:
             self.create_warranty_and_service_followups()
+        # Kurulum bildirimi gönder
+        self.send_installation_notification()
 
     def clean(self):
         """Validate installation data"""

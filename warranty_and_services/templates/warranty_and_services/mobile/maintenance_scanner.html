@@ -1,0 +1,617 @@
+{% load static %}
+{% load i18n %}
+<!DOCTYPE html>
+<html lang="tr" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>{% block title %}Bakım Scanner{% endblock title %}</title>
+    <link rel="shortcut icon" type="image/x-icon" href="{% static 'konnektom-logo.png' %}">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com?v=3.4.0"></script>
+    
+    <!-- Alpine.js -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+
+    <!-- QR Code Scanner -->
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+
+    <!-- Tailwind Configuration -->
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            corePlugins: {
+                preflight: true,
+            },
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {"50":"#eff6ff","100":"#dbeafe","200":"#bfdbfe","300":"#93c5fd","400":"#60a5fa","500":"#3b82f6","600":"#2563eb","700":"#1d4ed8","800":"#1e40af","900":"#1e3a8a"},
+                        gray: {
+                            25: "#fcfcfd",
+                            50: "#f9fafb",
+                            100: "#f3f4f6", 
+                            200: "#e5e7eb",
+                            300: "#d1d5db",
+                            400: "#9ca3af",
+                            500: "#6b7280",
+                            600: "#4b5563",
+                            700: "#374151",
+                            800: "#1f2937",
+                            900: "#111827"
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Mobile optimizations -->
+    <style>
+        /* Font rendering optimization */
+        * {
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        
+        /* Mobile input optimizations */
+        button, input, select, textarea {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+        }
+        
+        /* Touch optimizations */
+        button, input, select {
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        /* Prevent zoom on input focus */
+        input[type="text"], input[type="number"], textarea {
+            font-size: 16px;
+        }
+        
+        /* Focus styles */
+        button:focus,
+        input:focus,
+        select:focus,
+        textarea:focus {
+            outline: 2px solid #3b82f6;
+            outline-offset: 2px;
+        }
+        
+        /* Consistent box-sizing */
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+        
+        /* Reset margins */
+        body, h1, h2, h3, h4, h5, h6, p, ul, ol, li, figure, figcaption, blockquote, dl, dd {
+            margin: 0;
+        }
+
+        /* QR Scanner specific styles */
+        #qr-reader {
+            border-radius: 8px;
+            overflow: hidden;
+            width: 100% !important;
+            height: 320px !important;
+        }
+
+        /* QR reader video element */
+        #qr-reader video {
+            width: 100% !important;
+            height: 100% !important;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+
+        /* QR reader canvas element */
+        #qr-reader canvas {
+            width: 100% !important;
+            height: 100% !important;
+            border-radius: 8px;
+        }
+
+        /* Hide default QR scanner UI elements */
+        #qr-reader__dashboard_section,
+        #qr-reader__camera_selection,
+        #qr-reader__camera_permission_button {
+            display: none !important;
+        }
+
+        /* Custom scanner overlay */
+        .scanner-overlay {
+            position: relative;
+            overflow: visible;
+        }
+
+        .scanner-overlay::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 200px;
+            height: 200px;
+            margin: -100px 0 0 -100px;
+            border: 3px solid #f97316;
+            border-radius: 12px;
+            pointer-events: none;
+            z-index: 10;
+            box-shadow: 0 0 0 2px rgba(249, 115, 22, 0.3);
+        }
+    </style>
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{% static 'custom.css' %}?v=1.0">
+</head>
+<body class="h-full bg-gray-50" x-data="maintenanceScanner()">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+
+    <!-- Main Container -->
+    <div class="min-h-screen bg-gradient-to-br from-orange-50 to-red-100">
+        <!-- Header -->
+        <div class="bg-white shadow-sm border-b">
+            <div class="px-4 py-3">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-3">
+                        <a href="{% url 'warranty_and_services:mobile_main' %}" class="text-gray-500 hover:text-gray-700 p-1">
+                            <i class="fas fa-arrow-left"></i>
+                        </a>
+                        <img src="{% static 'konnektom-logo.png' %}" alt="Logo" class="h-8 w-8">
+                        <h1 class="text-lg font-semibold text-gray-900">Bakım Scanner</h1>
+                    </div>
+                    <button 
+                        @click="showHelp = !showHelp"
+                        class="text-gray-500 hover:text-gray-700 p-2"
+                    >
+                        <i class="fas fa-question-circle"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Help Modal -->
+        <div x-show="showHelp" 
+             x-transition:enter="transition ease-out duration-300"
+             x-transition:enter-start="opacity-0"
+             x-transition:enter-end="opacity-100"
+             x-transition:leave="transition ease-in duration-200"
+             x-transition:leave-start="opacity-100"
+             x-transition:leave-end="opacity-0"
+             class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"
+             @click.self="showHelp = false">
+            <div class="bg-white rounded-lg p-6 max-w-sm w-full">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-semibold text-gray-900">Nasıl Kullanılır?</h3>
+                    <button @click="showHelp = false" class="text-gray-500">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="space-y-3 text-sm text-gray-600">
+                    <p>• <strong>QR Tarama:</strong> Kameranızı kurulu ürünün QR koduna tutun</p>
+                    <p>• <strong>Manuel Arama:</strong> Seri numarası ile ürün arayın</p>
+                    <p>• <strong>Müşteri Seçimi:</strong> Ürün sahibi müşteriyi seçin</p>
+                    <p>• Bulunan kurulum için bakım kaydı oluşturabilirsiniz</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="px-4 py-6">
+            <!-- Scanner Tabs -->
+            <div class="mb-6">
+                <div class="flex space-x-1 bg-gray-100 p-1 rounded-lg">
+                    <button 
+                        @click="activeTab = 'scanner'"
+                        :class="activeTab === 'scanner' ? 'bg-white text-orange-600 shadow-sm' : 'text-gray-500'"
+                        class="flex-1 py-2 px-3 text-sm font-medium rounded-md transition-all duration-200"
+                    >
+                        <i class="fas fa-qrcode mr-2"></i>
+                        QR Tara
+                    </button>
+                    <button 
+                        @click="activeTab = 'manual'"
+                        :class="activeTab === 'manual' ? 'bg-white text-orange-600 shadow-sm' : 'text-gray-500'"
+                        class="flex-1 py-2 px-3 text-sm font-medium rounded-md transition-all duration-200"
+                    >
+                        <i class="fas fa-search mr-2"></i>
+                        Manuel Arama
+                    </button>
+                </div>
+            </div>
+
+            <!-- Scanner Tab -->
+            <div x-show="activeTab === 'scanner'" class="space-y-6">
+                <!-- Camera Scanner -->
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                    <div class="p-4 border-b bg-gray-50">
+                        <div class="flex items-center justify-between">
+                            <h3 class="font-medium text-gray-900">Kurulu Ürün QR Tarama</h3>
+                            <button 
+                                @click="toggleScanner()"
+                                :class="scannerActive ? 'bg-red-600 hover:bg-red-700' : 'bg-orange-600 hover:bg-orange-700'"
+                                class="px-4 py-2 text-white text-sm font-medium rounded-md transition-colors"
+                            >
+                                <i :class="scannerActive ? 'fas fa-stop' : 'fas fa-play'" class="mr-2"></i>
+                                <span x-text="scannerActive ? 'Durdur' : 'Başlat'"></span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Scanner Container -->
+                    <div class="scanner-overlay">
+                        <div id="qr-reader" x-show="scannerActive" class="w-full" style="height: 320px; min-height: 320px;"></div>
+                        <div x-show="!scannerActive" class="w-full bg-gray-100 flex items-center justify-center" style="height: 320px;">
+                            <div class="text-center text-gray-500">
+                                <i class="fas fa-camera text-4xl mb-3"></i>
+                                <p class="mb-2">Taramayı başlatmak için "Başlat" butonuna tıklayın</p>
+                                <p class="text-xs text-gray-400">Kurulu ürünün QR kodunu tarayın</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Scanner Status -->
+                    <div x-show="scannerActive" class="p-3 bg-orange-50 border border-orange-200 rounded-lg mt-3">
+                        <div class="flex items-center justify-between text-sm text-orange-800">
+                            <div class="flex items-center">
+                                <div class="animate-pulse w-2 h-2 bg-orange-600 rounded-full mr-2"></div>
+                                <span>Kamera aktif - Kurulu ürünün QR kodunu tutun</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Scan Result -->
+                <div x-show="scannedCode" class="bg-orange-50 border border-orange-200 rounded-lg p-4">
+                    <div class="flex items-center">
+                        <i class="fas fa-check-circle text-orange-600 mr-3"></i>
+                        <div>
+                            <p class="text-sm font-medium text-orange-800">QR Kod Tarandı</p>
+                            <p class="text-sm text-orange-600" x-text="scannedCode"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Manual Search Tab -->
+            <div x-show="activeTab === 'manual'" class="space-y-6">
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+                    <div class="p-4 border-b bg-gray-50">
+                        <h3 class="font-medium text-gray-900">Manuel Arama</h3>
+                    </div>
+                    <div class="p-4 space-y-4">
+                        <!-- Serial Number Input -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                <i class="fas fa-hashtag mr-2"></i>
+                                Seri Numarası
+                            </label>
+                            <input 
+                                type="text" 
+                                x-model="serialNumber"
+                                placeholder="Kurulu ürünün seri numarasını girin..."
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                            >
+                        </div>
+
+                        <!-- Customer Search -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                <i class="fas fa-building mr-2"></i>
+                                Müşteri (Opsiyonel)
+                            </label>
+                            <input 
+                                type="text" 
+                                x-model="customerSearch"
+                                @input="searchCustomers()"
+                                placeholder="Müşteri adı ile filtrele..."
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                            >
+                        </div>
+
+                        <!-- Search Button -->
+                        <button 
+                            @click="searchInstallation()"
+                            :disabled="!serialNumber"
+                            :class="!serialNumber ? 'bg-gray-300 cursor-not-allowed' : 'bg-orange-600 hover:bg-orange-700'"
+                            class="w-full py-3 px-4 text-white font-medium rounded-md transition-colors"
+                        >
+                            <i class="fas fa-search mr-2"></i>
+                            Kurulu Ürünü Bul
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Found Installation Display -->
+            <div x-show="foundInstallation" class="bg-white rounded-lg shadow-sm border border-gray-200 mt-6">
+                <div class="p-4 border-b bg-gradient-to-r from-orange-50 to-red-50">
+                    <div class="flex items-center justify-between">
+                        <h3 class="font-semibold text-gray-900 flex items-center">
+                            <i class="fas fa-check-circle text-orange-600 mr-2"></i>
+                            Bulunan Kurulum
+                        </h3>
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
+                            ✓ Kurulu
+                        </span>
+                    </div>
+                </div>
+                <div class="p-6" x-show="foundInstallation">
+                    <!-- Installation Details -->
+                    <div class="space-y-4">
+                        <div class="bg-gray-50 rounded-lg p-4">
+                            <div class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">Müşteri</div>
+                            <div class="text-lg font-semibold text-gray-900" x-text="foundInstallation?.customer_name || 'Bilinmiyor'"></div>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 gap-3">
+                            <div class="bg-gray-50 rounded-lg p-3">
+                                <div class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">Ürün</div>
+                                <div class="font-medium text-gray-900" x-text="foundInstallation?.item_name || 'Belirtilmemiş'"></div>
+                            </div>
+                            
+                            <div class="bg-gray-50 rounded-lg p-3">
+                                <div class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">Seri Numarası</div>
+                                <div class="font-medium text-gray-900 font-mono" x-text="foundInstallation?.serial_number || 'Belirtilmemiş'"></div>
+                            </div>
+                            
+                            <div class="bg-gray-50 rounded-lg p-3">
+                                <div class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">Kurulum Tarihi</div>
+                                <div class="font-medium text-gray-900" x-text="foundInstallation?.setup_date || 'Belirtilmemiş'"></div>
+                            </div>
+                            
+                            <template x-if="foundInstallation?.location_address">
+                                <div class="bg-gray-50 rounded-lg p-3">
+                                    <div class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">Kurulum Yeri</div>
+                                    <div class="font-medium text-gray-900" x-text="foundInstallation.location_address"></div>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                    
+                    <!-- Action Buttons -->
+                    <div class="mt-6 space-y-3">
+                        <button 
+                            @click="proceedToMaintenance()"
+                            class="w-full bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white py-4 px-6 rounded-lg font-semibold text-lg transition-all transform hover:scale-105 shadow-lg"
+                        >
+                            <i class="fas fa-wrench mr-2"></i>
+                            Bakım/Onarım Başlat
+                        </button>
+                        <button 
+                            @click="resetSearch()"
+                            class="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 py-3 px-4 rounded-lg font-medium transition-colors border border-gray-300"
+                        >
+                            <i class="fas fa-redo mr-2"></i>
+                            Yeni Arama
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Error Message -->
+            <div x-show="errorMessage" class="bg-red-50 border border-red-200 rounded-lg p-4 mt-6">
+                <div class="flex items-center">
+                    <i class="fas fa-exclamation-triangle text-red-600 mr-3"></i>
+                    <div>
+                        <p class="text-sm font-medium text-red-800">Hata</p>
+                        <p class="text-sm text-red-600" x-text="errorMessage"></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Loading State -->
+            <div x-show="loading" class="fixed inset-0 bg-black bg-opacity-50 z-40 flex items-center justify-center">
+                <div class="bg-white rounded-lg p-6 flex items-center space-x-3">
+                    <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-orange-600"></div>
+                    <span class="text-gray-700">Aranıyor...</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Alpine.js Component -->
+    <script>
+        function maintenanceScanner() {
+            return {
+                activeTab: 'scanner',
+                scannerActive: false,
+                scanner: null,
+                scannedCode: '',
+                serialNumber: '',
+                customerSearch: '',
+                foundInstallation: null,
+                loading: false,
+                errorMessage: '',
+                showHelp: false,
+
+                toggleScanner() {
+                    if (this.scannerActive) {
+                        this.stopScanner();
+                    } else {
+                        if (typeof Html5Qrcode === 'undefined') {
+                            this.errorMessage = 'QR kütüphanesi yüklenemedi. Sayfayı yenileyin.';
+                            return;
+                        }
+                        
+                        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                            this.errorMessage = 'Bu tarayıcı kamera desteği sağlamıyor.';
+                            return;
+                        }
+                        
+                        this.startScanner();
+                    }
+                },
+
+                startScanner() {
+                    this.errorMessage = '';
+                    
+                    const config = {
+                        fps: 10,
+                        qrbox: { width: 250, height: 250 },
+                        aspectRatio: 1.777778,
+                        supportedScanTypes: [Html5QrcodeScanType.SCAN_TYPE_CAMERA],
+                        experimentalFeatures: {
+                            useBarCodeDetectorIfSupported: true
+                        },
+                        rememberLastUsedCamera: true,
+                        showTorchButtonIfSupported: true
+                    };
+
+                    try {
+                        this.scanner = new Html5Qrcode("qr-reader");
+                    } catch (error) {
+                        this.errorMessage = 'QR scanner başlatılamadı.';
+                        return;
+                    }
+                    
+                    const cameraConfigs = [
+                        { facingMode: "environment" },
+                        { facingMode: "user" },
+                        "default"
+                    ];
+                    
+                    this.tryCamera(cameraConfigs, 0, config);
+                },
+
+                tryCamera(cameraConfigs, index, config) {
+                    if (index >= cameraConfigs.length) {
+                        this.errorMessage = 'Kamera bulunamadı.';
+                        this.scannerActive = false;
+                        return;
+                    }
+
+                    const cameraConfig = cameraConfigs[index];
+                    
+                    this.scanner.start(
+                        cameraConfig,
+                        config,
+                        (decodedText, decodedResult) => {
+                            this.scannedCode = decodedText;
+                            this.searchByQRCode(decodedText);
+                            this.stopScanner();
+                        },
+                        (error) => {
+                            // Tarama hatalarını sessizce işle
+                        }
+                    ).then(() => {
+                        this.scannerActive = true;
+                        this.errorMessage = '';
+                    }).catch((err) => {
+                        this.tryCamera(cameraConfigs, index + 1, config);
+                    });
+                },
+
+                stopScanner() {
+                    if (this.scanner) {
+                        this.scanner.stop().then(() => {
+                            this.scannerActive = false;
+                        }).catch((err) => {
+                            this.scannerActive = false;
+                        });
+                    }
+                },
+
+                searchInstallation() {
+                    if (this.serialNumber) {
+                        this.searchBySerial(this.serialNumber);
+                    }
+                },
+
+                searchByQRCode(qrCode) {
+                    this.loading = true;
+                    this.errorMessage = '';
+                    
+                    fetch(`/warranty-services/api/installations/search-by-qr/`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': this.getCsrfToken()
+                        },
+                        body: JSON.stringify({ qr_code: qrCode })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        this.loading = false;
+                        if (data.success) {
+                            this.foundInstallation = data.installation;
+                        } else {
+                            this.errorMessage = data.message || 'Kurulum bulunamadı';
+                        }
+                    })
+                    .catch(error => {
+                        this.loading = false;
+                        this.errorMessage = 'Arama sırasında bir hata oluştu';
+                    });
+                },
+
+                searchBySerial(serial) {
+                    this.loading = true;
+                    this.errorMessage = '';
+                    
+                    fetch(`/warranty-services/api/installations/search-by-serial/`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': this.getCsrfToken()
+                        },
+                        body: JSON.stringify({ 
+                            serial_number: serial,
+                            customer_filter: this.customerSearch
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        this.loading = false;
+                        if (data.success) {
+                            this.foundInstallation = data.installation;
+                        } else {
+                            this.errorMessage = data.message || 'Kurulum bulunamadı';
+                        }
+                    })
+                    .catch(error => {
+                        this.loading = false;
+                        this.errorMessage = 'Arama sırasında bir hata oluştu';
+                    });
+                },
+
+                proceedToMaintenance() {
+                    if (this.foundInstallation) {
+                        // Pass installation data to maintenance form
+                        const installationData = encodeURIComponent(JSON.stringify(this.foundInstallation));
+                        window.location.href = `/warranty-services/maintenance/mobile/form/?installation=${installationData}`;
+                    }
+                },
+
+                resetSearch() {
+                    this.foundInstallation = null;
+                    this.scannedCode = '';
+                    this.serialNumber = '';
+                    this.customerSearch = '';
+                    this.errorMessage = '';
+                    this.activeTab = 'scanner';
+                },
+
+                getCsrfToken() {
+                    return document.querySelector('[name=csrfmiddlewaretoken]')?.value || '';
+                }
+            }
+        }
+    </script>
+
+    <!-- CSRF Token -->
+    {% csrf_token %}
+</body>
+</html>

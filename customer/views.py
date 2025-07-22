@@ -1,5 +1,5 @@
 from django.contrib.auth import get_user_model
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, permission_required
 from django.shortcuts import get_object_or_404, redirect
 from django.shortcuts import render
 from django.http import JsonResponse
@@ -29,6 +29,14 @@ def customer_detail(request, pk):
 	from django.db.models import Min
 	from django.core.paginator import Paginator
 	company = get_object_or_404(Company, pk=pk)
+	
+	# Check if user can view this customer (use same permission as edit for now)
+	if not can_user_edit_customer(request.user, company):
+		# For view, we use a more permissive check - can see if in their queryset
+		user_companies = get_company_queryset_for_user(request.user)
+		if not user_companies.filter(id=company.id).exists():
+			from django.core.exceptions import PermissionDenied
+			raise PermissionDenied("You don't have permission to view this customer.")
 	
 	# Get installations for this customer
 	from warranty_and_services.models import Installation
@@ -101,6 +109,7 @@ from django.db import transaction
 from .models import ContactPerson, Address, WorkingHours
 
 @login_required(login_url='login')
+@permission_required('customer.add_company', raise_exception=True)
 def customer_create(request):
 	if request.method == 'POST':
 		try:
@@ -232,9 +241,38 @@ def customer_create(request):
 	
 	return render(request, 'pages/customer/customer-create.html', context)
 
+def can_user_edit_customer(user, company):
+    """
+    Check if user can edit the given customer company.
+    """
+    if not user.is_authenticated:
+        return False
+    
+    role = getattr(user, 'role', None)
+    
+    # Admin, Main Company Manager, Main Company Service Personnel: can edit all
+    if role in ['manager_main', 'service_main'] or user.is_superuser:
+        return True
+    
+    # Main Company Sales Manager: can edit only companies where they are related_manager
+    elif role == 'salesmanager_main':
+        return company.related_manager == user
+    
+    # Distributor roles: can edit only companies where their company is related_company
+    elif role in ['manager_distributor', 'salesmanager_distributor', 'service_distributor'] and user.company:
+        return company.related_company == user.company
+    
+    return False
+
+
 @login_required(login_url='login')
 def customer_update(request, pk):
 	company = get_object_or_404(Company, pk=pk)
+	
+	# Check if user can edit this customer
+	if not can_user_edit_customer(request.user, company):
+		from django.core.exceptions import PermissionDenied
+		raise PermissionDenied("You don't have permission to edit this customer.")
 	
 	if request.method == 'POST':
 		try:

@@ -1,0 +1,21 @@
+<html>
+  <body>
+    {% if language == 'tr' %}
+      <h2>Hoş geldiniz!</h2>
+      <p>Sayın {{ user.get_full_name }},</p>
+      <p>Sistemimize başarıyla kaydoldunuz. Size en kısa sürede destek vermeye hazırız.</p>
+      <p>Herhangi bir sorunuz olursa bizimle iletişime geçebilirsiniz.</p>
+      <br>
+      <p>İyi çalışmalar!</p>
+      <p>Garanti ve Servis Ekibi</p>
+    {% else %}
+      <h2>Welcome!</h2>
+      <p>Dear {{ user.get_full_name }},</p>
+      <p>You have successfully registered to our system. We are ready to support you as soon as possible.</p>
+      <p>If you have any questions, feel free to contact us.</p>
+      <br>
+      <p>Best regards!</p>
+      <p>Warranty and Service Team</p>
+    {% endif %}
+  </body>
+</html>
