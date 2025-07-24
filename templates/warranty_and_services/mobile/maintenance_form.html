@@ -1,0 +1,495 @@
+{% load static %}
+{% load i18n %}
+<!DOCTYPE html>
+<html lang="tr" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Bakım Formu - Mobile</title>
+    <link rel="shortcut icon" type="image/x-icon" href="{% static 'konnektom-logo.png' %}">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com?v=3.4.0"></script>
+    
+    <!-- Alpine.js -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+
+    <!-- Tailwind Configuration -->
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            corePlugins: {
+                preflight: true,
+            },
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {"50":"#eff6ff","100":"#dbeafe","200":"#bfdbfe","300":"#93c5fd","400":"#60a5fa","500":"#3b82f6","600":"#2563eb","700":"#1d4ed8","800":"#1e40af","900":"#1e3a8a"},
+                        gray: {
+                            25: "#fcfcfd",
+                            50: "#f9fafb",
+                            100: "#f3f4f6", 
+                            200: "#e5e7eb",
+                            300: "#d1d5db",
+                            400: "#9ca3af",
+                            500: "#6b7280",
+                            600: "#4b5563",
+                            700: "#374151",
+                            800: "#1f2937",
+                            900: "#111827"
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Mobile optimizations -->
+    <style>
+        /* Mobile font rendering optimization */
+        * {
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        /* Fix mobile input styles */
+        button, input, select, textarea {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+        }
+        
+        /* Prevent zoom on input focus */
+        input[type="text"], input[type="email"], input[type="tel"], input[type="number"], textarea, select {
+            font-size: 16px;
+        }
+        
+        /* Mobile focus styles */
+        button:focus,
+        input:focus,
+        select:focus,
+        textarea:focus {
+            outline: 2px solid #3b82f6;
+            outline-offset: 2px;
+        }
+    </style>
+</head>
+
+<body class="h-full bg-gray-50" x-data="maintenanceForm()">
+    <!-- Header -->
+    <header class="bg-gradient-to-r from-blue-600 to-purple-700 text-white sticky top-0 z-40 shadow-lg">
+        <div class="flex items-center justify-between p-4">
+            <div class="flex items-center space-x-3">
+                <button onclick="history.back()" class="p-2 hover:bg-white/20 rounded-lg transition-colors">
+                    <i class="fas fa-arrow-left text-lg"></i>
+                </button>
+                <div>
+                    <h1 class="text-lg font-bold">Bakım Formu</h1>
+                    <p class="text-sm text-blue-100">Ekipman bakımı kayıt formu</p>
+                </div>
+            </div>
+            <div class="flex items-center space-x-2">
+                <div class="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
+                    <i class="fas fa-tools text-sm"></i>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="p-4 pb-20 space-y-6">
+        <!-- Equipment Information Card -->
+        <div class="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
+            <div class="bg-gradient-to-r from-green-500 to-teal-600 text-white p-4">
+                <div class="flex items-center space-x-3">
+                    <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+                        <i class="fas fa-cog text-xl"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-lg font-bold">Ekipman Bilgileri</h2>
+                        <p class="text-green-100 text-sm">Bakım yapılacak ekipman</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="p-6 space-y-4">
+                <div class="grid grid-cols-1 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Ekipman Adı</label>
+                        <div class="text-lg font-semibold text-gray-900">{{ installation.item_name }}</div>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Seri No</label>
+                            <div class="text-gray-900 font-medium">{{ installation.serial_no }}</div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Kısa Kod</label>
+                            <div class="text-gray-900 font-medium">{{ installation.item_shortcode }}</div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Müşteri</label>
+                        <div class="text-gray-900 font-medium">{{ installation.customer_name }}</div>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Kurulum Tarihi</label>
+                            <div class="text-gray-700">{{ installation.installation_date }}</div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Son Bakım</label>
+                            <div class="text-gray-700">{{ installation.last_maintenance_date }}</div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Konum</label>
+                        <div class="text-gray-700">{{ installation.installation_location }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Maintenance Form -->
+        <div class="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
+            <div class="bg-gradient-to-r from-orange-500 to-red-600 text-white p-4">
+                <div class="flex items-center space-x-3">
+                    <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+                        <i class="fas fa-clipboard-list text-xl"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-lg font-bold">Bakım Bilgileri</h2>
+                        <p class="text-orange-100 text-sm">Yapılan bakım işlemlerinin detayları</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="p-6 space-y-6">
+                <!-- Maintenance Type -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Bakım Türü *</label>
+                    <select x-model="formData.maintenance_type" 
+                            class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent bg-white">
+                        <option value="">Bakım türü seçin</option>
+                        <option value="preventive">Önleyici Bakım</option>
+                        <option value="corrective">Düzeltici Bakım</option>
+                        <option value="emergency">Acil Bakım</option>
+                        <option value="periodic">Periyodik Bakım</option>
+                    </select>
+                </div>
+
+                <!-- Maintenance Date -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Bakım Tarihi *</label>
+                    <input type="date" x-model="formData.maintenance_date"
+                           class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent">
+                </div>
+
+                <!-- Technician -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Teknisyen *</label>
+                    <input type="text" x-model="formData.technician" 
+                           placeholder="Teknisyen adı"
+                           class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent">
+                </div>
+
+                <!-- Work Performed -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Yapılan İşlemler *</label>
+                    <textarea x-model="formData.work_performed" 
+                              placeholder="Yapılan bakım işlemlerini detaylı olarak yazın..."
+                              rows="4"
+                              class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent resize-none"></textarea>
+                </div>
+
+                <!-- Parts Used -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Kullanılan Parçalar</label>
+                    <textarea x-model="formData.parts_used" 
+                              placeholder="Değiştirilen veya kullanılan parçaları listeleyin..."
+                              rows="3"
+                              class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent resize-none"></textarea>
+                </div>
+
+                <!-- Issues Found -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Tespit Edilen Sorunlar</label>
+                    <textarea x-model="formData.issues_found" 
+                              placeholder="Bakım sırasında tespit edilen sorunları açıklayın..."
+                              rows="3"
+                              class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent resize-none"></textarea>
+                </div>
+
+                <!-- Recommendations -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Öneriler</label>
+                    <textarea x-model="formData.recommendations" 
+                              placeholder="Gelecekteki bakımlar için önerilerinizi yazın..."
+                              rows="3"
+                              class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent resize-none"></textarea>
+                </div>
+
+                <!-- Next Maintenance Date -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Sonraki Bakım Tarihi</label>
+                    <input type="date" x-model="formData.next_maintenance_date"
+                           class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent">
+                </div>
+
+                <!-- Cost -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Maliyet (TL)</label>
+                    <input type="number" x-model="formData.cost" 
+                           placeholder="0.00" step="0.01" min="0"
+                           class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent">
+                </div>
+            </div>
+        </div>
+
+        <!-- Photo Upload Section -->
+        <div class="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
+            <div class="bg-gradient-to-r from-purple-500 to-pink-600 text-white p-4">
+                <div class="flex items-center space-x-3">
+                    <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+                        <i class="fas fa-camera text-xl"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-lg font-bold">Fotoğraflar</h2>
+                        <p class="text-purple-100 text-sm">Bakım öncesi ve sonrası fotoğraflar</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="p-6">
+                <div class="grid grid-cols-2 gap-4">
+                    <button @click="takePhoto('before')" 
+                            class="aspect-square border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center hover:border-purple-500 transition-colors">
+                        <i x-show="!photos.before" class="fas fa-camera text-2xl text-gray-400 mb-2"></i>
+                        <img x-show="photos.before" :src="photos.before" class="w-full h-full object-cover rounded-lg" alt="Bakım öncesi">
+                        <span x-show="!photos.before" class="text-sm text-gray-500 text-center">Bakım Öncesi<br>Fotoğraf</span>
+                    </button>
+                    
+                    <button @click="takePhoto('after')" 
+                            class="aspect-square border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center hover:border-purple-500 transition-colors">
+                        <i x-show="!photos.after" class="fas fa-camera text-2xl text-gray-400 mb-2"></i>
+                        <img x-show="photos.after" :src="photos.after" class="w-full h-full object-cover rounded-lg" alt="Bakım sonrası">
+                        <span x-show="!photos.after" class="text-sm text-gray-500 text-center">Bakım Sonrası<br>Fotoğraf</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Submit Button -->
+        <div class="space-y-4">
+            <button @click="submitMaintenance()" 
+                    :disabled="submitting || !isFormValid()"
+                    :class="submitting || !isFormValid() ? 'bg-gray-400 cursor-not-allowed' : 'bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 active:scale-95'"
+                    class="w-full text-white font-bold py-4 px-6 rounded-xl transition-all duration-200 shadow-lg">
+                <i x-show="!submitting" class="fas fa-save mr-2"></i>
+                <i x-show="submitting" class="fas fa-spinner fa-spin mr-2"></i>
+                <span x-text="submitting ? 'Kaydediliyor...' : 'Bakımı Kaydet'"></span>
+            </button>
+            
+            <p class="text-sm text-gray-500 text-center">* işaretli alanlar zorunludur</p>
+        </div>
+    </main>
+
+    <!-- Mobile Navigation -->
+    {% include 'warranty_and_services/mobile/mobile_nav.html' %}
+
+    <!-- Camera Input (Hidden) -->
+    <input type="file" id="cameraInput" accept="image/*" capture="environment" style="display: none;">
+
+    <!-- Success/Error Messages -->
+    <div id="messageContainer" class="fixed top-4 left-4 right-4 z-50"></div>
+
+    <script>
+        function maintenanceForm() {
+            return {
+                // Installation data (passed from backend - Django template variables)
+                installation: {
+                    id: {{ installation.id }},
+                    item_name: "{{ installation.item_name|escapejs }}",
+                    item_shortcode: "{{ installation.item_shortcode|escapejs }}",
+                    serial_no: "{{ installation.serial_no|escapejs }}",
+                    customer_name: "{{ installation.customer_name|escapejs }}",
+                    installation_date: "{{ installation.installation_date|escapejs }}",
+                    installation_location: "{{ installation.installation_location|escapejs }}",
+                    last_maintenance_date: "{{ installation.last_maintenance_date|escapejs }}"
+                },
+
+                // Form data
+                formData: {
+                    maintenance_type: '',
+                    maintenance_date: new Date().toISOString().split('T')[0], // Today's date
+                    technician: '',
+                    work_performed: '',
+                    parts_used: '',
+                    issues_found: '',
+                    recommendations: '',
+                    next_maintenance_date: '',
+                    cost: ''
+                },
+
+                // Photos
+                photos: {
+                    before: null,
+                    after: null
+                },
+
+                // State
+                submitting: false,
+
+                // Methods
+                isFormValid() {
+                    return this.formData.maintenance_type && 
+                           this.formData.maintenance_date && 
+                           this.formData.technician && 
+                           this.formData.work_performed;
+                },
+
+                takePhoto(type) {
+                    const input = document.getElementById('cameraInput');
+                    input.onchange = (e) => {
+                        const file = e.target.files[0];
+                        if (file) {
+                            const reader = new FileReader();
+                            reader.onload = (e) => {
+                                this.photos[type] = e.target.result;
+                            };
+                            reader.readAsDataURL(file);
+                        }
+                    };
+                    input.click();
+                },
+
+                async submitMaintenance() {
+                    if (!this.isFormValid()) {
+                        this.showMessage('Lütfen tüm zorunlu alanları doldurun', 'error');
+                        return;
+                    }
+
+                    this.submitting = true;
+
+                    try {
+                        const formData = new FormData();
+                        
+                        // Add form data
+                        Object.keys(this.formData).forEach(key => {
+                            if (this.formData[key]) {
+                                formData.append(key, this.formData[key]);
+                            }
+                        });
+
+                        // Add installation ID
+                        formData.append('installation_id', this.installation.id);
+
+                        // Add photos
+                        if (this.photos.before) {
+                            const beforeBlob = this.dataURLToBlob(this.photos.before);
+                            formData.append('photo_before', beforeBlob, 'maintenance_before.jpg');
+                        }
+                        
+                        if (this.photos.after) {
+                            const afterBlob = this.dataURLToBlob(this.photos.after);
+                            formData.append('photo_after', afterBlob, 'maintenance_after.jpg');
+                        }
+
+                        const response = await fetch('{% url "warranty_and_services:api_maintenance_submit" %}', {
+                            method: 'POST',
+                            headers: {
+                                'X-CSRFToken': getCookie('csrftoken')
+                            },
+                            body: formData
+                        });
+
+                        const data = await response.json();
+
+                        if (data.success) {
+                            this.showMessage('Bakım kaydı başarıyla oluşturuldu!', 'success');
+                            
+                            // Redirect after success
+                            setTimeout(() => {
+                                window.location.href = '{% url "warranty_and_services:mobile_maintenance_scanner" %}';
+                            }, 2000);
+                        } else {
+                            this.showMessage(data.message || 'Bakım kaydı oluşturulurken bir hata oluştu', 'error');
+                        }
+                    } catch (error) {
+                        console.error('Submit error:', error);
+                        this.showMessage('Bakım kaydı gönderilirken bir hata oluştu', 'error');
+                    } finally {
+                        this.submitting = false;
+                    }
+                },
+
+                dataURLToBlob(dataURL) {
+                    const parts = dataURL.split(',');
+                    const mime = parts[0].match(/:(.*?);/)[1];
+                    const binary = atob(parts[1]);
+                    const array = [];
+                    for (let i = 0; i < binary.length; i++) {
+                        array.push(binary.charCodeAt(i));
+                    }
+                    return new Blob([new Uint8Array(array)], { type: mime });
+                },
+
+                showMessage(message, type) {
+                    // Create toast message
+                    const toast = document.createElement('div');
+                    toast.className = `p-4 rounded-lg z-50 text-white transform transition-all duration-300`;
+                    
+                    if (type === 'success') {
+                        toast.classList.add('bg-green-600');
+                    } else if (type === 'error') {
+                        toast.classList.add('bg-red-600');
+                    } else {
+                        toast.classList.add('bg-blue-600');
+                    }
+                    
+                    toast.innerHTML = message;
+                    
+                    const container = document.getElementById('messageContainer');
+                    container.appendChild(toast);
+                    
+                    // Hide toast after 3 seconds
+                    setTimeout(() => {
+                        toast.classList.add('opacity-0');
+                        setTimeout(() => {
+                            container.removeChild(toast);
+                        }, 300);
+                    }, 3000);
+                }
+            }
+        }
+
+        // Helper function to get CSRF token
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+    </script>
+</body>
+</html>

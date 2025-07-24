@@ -30,6 +30,9 @@ urlpatterns = [
     path('api/installations/search-by-qr/', views.api_installation_search_by_qr, name='api_installation_search_by_qr'),
     path('api/installations/search-by-serial/', views.api_installation_search_by_serial, name='api_installation_search_by_serial'),
     path('api/maintenance/create/', views.api_maintenance_create, name='api_maintenance_create'),
+    path('api/maintenance/search/', views.api_maintenance_search, name='api_maintenance_search'),
+    path('api/maintenance/item-detail/', views.api_maintenance_item_detail, name='api_maintenance_item_detail'),
+    path('api/maintenance/submit/', views.api_maintenance_submit, name='api_maintenance_submit'),
     
     # Warranty tracking
     path('warranty-tracking/', views.warranty_tracking_list, name='warranty_tracking_list'),

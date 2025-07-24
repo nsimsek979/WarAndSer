@@ -4,8 +4,36 @@
 <html lang="tr" class="h-full">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalabl            try {
+                let qrJson = JSON.parse(qrResult);
+                let searchTerm = '';
+                
+                if (qrJson.serial_no) {
+                    searchTerm = qrJson.serial_no;
+                } else if (qrJson.serial_number) {
+                    searchTerm = qrJson.serial_number;
+                } else if (qrJson.serialNumber) {
+                    searchTerm = qrJson.serialNumber;
+                } else {
+                    searchTerm = qrResult; // Use raw QR result if no serial found
+                }
+                
+                // Fill manual entry field
+                const serialInput = document.querySelector('input[type="text"]');
+                if (serialInput) {
+                    serialInput.value = searchTerm;
+                }
+                
+                // Auto-search for installed items
+                searchInstalledItems(searchTerm);
+            } catch (e) {
+                // QR data is plain text, use as is
+                const serialInput = document.querySelector('input[type="text"]');
+                if (serialInput) {
+                    serialInput.value = qrResult;
+                }
+                searchInstalledItems(qrResult);
+            }ttp-equiv="X-UA-Compatible" content="IE=edge">
     <title>Bakım Scanner - GVS Mobile</title>
     <link rel="shortcut icon" type="image/x-icon" href="{% static 'konnektom-logo.png' %}">
 
@@ -82,23 +110,14 @@
 
         <!-- Manual Search -->
         <div class="bg-white rounded-xl p-6 mobile-card">
-            <h3 class="text-lg font-semibold text-gray-900 mb-4">Ekipman Ara</h3>
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Kurulumu Yapılmış Ekipman Ara</h3>
             
             <div class="space-y-4">
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Seri Numarası</label>
-                    <input type="text" placeholder="Ekipman seri numarasını girin" 
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Seri No / Barkod</label>
+                    <input type="text" placeholder="Seri numarası veya barkod girin" 
                            class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
-                </div>
-                
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Müşteri</label>
-                    <select class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
-                        <option value="">Müşteri seçin</option>
-                        <option value="1">ABC Şirketi</option>
-                        <option value="2">XYZ Ltd.</option>
-                        <option value="3">DEF A.Ş.</option>
-                    </select>
+                    <p class="text-xs text-gray-500 mt-1">Sadece kurulumu yapılmış ekipmanlar aranır</p>
                 </div>
                 
                 <button id="manualSearchBtn" class="w-full bg-gray-600 text-white py-3 rounded-lg font-semibold hover:bg-gray-700 transition-colors">
@@ -207,50 +226,164 @@
 
         function processQRCode(qrData) {
             // Show loading
-            showMessage('QR kod okundu, ekipman aranıyor...', 'info');
+            showMessage('QR kod okundu, kurulumu yapılmış ekipman aranıyor...', 'info');
             
             // Try to extract serial number or item info from QR code
-            let serialNumber = qrData;
+            let searchTerm = qrData;
             
             // If QR contains JSON or structured data, try to parse it
             try {
                 const qrJson = JSON.parse(qrData);
                 if (qrJson.serial_number) {
-                    serialNumber = qrJson.serial_number;
+                    searchTerm = qrJson.serial_number;
                 } else if (qrJson.serialNumber) {
-                    serialNumber = qrJson.serialNumber;
+                    searchTerm = qrJson.serialNumber;
+                } else if (qrJson.serial_no) {
+                    searchTerm = qrJson.serial_no;
                 }
             } catch (e) {
                 // QR data is plain text, use as is
+                searchTerm = qrData;
             }
             
             // Fill manual entry field
             const serialInput = document.querySelector('input[type="text"]');
             if (serialInput) {
-                serialInput.value = serialNumber;
+                serialInput.value = searchTerm;
             }
             
-            // Auto-search for the installation
-            searchInstallation(serialNumber);
+            // Auto-search for installed items
+            searchInstalledItems(searchTerm);
         }
 
-        function searchInstallation(serialNumber) {
-            if (!serialNumber) {
-                showError('Seri numarası bulunamadı');
+        function searchInstalledItems(searchTerm) {
+            console.log('searchInstalledItems fonksiyonu çağrıldı, searchTerm:', searchTerm);
+            
+            if (!searchTerm) {
+                showError('Arama terimi gerekli');
                 return;
             }
 
-            // Here you would make an AJAX call to search for the installation
-            // For now, just show a success message
-            showMessage(`Seri numarası "${serialNumber}" için kurulum aranıyor...`, 'info');
+            showMessage('Kurulumu yapılmış ekipman aranıyor...', 'info');
+
+            // Call maintenance search API
+            fetch('{% url "warranty_and_services:api_maintenance_search" %}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({
+                    search_term: searchTerm
+                })
+            })
+            .then(response => {
+                console.log('API yanıtı alındı, status:', response.status);
+                return response.json();
+            })
+            .then(data => {
+                console.log('API data:', data);
+                if (data.success) {
+                    if (data.results.length === 1) {
+                        console.log('Tek sonuç bulundu, showMaintenanceDetail çağrılıyor');
+                        // Tek sonuç varsa direkt detaya git
+                        showMaintenanceDetail(data.results[0]);
+                    } else if (data.results.length > 1) {
+                        console.log('Birden fazla sonuç bulundu, liste gösteriliyor');
+                        // Birden fazla sonuç varsa liste göster
+                        showSearchResults(data.results);
+                    } else {
+                        console.log('Hiç sonuç bulunamadı');
+                        showError('Kurulumu yapılmış ekipman bulunamadı');
+                    }
+                } else {
+                    console.log('API success=false döndü:', data.message);
+                    showError(data.message || 'Kurulumu yapılmış ekipman bulunamadı');
+                }
+            })
+            .catch(error => {
+                console.error('Search error:', error);
+                showError('Arama sırasında bir hata oluştu');
+            });
+        }
+
+        function showSearchResults(results) {
+            // Create results modal or update UI to show results
+            let resultsHtml = '<div class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">';
+            resultsHtml += '<div class="bg-white rounded-xl max-w-2xl w-full max-h-96 overflow-y-auto">';
+            resultsHtml += '<div class="p-6">';
+            resultsHtml += '<div class="flex justify-between items-center mb-4">';
+            resultsHtml += '<h3 class="text-lg font-semibold">Bulunan Ekipmanlar (' + results.length + ')</h3>';
+            resultsHtml += '<button onclick="closeSearchResults()" class="text-gray-500 hover:text-gray-700">';
+            resultsHtml += '<i class="fas fa-times"></i></button></div>';
             
-            // Simulate API call
-            setTimeout(() => {
-                showMessage('Kurulum bulundu! Bakım formuna yönlendiriliyorsunuz...', 'success');
-                
-                // Redirect to maintenance form (when available)
-                // window.location.href = "{% url 'warranty_and_services:mobile_maintenance_form' %}?serial=" + encodeURIComponent(serialNumber);
-            }, 2000);
+            results.forEach(result => {
+                resultsHtml += '<div class="border rounded-lg p-4 mb-3 cursor-pointer hover:bg-gray-50" onclick="showMaintenanceDetail(' + JSON.stringify(result).replace(/"/g, '&quot;') + ')">';
+                resultsHtml += '<div class="flex justify-between items-start">';
+                resultsHtml += '<div class="flex-1">';
+                resultsHtml += '<h4 class="font-semibold text-gray-900">' + result.item_name + '</h4>';
+                resultsHtml += '<p class="text-sm text-gray-600">Seri No: ' + result.serial_no + '</p>';
+                resultsHtml += '<p class="text-sm text-gray-600">Müşteri: ' + result.customer_name + '</p>';
+                resultsHtml += '<p class="text-sm text-gray-500">Kurulum: ' + result.installation_date + '</p>';
+                resultsHtml += '</div>';
+                resultsHtml += '<div class="text-right">';
+                resultsHtml += '<span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Kurulumu Yapılmış</span>';
+                resultsHtml += '</div></div></div>';
+            });
+            
+            resultsHtml += '</div></div></div>';
+            
+            // Add to body
+            const resultsModal = document.createElement('div');
+            resultsModal.id = 'searchResultsModal';
+            resultsModal.innerHTML = resultsHtml;
+            document.body.appendChild(resultsModal);
+        }
+
+        function closeSearchResults() {
+            const modal = document.getElementById('searchResultsModal');
+            if (modal) {
+                document.body.removeChild(modal);
+            }
+        }
+
+        function showMaintenanceDetail(result) {
+            console.log('showMaintenanceDetail çağrıldı, result:', result);
+            
+            // Close search results if open
+            closeSearchResults();
+            
+            // Show loading
+            showMessage('Ekipman detayları alınıyor...', 'info');
+            
+            // Get detailed information about the installation
+            fetch('{% url "warranty_and_services:api_maintenance_item_detail" %}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({
+                    installation_id: result.installation_id
+                })
+            })
+            .then(response => {
+                console.log('Maintenance detail API yanıtı:', response.status);
+                return response.json();
+            })
+            .then(data => {
+                console.log('Maintenance detail data:', data);
+                if (data.success) {
+                    // Redirect to maintenance form with installation ID
+                    window.location.href = "{% url 'warranty_and_services:mobile_maintenance_form' %}?installation_id=" + result.installation_id;
+                } else {
+                    showError(data.message || 'Detay bilgileri alınamadı');
+                }
+            })
+            .catch(error => {
+                console.error('Detail error:', error);
+                showError('Detay bilgileri alınırken bir hata oluştu');
+            });
         }
 
         function showMessage(message, type = 'info') {
@@ -289,15 +422,34 @@
 
         // Manual search functionality
         document.getElementById('manualSearchBtn').addEventListener('click', function() {
+            console.log('Ekipman Ara butonuna tıklandı');
             const serialInput = document.querySelector('input[type="text"]');
-            const serialNumber = serialInput.value.trim();
+            const searchTerm = serialInput.value.trim();
             
-            if (serialNumber) {
-                searchInstallation(serialNumber);
+            console.log('Arama terimi:', searchTerm);
+            
+            if (searchTerm) {
+                searchInstalledItems(searchTerm);
             } else {
-                showError('Lütfen bir seri numarası girin');
+                showError('Lütfen bir seri numarası veya barkod girin');
             }
         });
+
+        // Helper function to get CSRF token
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
     </script>
 </body>
 </html>
