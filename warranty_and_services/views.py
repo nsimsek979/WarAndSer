@@ -18,75 +18,85 @@ from .utils import get_user_accessible_companies_filter
 @login_required
 def warranty_tracking_list(request):
     """
-    Warranty takip listesi - aktif, süresi yaklaşan ve süresi geçen garantiler
+    Warranty takip listesi - her ürün için en yakın garanti bitiş tarihini gösterir
     """
     # Filtreler
     filter_type = request.GET.get('filter', 'all')
     search_query = request.GET.get('search', '')
     
     # Base queryset - user'ın erişebileceği şirketlere göre filtrele
-    company_filter = get_user_accessible_companies_filter(request.user, 'warranty')
-    warranties = WarrantyFollowUp.objects.select_related(
-        'installation__customer',
-        'installation__inventory_item__name'
-    ).filter(company_filter).order_by('end_of_warranty_date')
+    company_filter = get_user_accessible_companies_filter(request.user, 'installation')
+    
+    # Her installation için en yakın garanti bitiş tarihini bul
+    from django.db.models import Min, Max
+    
+    installations_with_warranty = Installation.objects.select_related(
+        'customer',
+        'inventory_item__name',
+        'user'
+    ).prefetch_related(
+        'warranty_followups'
+    ).filter(company_filter).annotate(
+        earliest_warranty_date=Min('warranty_followups__end_of_warranty_date'),
+        latest_warranty_date=Max('warranty_followups__end_of_warranty_date')
+    ).exclude(
+        earliest_warranty_date__isnull=True
+    ).order_by('earliest_warranty_date')
     
     # Arama filtresi
     if search_query:
-        warranties = warranties.filter(
-            Q(installation__customer__name__icontains=search_query) |
-            Q(installation__inventory_item__name__name__icontains=search_query) |
-            Q(installation__inventory_item__serial_no__icontains=search_query)
+        installations_with_warranty = installations_with_warranty.filter(
+            Q(customer__name__icontains=search_query) |
+            Q(inventory_item__name__name__icontains=search_query) |
+            Q(inventory_item__serial_no__icontains=search_query)
         )
     
     # Tarih filtreleri
     now = timezone.now()
     if filter_type == 'active':
-        warranties = warranties.filter(end_of_warranty_date__gt=now)
+        installations_with_warranty = installations_with_warranty.filter(earliest_warranty_date__gt=now)
     elif filter_type == 'expiring_soon':
         # 30 gün içinde süresi dolacak
         thirty_days = now + timedelta(days=30)
-        warranties = warranties.filter(
-            end_of_warranty_date__gt=now,
-            end_of_warranty_date__lte=thirty_days
+        installations_with_warranty = installations_with_warranty.filter(
+            earliest_warranty_date__gt=now,
+            earliest_warranty_date__lte=thirty_days
         )
     elif filter_type == 'expired':
-        warranties = warranties.filter(end_of_warranty_date__lte=now)
+        installations_with_warranty = installations_with_warranty.filter(earliest_warranty_date__lte=now)
+    
+    # Her installation için en kritik garanti kaydını ekle
+    installations = []
+    for installation in installations_with_warranty:
+        # En yakın tarihi olan garanti kaydını bul
+        critical_warranty = installation.warranty_followups.filter(
+            end_of_warranty_date=installation.earliest_warranty_date
+        ).first()
+        
+        # Installation objesine geçici attribute ekle
+        installation.critical_warranty = critical_warranty
+        installations.append(installation)
     
     # Pagination
-    paginator = Paginator(warranties, 20)  # 20 items per page
+    paginator = Paginator(installations, 20)  # 20 items per page
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
     
-    # İstatistikler - user'ın erişebileceği şirketlere göre
-    # Benzersiz item sayıları - her item için en kritik durumu baz alınır
-    from django.db.models import Min, Case, When, IntegerField
+    # İstatistikler
+    stats_queryset = Installation.objects.filter(company_filter).annotate(
+        earliest_warranty_date=Min('warranty_followups__end_of_warranty_date')
+    ).exclude(earliest_warranty_date__isnull=True)
     
-    stats_queryset = WarrantyFollowUp.objects.filter(company_filter)
-    
-    # Her installation için en yakın garanti bitiş tarihini al
-    installation_warranty_status = stats_queryset.values('installation_id').annotate(
-        earliest_warranty_date=Min('end_of_warranty_date')
-    )
-    
-    # Durumları say
-    total_items = installation_warranty_status.count()
-    
-    active_count = 0
-    expiring_soon_count = 0 
-    expired_count = 0
-    
+    total_items = stats_queryset.count()
     thirty_days_later = now + timedelta(days=30)
     
-    for item in installation_warranty_status:
-        earliest_date = item['earliest_warranty_date']
-        
-        if earliest_date <= now:
-            expired_count += 1
-        elif earliest_date <= thirty_days_later:
-            expiring_soon_count += 1
-        else:
-            active_count += 1
+    # Durumları say
+    active_count = stats_queryset.filter(earliest_warranty_date__gt=now).count()
+    expiring_soon_count = stats_queryset.filter(
+        earliest_warranty_date__gt=now,
+        earliest_warranty_date__lte=thirty_days_later
+    ).count()
+    expired_count = stats_queryset.filter(earliest_warranty_date__lte=now).count()
     
     stats = {
         'total': total_items,
@@ -96,7 +106,7 @@ def warranty_tracking_list(request):
     }
     
     context = {
-        'warranties': page_obj,
+        'installations': page_obj,  # Artık warranties yerine installations
         'page_obj': page_obj,
         'is_paginated': page_obj.has_other_pages(),
         'stats': stats,
@@ -110,81 +120,118 @@ def warranty_tracking_list(request):
 @login_required
 def service_tracking_list(request):
     """
-    Servis takip listesi - planlanan, geciken ve tamamlanan servisler
+    Servis takip listesi - her ürün için en yakın servis tarihini gösterir
     """
     # Filtreler
     filter_type = request.GET.get('filter', 'all')
     search_query = request.GET.get('search', '')
     
     # Base queryset - user'ın erişebileceği şirketlere göre filtrele
-    company_filter = get_user_accessible_companies_filter(request.user, 'service')
-    services = ServiceFollowUp.objects.select_related(
-        'installation__customer',
-        'installation__inventory_item__name'
-    ).filter(company_filter).order_by('next_service_date')
+    company_filter = get_user_accessible_companies_filter(request.user, 'installation')
+    
+    # Her installation için en yakın servis tarihini bul (sadece tamamlanmamış servisler)
+    from django.db.models import Min, Q
+    
+    installations_with_service = Installation.objects.select_related(
+        'customer',
+        'inventory_item__name',
+        'user'
+    ).prefetch_related(
+        'service_followups'
+    ).filter(company_filter).annotate(
+        next_service_date=Min('service_followups__next_service_date', 
+                            filter=Q(service_followups__is_completed=False))
+    ).exclude(
+        next_service_date__isnull=True
+    ).order_by('next_service_date')
     
     # Arama filtresi
     if search_query:
-        services = services.filter(
-            Q(installation__customer__name__icontains=search_query) |
-            Q(installation__inventory_item__name__name__icontains=search_query) |
-            Q(installation__inventory_item__serial_no__icontains=search_query)
+        installations_with_service = installations_with_service.filter(
+            Q(customer__name__icontains=search_query) |
+            Q(inventory_item__name__name__icontains=search_query) |
+            Q(inventory_item__serial_no__icontains=search_query)
         )
     
     # Durum filtreleri
     now = timezone.now()
     if filter_type == 'pending':
-        services = services.filter(is_completed=False, next_service_date__gt=now)
+        installations_with_service = installations_with_service.filter(next_service_date__gt=now)
     elif filter_type == 'due_soon':
         # 7 gün içinde yapılması gereken
         seven_days = now + timedelta(days=7)
-        services = services.filter(
-            is_completed=False,
+        installations_with_service = installations_with_service.filter(
             next_service_date__gt=now,
             next_service_date__lte=seven_days
         )
     elif filter_type == 'overdue':
-        services = services.filter(is_completed=False, next_service_date__lte=now)
+        installations_with_service = installations_with_service.filter(next_service_date__lte=now)
     elif filter_type == 'completed':
-        services = services.filter(is_completed=True)
+        # Tamamlanan servisler için ayrı queryset
+        installations_with_service = Installation.objects.select_related(
+            'customer',
+            'inventory_item__name',
+            'user'
+        ).prefetch_related(
+            'service_followups'
+        ).filter(
+            company_filter,
+            service_followups__is_completed=True
+        ).distinct().order_by('-service_followups__completed_date')
+        
+        if search_query:
+            installations_with_service = installations_with_service.filter(
+                Q(customer__name__icontains=search_query) |
+                Q(inventory_item__name__name__icontains=search_query) |
+                Q(inventory_item__serial_no__icontains=search_query)
+            )
+    
+    # Her installation için en kritik servis kaydını ekle
+    installations = []
+    for installation in installations_with_service:
+        if filter_type == 'completed':
+            # En son tamamlanan servis kaydını bul
+            critical_service = installation.service_followups.filter(
+                is_completed=True
+            ).order_by('-completed_date').first()
+        else:
+            # En yakın tarihi olan servis kaydını bul
+            critical_service = installation.service_followups.filter(
+                is_completed=False,
+                next_service_date=installation.next_service_date
+            ).first()
+        
+        # Installation objesine geçici attribute ekle
+        installation.critical_service = critical_service
+        installations.append(installation)
     
     # Pagination
-    paginator = Paginator(services, 20)  # 20 items per page
+    paginator = Paginator(installations, 20)  # 20 items per page
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
     
-    # İstatistikler - user'ın erişebileceği şirketlere göre
-    # Benzersiz item sayıları - her item için en kritik durumu baz alınır
-    from django.db.models import Min, Case, When, IntegerField, Q
+    # İstatistikler
+    stats_queryset = Installation.objects.filter(company_filter).annotate(
+        next_service_date=Min('service_followups__next_service_date', 
+                            filter=Q(service_followups__is_completed=False))
+    ).exclude(next_service_date__isnull=True)
     
-    stats_queryset = ServiceFollowUp.objects.filter(company_filter)
-    
-    # Her installation için en yakın servis tarihini al (sadece tamamlanmamış servisler)
-    installation_service_status = stats_queryset.filter(is_completed=False).values('installation_id').annotate(
-        earliest_service_date=Min('next_service_date')
-    )
-    
-    # Durumları say
-    total_items = stats_queryset.values('installation_id').distinct().count()
-    
-    pending_count = 0
-    due_soon_count = 0
-    overdue_count = 0
-    
+    total_items = stats_queryset.count()
     seven_days_later = now + timedelta(days=7)
     
-    for item in installation_service_status:
-        earliest_date = item['earliest_service_date']
-        
-        if earliest_date <= now:
-            overdue_count += 1
-        elif earliest_date <= seven_days_later:
-            due_soon_count += 1
-        else:
-            pending_count += 1
+    # Durumları say
+    pending_count = stats_queryset.filter(next_service_date__gt=now).count()
+    due_soon_count = stats_queryset.filter(
+        next_service_date__gt=now,
+        next_service_date__lte=seven_days_later
+    ).count()
+    overdue_count = stats_queryset.filter(next_service_date__lte=now).count()
     
     # Tamamlanan servisleri say
-    completed_count = stats_queryset.filter(is_completed=True).values('installation_id').distinct().count()
+    completed_count = Installation.objects.filter(
+        company_filter,
+        service_followups__is_completed=True
+    ).distinct().count()
     
     stats = {
         'total': total_items,
@@ -195,7 +242,7 @@ def service_tracking_list(request):
     }
     
     context = {
-        'services': page_obj,
+        'installations': page_obj,  # Artık services yerine installations
         'page_obj': page_obj,
         'is_paginated': page_obj.has_other_pages(),
         'stats': stats,
@@ -323,11 +370,8 @@ class InstallationListView(LoginRequiredMixin, ListView):
 @login_required
 def mobile_main(request):
     """
-    Mobil ana sayfa - sadece distributor service personeli için
+    Mobil ana sayfa
     """
-    # User role kontrolü
-    if not request.user.role or 'service' not in request.user.role:
-        return redirect('/')  # Ana sayfaya yönlendir
     
     # Kullanıcının erişebileceği şirketleri al
     from .utils import get_user_accessible_companies_filter
@@ -373,9 +417,6 @@ def mobile_maintenance_scanner(request):
     """
     Mobil bakım scanner sayfası
     """
-    # User role kontrolü
-    if not request.user.role or 'service' not in request.user.role:
-        return redirect('/')
     
     return render(request, 'warranty_and_services/mobile/maintenance_scanner.html')
 
@@ -387,12 +428,6 @@ def mobile_maintenance_form(request):
     """
     if not request.user.is_authenticated:
         return redirect('login')
-    
-    user = request.user
-    
-    # Only allow service personnel
-    if user.role not in ['service_distributor', 'service_main']:
-        return redirect('dashboard:home')
     
     return render(request, 'mobile/maintenance_form.html')
 
@@ -451,30 +486,38 @@ def api_search_by_barcode(request):
         
         # Item_master modülünden InventoryItem'ı bul
         from item_master.models import InventoryItem
-        try:
-            # QR code formatı: "ID:{id}|CODE:{serial}|NAME:{name}|SERIAL:{serial}"
-            # QR string'ini parse et
-            inventory_item = None
-            
-            if 'ID:' in qr_code and '|' in qr_code:
-                # QR kod formatını parse et
-                parts = qr_code.split('|')
-                id_part = [part for part in parts if part.startswith('ID:')]
-                if id_part:
-                    item_id = id_part[0].replace('ID:', '')
-                    inventory_item = InventoryItem.objects.select_related('name', 'name__brand_name', 'name__category').get(id=item_id)
-                else:
-                    # ID bulunamadı, serial ile dene
-                    serial_part = [part for part in parts if part.startswith('SERIAL:')]
-                    if serial_part:
-                        serial_no = serial_part[0].replace('SERIAL:', '')
-                        inventory_item = InventoryItem.objects.select_related('name', 'name__brand_name', 'name__category').get(serial_no=serial_no)
+        
+        # QR code formatı: "ID:{id}|CODE:{serial}|NAME:{name}|SERIAL:{serial}"
+        # QR string'ini parse et
+        inventory_item = None
+        
+        if 'ID:' in qr_code and '|' in qr_code:
+            # QR kod formatını parse et
+            parts = qr_code.split('|')
+            id_part = [part for part in parts if part.startswith('ID:')]
+            if id_part:
+                item_id = id_part[0].replace('ID:', '')
+                inventory_item = InventoryItem.objects.select_related('name', 'name__brand_name', 'name__category').filter(
+                    id=item_id, in_used=False
+                ).first()
             else:
-                # QR formatı farklı, direkt serial number olarak dene
-                inventory_item = InventoryItem.objects.select_related('name', 'name__brand_name', 'name__category').get(serial_no=qr_code)
-            
+                # ID bulunamadı, serial ile dene
+                serial_part = [part for part in parts if part.startswith('SERIAL:')]
+                if serial_part:
+                    serial_no = serial_part[0].replace('SERIAL:', '')
+                    inventory_item = InventoryItem.objects.select_related('name', 'name__brand_name', 'name__category').filter(
+                        serial_no=serial_no, in_used=False
+                    ).first()
+        else:
+            # QR formatı farklı, direkt serial number olarak dene
+            inventory_item = InventoryItem.objects.select_related('name', 'name__brand_name', 'name__category').filter(
+                serial_no=qr_code, in_used=False
+            ).first()
             if not inventory_item:
-                raise InventoryItem.DoesNotExist
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Bu QR kodu ile eşleşen kuruluma hazır ürün bulunamadı'
+                })
             
             # Check if item is already installed/in use
             is_installed = Installation.objects.filter(inventory_item=inventory_item).exists()
@@ -494,12 +537,6 @@ def api_search_by_barcode(request):
                     'qr_code': qr_code,
                     'image': inventory_item.qr_code_image.url if inventory_item.qr_code_image else None,
                 }
-            })
-            
-        except InventoryItem.DoesNotExist:
-            return JsonResponse({
-                'success': False,
-                'message': 'Bu QR kodu ile eşleşen ürün bulunamadı'
             })
             
     except json.JSONDecodeError:
@@ -532,36 +569,36 @@ def api_search_by_serial(request):
         
         # Item_master modülünden InventoryItem'ı bul
         from item_master.models import InventoryItem
-        try:
-            inventory_item = InventoryItem.objects.select_related('name', 'name__brand_name', 'name__category').get(
-                serial_no=serial_number
-            )
-            
-            # Check if item is already installed/in use
-            is_installed = Installation.objects.filter(inventory_item=inventory_item).exists()
-            
-            # Item bilgilerini dön
-            return JsonResponse({
-                'success': True,
-                'item': {
-                    'id': inventory_item.id,
-                    'name': inventory_item.name.name if inventory_item.name else 'N/A',
-                    'model': inventory_item.name.name if inventory_item.name else 'N/A',  # ItemMaster'da model field yok
-                    'brand': inventory_item.name.brand_name.name if inventory_item.name and inventory_item.name.brand_name else 'N/A',
-                    'category': inventory_item.name.category.category_name if inventory_item.name and inventory_item.name.category else 'N/A',
-                    'serial_number': inventory_item.serial_no or 'N/A',
-                    'is_installed': is_installed,
-                    'in_used': inventory_item.in_used,
-                    'qr_code': f"ID:{inventory_item.id}|SERIAL:{inventory_item.serial_no}",
-                    'image': inventory_item.qr_code_image.url if inventory_item.qr_code_image else None,
-                }
-            })
-            
-        except InventoryItem.DoesNotExist:
+        
+        inventory_item = InventoryItem.objects.select_related('name', 'name__brand_name', 'name__category').filter(
+            serial_no=serial_number, in_used=False
+        ).first()
+        
+        if not inventory_item:
             return JsonResponse({
                 'success': False,
-                'message': 'Bu seri numarası ile eşleşen ürün bulunamadı'
+                'message': 'Bu seri numarası ile eşleşen kuruluma hazır ürün bulunamadı'
             })
+        
+        # Check if item is already installed/in use
+        is_installed = Installation.objects.filter(inventory_item=inventory_item).exists()
+        
+        # Item bilgilerini dön
+        return JsonResponse({
+            'success': True,
+            'item': {
+                'id': inventory_item.id,
+                'name': inventory_item.name.name if inventory_item.name else 'N/A',
+                'model': inventory_item.name.name if inventory_item.name else 'N/A',  # ItemMaster'da model field yok
+                'brand': inventory_item.name.brand_name.name if inventory_item.name and inventory_item.name.brand_name else 'N/A',
+                'category': inventory_item.name.category.category_name if inventory_item.name and inventory_item.name.category else 'N/A',
+                'serial_number': inventory_item.serial_no or 'N/A',
+                'is_installed': is_installed,
+                'in_used': inventory_item.in_used,
+                'qr_code': f"ID:{inventory_item.id}|SERIAL:{inventory_item.serial_no}",
+                'image': inventory_item.qr_code_image.url if inventory_item.qr_code_image else None,
+            }
+        })
             
     except json.JSONDecodeError:
         return JsonResponse({
@@ -729,12 +766,18 @@ def api_customer_search(request):
         })
 
 
+@login_required
 @csrf_exempt
 @require_http_methods(["POST"])
 def api_customer_create(request):
     """Customer creation API endpoint"""
+    print(f"Customer create API called by user: {request.user}")
+    print(f"Request method: {request.method}")
+    print(f"Request content type: {request.content_type}")
+    
     try:
         data = json.loads(request.body)
+        print(f"Received data: {data}")
         
         # Validate required fields
         if not data.get('name', '').strip():
@@ -831,23 +874,30 @@ def api_customer_create(request):
             'message': 'Müşteri başarıyla oluşturuldu'
         })
         
-    except json.JSONDecodeError:
+    except json.JSONDecodeError as e:
+        print(f"JSON decode error: {e}")
         return JsonResponse({
             'success': False,
             'message': 'Geçersiz JSON formatı'
         })
     except Exception as e:
         print(f"Customer creation error: {e}")  # Debug
+        import traceback
+        traceback.print_exc()
         return JsonResponse({
             'success': False,
-            'message': 'Müşteri oluşturulurken bir hata oluştu'
+            'message': f'Müşteri oluşturulurken bir hata oluştu: {str(e)}'
         })
 
 
+@login_required
 @csrf_exempt
 @require_http_methods(["POST"])
 def api_installation_create(request):
     """Installation creation API endpoint with file uploads"""
+    print(f"Installation create API called by user: {request.user}")
+    print(f"Request method: {request.method}")
+    
     try:
         # Handle both JSON and FormData
         if request.content_type and 'application/json' in request.content_type:
@@ -926,9 +976,9 @@ def api_installation_create(request):
             setup_date=setup_date,
             inventory_item=item,
             customer=customer,
-            location_latitude=data.get('location_latitude'),
-            location_longitude=data.get('location_longitude'),
-            location_address=data.get('location_address', '').strip(),
+            location_latitude=data.get('latitude'),  # Fixed field name
+            location_longitude=data.get('longitude'),  # Fixed field name
+            location_address=data.get('setup_location', '').strip(),  # Fixed field name
             installation_notes=data.get('installation_notes', '').strip()
         )
         
@@ -940,7 +990,28 @@ def api_installation_create(request):
         uploaded_photos = []
         uploaded_files = []
         
-        # Handle photos
+        # Handle photos - check for individual photo fields (photo_0, photo_1, etc.)
+        photo_index = 0
+        while f'photo_{photo_index}' in request.FILES:
+            photo = request.FILES[f'photo_{photo_index}']
+            
+            # Validate photo
+            if photo.content_type.startswith('image/') and photo.size <= 5 * 1024 * 1024:  # 5MB limit
+                installation_image = InstallationImage.objects.create(
+                    installation=installation,
+                    image=photo,
+                    description=f"Kurulum fotoğrafı - {photo.name}",
+                    uploaded_by=request.user
+                )
+                uploaded_photos.append({
+                    'id': installation_image.id,
+                    'name': photo.name,
+                    'url': installation_image.image.url if installation_image.image else None
+                })
+            
+            photo_index += 1
+        
+        # Also handle legacy 'photos' field if exists
         if 'photos' in request.FILES:
             photos = request.FILES.getlist('photos')
             for photo in photos:
@@ -961,8 +1032,29 @@ def api_installation_create(request):
                     'name': photo.name,
                     'url': installation_image.image.url if installation_image.image else None
                 })
+
+        # Handle files/documents - check for individual file fields (file_0, file_1, etc.)
+        file_index = 0
+        while f'file_{file_index}' in request.FILES:
+            file = request.FILES[f'file_{file_index}']
+            
+            # Validate file
+            if file.size <= 10 * 1024 * 1024:  # 10MB limit
+                installation_doc = InstallationDocument.objects.create(
+                    installation=installation,
+                    document=file,
+                    description=f"Kurulum dökümanı - {file.name}",
+                    uploaded_by=request.user
+                )
+                uploaded_files.append({
+                    'id': installation_doc.id,
+                    'name': file.name,
+                    'url': installation_doc.document.url if installation_doc.document else None
+                })
+            
+            file_index += 1
         
-        # Handle files/documents
+        # Also handle legacy 'files' field if exists
         if 'files' in request.FILES:
             files = request.FILES.getlist('files')
             for file in files:
@@ -1308,3 +1400,16 @@ def api_maintenance_create(request):
             'success': False,
             'message': 'Bakım kaydı oluşturulurken bir hata oluştu'
         })
+
+
+# Mobile Views
+@login_required
+def mobile_installation_scanner(request):
+    """Mobile Installation Scanner sayfası"""
+    return render(request, 'warranty_and_services/mobile/mobile_installation_scanner.html')
+
+
+@login_required
+def mobile_maintenance_scanner(request):
+    """Mobile Maintenance Scanner sayfası"""
+    return render(request, 'warranty_and_services/mobile/mobile_maintenance_scanner.html')

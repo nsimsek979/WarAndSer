@@ -11,7 +11,20 @@ from django.template.loader import render_to_string
 from django.conf import settings
 import logging
 from io import BytesIO
-from xhtml2pdf import pisa
+
+# PDF generation import with fallback
+try:
+    from weasyprint import HTML
+    PDF_AVAILABLE = True
+    PDF_ENGINE = 'weasyprint'
+except ImportError:
+    try:
+        from xhtml2pdf import pisa
+        PDF_AVAILABLE = True
+        PDF_ENGINE = 'xhtml2pdf'
+    except ImportError:
+        PDF_AVAILABLE = False
+        PDF_ENGINE = None
 
 User = get_user_model()
 
@@ -115,24 +128,54 @@ class Installation(models.Model):
 
     def send_installation_notification(self):
         language = 'tr' if self.customer and self.customer.company_type == 'enduser' and self.customer.name.endswith('A.Ş.') else 'en'
+        
+        # Collect all warranty and service data for PDF
+        warranties = self.warranty_followups.all()
+        services = self.service_followups.all()
+        images = self.images.all()
+        documents = self.documents.all()
+        
         # Garanti bitiş ve en yakın servis tarihini bul
         warranty = self.warranty_followups.order_by('end_of_warranty_date').last()
         service = self.service_followups.filter(is_completed=False).order_by('next_service_date').first()
         warranty_end_date = warranty.end_of_warranty_date.strftime('%d.%m.%Y') if warranty else '-'
         next_service_date = service.next_service_date.strftime('%d.%m.%Y') if service else '-'
+        
         context = {
             'installation': self,
             'language': language,
             'warranty_end_date': warranty_end_date,
-            'next_service_date': next_service_date
+            'next_service_date': next_service_date,
+            'warranties': warranties,
+            'services': services,
+            'images': images,
+            'documents': documents,
         }
         subject = 'Kurulum Tamamlandı' if language == 'tr' else 'Installation Completed'
-        html_content = render_to_string('emails/installation_notification.html', context)
+        html_content = render_to_string('warranty_and_services/emails/installation_notification.html', context)
         from_email = settings.DEFAULT_FROM_EMAIL
         # PDF oluştur
         pdf_buffer = BytesIO()
-        pisa_status = pisa.CreatePDF(html_content, dest=pdf_buffer)
-        pdf_buffer.seek(0)
+        
+        if PDF_ENGINE == 'xhtml2pdf':
+            try:
+                from xhtml2pdf import pisa
+                pisa_status = pisa.CreatePDF(html_content, dest=pdf_buffer)
+                pdf_buffer.seek(0)
+            except ImportError:
+                print("xhtml2pdf not available, skipping PDF generation")
+                pdf_buffer = None
+        elif PDF_ENGINE == 'weasyprint':
+            try:
+                from weasyprint import HTML
+                HTML(string=html_content).write_pdf(pdf_buffer)
+                pdf_buffer.seek(0)
+            except ImportError:
+                print("weasyprint not available, skipping PDF generation")
+                pdf_buffer = None
+        else:
+            print("No PDF engine available, skipping PDF generation")
+            pdf_buffer = None
         # Alıcıları topla
         recipients = set()
         if self.customer and self.customer.email:
@@ -164,7 +207,11 @@ class Installation(models.Model):
                 list(recipients)
             )
             email.attach_alternative(html_content, "text/html")
-            email.attach('installation_details.pdf', pdf_buffer.read(), 'application/pdf')
+            
+            # PDF attachment - only if PDF was generated successfully
+            if pdf_buffer:
+                email.attach('installation_details.pdf', pdf_buffer.read(), 'application/pdf')
+            
             email.send()
         except Exception as e:
             logging.error(f"Kurulum bildirimi gönderilemedi: {e}")
@@ -263,7 +310,8 @@ class Installation(models.Model):
                 service_type=service_config['type'],
                 service_value=service_config['value'],
                 defaults={
-                    'calculation_notes': service_config['note']
+                    'calculation_notes': service_config['note'],
+                    'completion_notes': ''  # Empty string for new services
                 }
             )
 
@@ -394,7 +442,8 @@ class InstallationImage(models.Model):
                 service_type=service_config['type'],
                 service_value=service_config['value'],
                 defaults={
-                    'calculation_notes': service_config['note']
+                    'calculation_notes': service_config['note'],
+                    'completion_notes': ''  # Empty string for new services
                 }
             )
 
@@ -828,6 +877,11 @@ class ServiceFollowUp(models.Model):
         blank=True,
         verbose_name=_("Calculation Notes"),
         help_text=_("Details about how the service date was calculated")
+    )
+    completion_notes = models.TextField(
+        blank=True,
+        verbose_name=_("Completion Notes"),
+        help_text=_("Notes about the completed service")
     )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

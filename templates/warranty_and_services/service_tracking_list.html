@@ -189,49 +189,53 @@
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
-                    {% for service in services %}
+                    {% for installation in installations %}
                     {% now "Y-m-d" as today %}
                     <tr class="hover:bg-gray-50">
                         <td class="px-3 py-4 whitespace-nowrap">
-                            <div class="text-sm font-medium text-gray-900 max-w-xs truncate" title="{{ service.installation.customer.name }}">{{ service.installation.customer.name }}</div>
+                            <div class="text-sm font-medium text-gray-900 max-w-xs truncate" title="{{ installation.customer.name }}">{{ installation.customer.name }}</div>
                         </td>
                         <td class="px-3 py-4 whitespace-nowrap">
-                            <div class="text-sm text-gray-900 max-w-xs truncate" title="{{ service.installation.inventory_item.name.name }}">{{ service.installation.inventory_item.name.name }}</div>
+                            <div class="text-sm text-gray-900 max-w-xs truncate" title="{{ installation.inventory_item.name.name }}">{{ installation.inventory_item.name.name }}</div>
                         </td>
                         <td class="px-3 py-4 whitespace-nowrap">
-                            <code class="px-2 py-1 text-xs font-mono bg-gray-100 rounded">{{ service.installation.inventory_item.serial_no|default:"N/A" }}</code>
+                            <code class="px-2 py-1 text-xs font-mono bg-gray-100 rounded">{{ installation.inventory_item.serial_no|default:"N/A" }}</code>
                         </td>
                         <td class="px-3 py-4 whitespace-nowrap">
                             <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full 
-                                         {% if service.service_type == 'time_term' %}bg-blue-100 text-blue-800{% else %}bg-gray-100 text-gray-800{% endif %}">
-                                {{ service.get_service_type_display }}
+                                         {% if installation.critical_service.service_type == 'time_term' %}bg-blue-100 text-blue-800{% else %}bg-gray-100 text-gray-800{% endif %}">
+                                {{ installation.critical_service.get_service_type_display }}
                             </span>
                         </td>
                         <td class="px-3 py-4 whitespace-nowrap">
                             <div class="text-sm font-medium text-gray-900">
-                                {% if service.service_type == 'time_term' %}
-                                    {{ service.service_value|floatformat:"0" }} ay
+                                {% if installation.critical_service.service_type == 'time_term' %}
+                                    {{ installation.critical_service.service_value|floatformat:"0" }} ay
                                 {% else %}
-                                    {{ service.service_value|humanize_number }} saat
+                                    {{ installation.critical_service.service_value|humanize_number }} saat
                                 {% endif %}
                             </div>
                         </td>
                         <td class="px-3 py-4 whitespace-nowrap text-sm text-gray-900">
-                            {{ service.installation.setup_date|date:"d.m.Y" }}
+                            {{ installation.setup_date|date:"d.m.Y" }}
                         </td>
                         <td class="px-3 py-4 whitespace-nowrap text-sm text-gray-900">
-                            {{ service.next_service_date|date:"d.m.Y" }}
+                            {% if installation.critical_service.is_completed %}
+                                {{ installation.critical_service.completed_date|date:"d.m.Y" }}
+                            {% else %}
+                                {{ installation.critical_service.next_service_date|date:"d.m.Y" }}
+                            {% endif %}
                         </td>
                         <td class="px-3 py-4 whitespace-nowrap">
-                            {% if service.is_completed %}
+                            {% if installation.critical_service.is_completed %}
                                 <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
                                     Tamamlandı
                                 </span>
-                            {% elif service.next_service_date|date:"Y-m-d" <= today %}
+                            {% elif installation.critical_service.next_service_date|date:"Y-m-d" <= today %}
                                 <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">
                                     Geciken
                                 </span>
-                            {% elif service.next_service_date|timeuntil|slice:":1" == "1" %}
+                            {% elif installation.critical_service.next_service_date|timeuntil|slice:":1" == "1" %}
                                 <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">
                                     Bu Hafta
                                 </span>
@@ -243,15 +247,15 @@
                         </td>
                         <td class="px-3 py-4 whitespace-nowrap text-sm font-medium">
                             <div class="flex space-x-2">
-                                <a href="{% url 'warranty_and_services:service_detail' service.id %}" 
+                                <a href="{% url 'warranty_and_services:installation_detail' installation.id %}" 
                                    class="text-indigo-600 hover:text-indigo-900">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
                                     </svg>
                                 </a>
-                                {% if not service.is_completed %}
-                                <button onclick="markCompleted({{ service.id }})"
+                                {% if not installation.critical_service.is_completed %}
+                                <button onclick="markCompleted({{ installation.critical_service.id }})"
                                         class="text-green-600 hover:text-green-900">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>

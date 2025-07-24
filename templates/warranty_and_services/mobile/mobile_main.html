@@ -1,0 +1,323 @@
+{% load static %}
+{% load i18n %}
+<!DOCTYPE html>
+<html lang="tr" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="theme-color" content="#3b82f6">
+    <title>GVS Mobile - Ana Sayfa</title>
+    <link rel="shortcut icon" type="image/x-icon" href="{% static 'konnektom-logo.png' %}">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com?v=3.4.0"></script>
+    
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+
+    <!-- Tailwind Mobile Configuration -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {"50":"#eff6ff","100":"#dbeafe","200":"#bfdbfe","300":"#93c5fd","400":"#60a5fa","500":"#3b82f6","600":"#2563eb","700":"#1d4ed8","800":"#1e40af","900":"#1e3a8a"},
+                        success: {"50":"#f0fdf4","100":"#dcfce7","200":"#bbf7d0","300":"#86efac","400":"#4ade80","500":"#22c55e","600":"#16a34a","700":"#15803d","800":"#166534","900":"#14532d"},
+                        warning: {"50":"#fffbeb","100":"#fef3c7","200":"#fde68a","300":"#fcd34d","400":"#fbbf24","500":"#f59e0b","600":"#d97706","700":"#b45309","800":"#92400e","900":"#78350f"},
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.5s ease-in-out',
+                        'slide-up': 'slideUp 0.3s ease-out',
+                        'bounce-gentle': 'bounceGentle 2s infinite',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0', transform: 'translateY(10px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' }
+                        },
+                        slideUp: {
+                            '0%': { transform: 'translateY(100%)' },
+                            '100%': { transform: 'translateY(0)' }
+                        },
+                        bounceGentle: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-5px)' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Custom mobile styles */
+        .mobile-card {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .mobile-card:active {
+            transform: scale(0.98);
+            box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.06);
+        }
+        
+        /* Header gradient - tek gradient kullanıyoruz */
+        .header-bg {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+        }
+        
+        /* Action button styles - minimal ve temiz */
+        .action-card {
+            background: white;
+            border: 2px solid #e5e7eb;
+            transition: all 0.3s ease;
+        }
+        
+        .action-card:hover {
+            border-color: #3b82f6;
+            transform: translateY(-2px);
+        }
+        
+        .action-card.installation {
+            border-left: 4px solid #3b82f6;
+        }
+        
+        .action-card.maintenance {
+            border-left: 4px solid #10b981;
+        }
+        
+        /* Quick access card style - hızlı erişim kartları için tutarlı stil */
+        .quick-card {
+            background: white;
+            border: 1px solid #e5e7eb;
+            transition: all 0.3s ease;
+        }
+        
+        .quick-card:hover {
+            border-color: #d1d5db;
+            transform: translateY(-1px);
+        }
+        
+        /* Stats card minimal style */
+        .stats-card {
+            background: white;
+            border: 1px solid #e5e7eb;
+        }
+        
+        .stats-card.primary {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: white;
+        }
+    </style>
+</head>
+
+<body class="h-full bg-gray-50 overflow-x-hidden pb-20">
+    <!-- Header -->
+    <div class="header-bg text-white shadow-lg">
+        <div class="px-4 py-6 pt-12">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center">
+                        <img src="{% static 'konnektom-logo.png' %}" alt="Logo" class="w-6 h-6">
+                    </div>
+                    <div>
+                        <h1 class="text-lg font-bold">GVS Mobile</h1>
+                        <p class="text-white/80 text-sm">Garanti ve Servis</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <!-- User info -->
+                    <div class="text-right">
+                        <p class="text-sm font-medium">{{ user.get_full_name|default:user.username }}</p>
+                        <p class="text-white/70 text-xs">{{ user.company.name|default:"Sistem" }}</p>
+                    </div>
+                    <!-- Dashboard Link -->
+                    <a href="{% url 'dashboard:home' %}" 
+                       class="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center hover:bg-white/30 transition-colors">
+                        <i class="fas fa-home text-white"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="px-4 py-6 space-y-6">
+        <!-- Quick Stats -->
+        <div class="grid grid-cols-2 gap-4">
+            <div class="stats-card primary rounded-xl p-4 mobile-card">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-white/80 text-sm">Bugün</p>
+                        <p class="text-2xl font-bold">{{ todays_work|default:0 }}</p>
+                        <p class="text-white/80 text-xs">İş Yapıldı</p>
+                    </div>
+                    <div class="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-calendar-day text-xl"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="stats-card rounded-xl p-4 mobile-card">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-600 text-sm">Bu Ay</p>
+                        <p class="text-2xl font-bold text-gray-900">{{ monthly_work|default:0 }}</p>
+                        <p class="text-gray-500 text-xs">Toplam İş</p>
+                    </div>
+                    <div class="w-12 h-12 bg-blue-50 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-chart-line text-blue-600 text-xl"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Action Buttons -->
+        <div class="space-y-4">
+            <h2 class="text-lg font-semibold text-gray-900 px-2">İşlemler</h2>
+            
+            <!-- Installation Button -->
+            <a href="{% url 'warranty_and_services:mobile_installation_scanner' %}" 
+               class="block w-full">
+                <div class="action-card installation rounded-xl p-6 mobile-card animate-fade-in">
+                    <div class="flex items-center justify-between">
+                        <div class="flex-1">
+                            <div class="flex items-center space-x-4 mb-3">
+                                <div class="w-12 h-12 bg-blue-50 rounded-lg flex items-center justify-center">
+                                    <i class="fas fa-tools text-blue-600 text-xl"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-xl font-bold text-gray-900">Kurulum</h3>
+                                    <p class="text-gray-600 text-sm">Yeni Ekipman Kurulumu</p>
+                                </div>
+                            </div>
+                            <p class="text-gray-600 text-sm leading-relaxed">
+                                QR kod okutarak yeni ekipman kurulumu yapın, 
+                                fotoğraf çekin ve müşteri bilgilerini kaydedin.
+                            </p>
+                        </div>
+                        <div class="ml-4">
+                            <i class="fas fa-arrow-right text-xl text-gray-400"></i>
+                        </div>
+                    </div>
+                    
+                    <!-- Features -->
+                    <div class="mt-4 flex items-center space-x-4 text-gray-500 text-xs">
+                        <div class="flex items-center space-x-1">
+                            <i class="fas fa-qrcode"></i>
+                            <span>QR Okutma</span>
+                        </div>
+                        <div class="flex items-center space-x-1">
+                            <i class="fas fa-camera"></i>
+                            <span>Fotoğraf</span>
+                        </div>
+                        <div class="flex items-center space-x-1">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span>GPS</span>
+                        </div>
+                    </div>
+                </div>
+            </a>
+
+            <!-- Maintenance Button -->
+            <a href="{% url 'warranty_and_services:mobile_maintenance_scanner' %}" 
+               class="block w-full">
+                <div class="action-card maintenance rounded-xl p-6 mobile-card animate-fade-in" style="animation-delay: 0.1s;">
+                    <div class="flex items-center justify-between">
+                        <div class="flex-1">
+                            <div class="flex items-center space-x-4 mb-3">
+                                <div class="w-12 h-12 bg-green-50 rounded-lg flex items-center justify-center">
+                                    <i class="fas fa-wrench text-green-600 text-xl"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-xl font-bold text-gray-900">Bakım & Onarım</h3>
+                                    <p class="text-gray-600 text-sm">Periyodik Bakım İşlemleri</p>
+                                </div>
+                            </div>
+                            <p class="text-gray-600 text-sm leading-relaxed">
+                                Kurulu ekipmanların bakım ve onarım işlemlerini 
+                                gerçekleştirin, rapor oluşturun.
+                            </p>
+                        </div>
+                        <div class="ml-4">
+                            <i class="fas fa-arrow-right text-xl text-gray-400"></i>
+                        </div>
+                    </div>
+                    
+                    <!-- Features -->
+                    <div class="mt-4 flex items-center space-x-4 text-gray-500 text-xs">
+                        <div class="flex items-center space-x-1">
+                            <i class="fas fa-search"></i>
+                            <span>Ekipman Ara</span>
+                        </div>
+                        <div class="flex items-center space-x-1">
+                            <i class="fas fa-file-alt"></i>
+                            <span>Rapor</span>
+                        </div>
+                        <div class="flex items-center space-x-1">
+                            <i class="fas fa-clock"></i>
+                            <span>Zamanlama</span>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <!-- Bottom Spacing for safe area -->
+        <div class="h-8"></div>
+    </div>
+
+    <!-- Mobile Navigation -->
+    {% include 'warranty_and_services/mobile/mobile_nav.html' %}
+
+    <!-- JavaScript -->
+    <script>
+        // Mobile optimizations
+        document.addEventListener('DOMContentLoaded', function() {
+            // Prevent zoom on double tap
+            let lastTouchEnd = 0;
+            document.addEventListener('touchend', function (event) {
+                let now = (new Date()).getTime();
+                if (now - lastTouchEnd <= 300) {
+                    event.preventDefault();
+                }
+                lastTouchEnd = now;
+            }, false);
+            
+            // Add haptic feedback for buttons (if supported)
+            const buttons = document.querySelectorAll('a[href], button');
+            buttons.forEach(button => {
+                button.addEventListener('touchstart', function() {
+                    if (navigator.vibrate) {
+                        navigator.vibrate(10); // Very short vibration
+                    }
+                });
+            });
+            
+            // Add loading state for navigation
+            const navLinks = document.querySelectorAll('a[href]:not([href="#"])');
+            navLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    // Add loading spinner or state
+                    const icon = this.querySelector('i.fa-arrow-right');
+                    if (icon) {
+                        icon.className = 'fas fa-spinner fa-spin text-2xl text-white/60';
+                    }
+                });
+            });
+        });
+        
+        // Service Worker for offline support (future enhancement)
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                // We can add service worker registration here later
+            });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,189 @@
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Installation Details PDF</title>
+    <style>
+        body { font-family: Arial, sans-serif; font-size: 13px; color: #222; background: #f7fafc; }
+        .container { max-width: 900px; margin: 0 auto; background: #fff; border-radius: 10px; box-shadow: 0 2px 8px #e2e8f0; padding: 32px; }
+        h1 { font-size: 2em; color: #2d3748; margin-bottom: 18px; }
+        h2 { font-size: 1.3em; color: #4a5568; margin-bottom: 12px; border-bottom: 2px solid #e2e8f0; padding-bottom: 4px; }
+        h3, h4 { color: #2b6cb0; margin-bottom: 8px; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 18px; background: #f8fafc; border-radius: 6px; }
+        th, td { border: 1px solid #cbd5e1; padding: 7px 10px; text-align: left; }
+        th { background: #e2e8f0; color: #2d3748; font-weight: bold; }
+        .section { margin-bottom: 32px; padding: 18px; background: #f1f5f9; border-radius: 8px; }
+        .img-box { background: #e0e7ff; padding: 8px; border-radius: 8px; display: inline-block; margin: 10px 0; }
+        .badge { font-size: 11px; font-weight: bold; padding: 2px 8px; border-radius: 6px; }
+        .badge-active { background: #d1fae5; color: #065f46; }
+        .badge-expired { background: #fee2e2; color: #991b1b; }
+        .badge-pending { background: #fef3c7; color: #92400e; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Installation Details</h1>
+        <div class="section">
+            <h2>Installation Overview</h2>
+            <table>
+                <tr><th>Setup Date</th><td>{{ installation.setup_date|date:"d.m.Y" }}</td></tr>
+                <tr><th>Installer</th><td>{{ installation.user.get_full_name|default:installation.user.username }}</td></tr>
+                {% if installation.location_address %}
+                <tr><th>Address</th><td>{{ installation.location_address|truncatechars:50 }}</td></tr>
+                {% endif %}
+                {% if installation.has_location %}
+                <tr><th>GPS</th><td>{{ installation.location_display }}</td></tr>
+                {% endif %}
+            </table>
+            <h3>Equipment Information</h3>
+            <table>
+                <tr><th>Product</th><td>{{ installation.inventory_item.name.name }}</td></tr>
+                {% if installation.inventory_item.name.brand_name %}
+                <tr><th>Brand</th><td>{{ installation.inventory_item.name.brand_name }}</td></tr>
+                {% endif %}
+                {% if installation.inventory_item.serial_no %}
+                <tr><th>Serial No</th><td>{{ installation.inventory_item.serial_no }}</td></tr>
+                {% endif %}
+                {% if installation.inventory_item.name.category %}
+                <tr><th>Category</th><td>{{ installation.inventory_item.name.category.name }}</td></tr>
+                {% endif %}
+            </table>
+            {% if images %}
+            <h4>Installation Images</h4>
+            <table>
+                <tr><th>Type</th><th>Title</th><th>Image</th></tr>
+                {% for image in images %}
+                <tr>
+                    <td>{{ image.get_image_type_display }}</td>
+                    <td>{{ image.title }}</td>
+                    <td>{% if image.image.url %}<div class="img-box"><img src="{{ image.image.url }}" width="80" /></div>{% endif %}</td>
+                </tr>
+                {% endfor %}
+            </table>
+            {% endif %}
+            {% if installation.installation_notes %}
+            <h4>Installation Notes</h4>
+            <p>{{ installation.installation_notes|linebreaks }}</p>
+            {% endif %}
+        </div>
+        <div class="section">
+            <h2>Customer Information</h2>
+            <table>
+                <tr><th>Name</th><td>{{ installation.customer.name }}</td></tr>
+                <tr><th>Type</th><td>{{ installation.customer.get_company_type_display }}</td></tr>
+                {% if installation.customer.core_business %}
+                <tr><th>Business</th><td>{{ installation.customer.core_business.name }}</td></tr>
+                {% endif %}
+                {% if installation.customer.tax_number %}
+                <tr><th>Tax Number</th><td>{{ installation.customer.tax_number }}</td></tr>
+                {% endif %}
+                {% if installation.customer.email %}
+                <tr><th>Email</th><td>{{ installation.customer.email }}</td></tr>
+                {% endif %}
+                {% if installation.customer.telephone %}
+                <tr><th>Phone</th><td>{{ installation.customer.telephone }}</td></tr>
+                {% endif %}
+                {% if installation.customer.related_manager %}
+                <tr><th>Manager</th><td>{{ installation.customer.related_manager.get_full_name|default:installation.customer.related_manager.username }}</td></tr>
+                {% endif %}
+                {% if installation.customer.related_company %}
+                <tr><th>Related Company</th><td>{{ installation.customer.related_company.name }}</td></tr>
+                {% endif %}
+            </table>
+            {% if installation.customer.address.exists %}
+            <h4>Customer Addresses</h4>
+            <table>
+                <tr><th>Name</th><th>City</th><th>Address</th><th>Zipcode</th></tr>
+                {% for address in installation.customer.address.all %}
+                <tr>
+                    <td>{{ address.name }}</td>
+                    <td>{% if address.city %}{{ address.city.name }}{% endif %}</td>
+                    <td>{{ address.address|truncatechars:100 }}</td>
+                    <td>{% if address.zipcode %}{{ address.zipcode }}{% endif %}</td>
+                </tr>
+                {% endfor %}
+            </table>
+            {% endif %}
+            {% if installation.customer.contactperson_set.exists %}
+            <h4>Contact Persons</h4>
+            <table>
+                <tr><th>Name</th><th>Title</th><th>Email</th><th>Phone</th></tr>
+                {% for contact in installation.customer.contactperson_set.all %}
+                <tr>
+                    <td>{{ contact.full_name }}</td>
+                    <td>{% if contact.title %}{{ contact.title }}{% endif %}</td>
+                    <td>{% if contact.email %}{{ contact.email }}{% endif %}</td>
+                    <td>{% if contact.telephone %}{{ contact.telephone }}{% endif %}</td>
+                </tr>
+                {% endfor %}
+            </table>
+            {% endif %}
+            {% if installation.customer.working_hours %}
+            <h4>Working Hours Configuration</h4>
+            <table>
+                <tr><th>Hours per Day</th><td>{{ installation.customer.working_hours.daily_working_hours }}</td></tr>
+                <tr><th>Days per Week</th><td>{{ installation.customer.working_hours.get_working_days_per_week }}</td></tr>
+                <tr><th>Hours per Week</th><td>{{ installation.customer.working_hours.weekly_working_hours }}</td></tr>
+            </table>
+            {% endif %}
+        </div>
+        {% if warranties %}
+        <div class="section">
+            <h2>Warranty Information</h2>
+            <table>
+                <tr><th>Type</th><th>Value</th><th>Start</th><th>End</th><th>Status</th></tr>
+                {% for warranty in warranties %}
+                <tr>
+                    <td>{{ warranty.get_warranty_type_display }}</td>
+                    <td>{% if warranty.warranty_type == 'time_term' %}{{ warranty.warranty_value|floatformat:"0" }} yıl{% else %}{{ warranty.warranty_value }} saat{% endif %}</td>
+                    <td>{{ installation.setup_date|date:"d.m.Y" }}</td>
+                    <td>{{ warranty.end_of_warranty_date|date:"d.m.Y" }}</td>
+                    <td>
+                        {% if warranty.is_expired %}<span class="badge badge-expired">Expired</span>
+                        {% elif warranty.is_expiring_soon %}<span class="badge badge-pending">Expiring Soon</span>
+                        {% else %}<span class="badge badge-active">Active</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+        {% endif %}
+        {% if soonest_service %}
+        <div class="section">
+            <h2>Service Information</h2>
+            <table>
+                <tr><th>Type</th><th>Value</th><th>Created</th><th>Next Service</th><th>Status</th></tr>
+                <tr>
+                    <td>{{ soonest_service.get_service_type_display }}</td>
+                    <td>{% if soonest_service.service_type == 'time_term' %}{{ soonest_service.service_value|floatformat:"0" }} ay{% else %}{{ soonest_service.service_value }} saat{% endif %}</td>
+                    <td>{{ installation.setup_date|date:"d.m.Y" }}</td>
+                    <td>{{ soonest_service.next_service_date|date:"d.m.Y" }}</td>
+                    <td>
+                        {% if soonest_service.is_completed %}<span class="badge badge-active">Tamamlandı</span>
+                        {% elif soonest_service.is_due %}<span class="badge badge-expired">Gecikmiş</span>
+                        {% else %}<span class="badge badge-pending">Bekliyor</span>
+                        {% endif %}
+                    </td>
+                </tr>
+            </table>
+        </div>
+        {% endif %}
+        {% if documents %}
+        <div class="section">
+            <h2>Installation Documents</h2>
+            <table>
+                <tr><th>Title</th><th>Type</th><th>Size</th><th>Description</th></tr>
+                {% for document in documents %}
+                <tr>
+                    <td>{{ document.title }}</td>
+                    <td>{{ document.get_document_type_display }}</td>
+                    <td>{{ document.file_size_display }}</td>
+                    <td>{% if document.description %}{{ document.description|truncatechars:100 }}{% endif %}</td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+        {% endif %}
+    </div>
+</body>
+</html>

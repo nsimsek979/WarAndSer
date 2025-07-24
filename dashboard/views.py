@@ -17,10 +17,6 @@ except ImportError:
 @login_required(login_url='login')
 def home(request):
     context = {}
-    # Eğer kullanıcı Distributor Service Personnel ise mobile ana sayfaya yönlendir
-    if hasattr(request.user, 'role') and request.user.role and 'service_distributor' in request.user.role:
-        from django.urls import reverse
-        return redirect(reverse('warranty_and_services:mobile_main'))
 
     # ...existing code...
     print(f"Debug Dashboard: User {request.user.username}")

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Kurulum Lokasyonları Haritası</title>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAt0CrhP93-WFBTjiA4ls_1OxBud5K5oPI"></script>
+    <style>
+        #map { height: 600px; width: 100%; }
+    </style>
+</head>
+<body>
+    <h2>Kurulum Lokasyonları</h2>
+    <div id="map"></div>
+    <script>
+        function getMarkerIcon(color) {
+            // Basit renkli marker SVG
+            return {
+                url: `data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='32' height='32'><circle cx='16' cy='16' r='12' fill='${color}' stroke='black' stroke-width='2'/></svg>`,
+                scaledSize: new google.maps.Size(32, 32)
+            };
+        }
+        function initMap() {
+            var map = new google.maps.Map(document.getElementById('map'), {
+                zoom: 6,
+                center: {lat: 39.925533, lng: 32.866287} // Türkiye merkez
+            });
+            var markers = JSON.parse('{{ markers_json|escapejs }}');
+            markers.forEach(function(marker) {
+                var m = new google.maps.Marker({
+                    position: {lat: marker.lat, lng: marker.lng},
+                    map: map,
+                    title: marker.title,
+                    icon: getMarkerIcon(marker.color)
+                });
+                var info = new google.maps.InfoWindow({
+                    content: `<b><a href='/warranty-services/installation/${marker.installation_id}/' target='_blank' style='color: #2563eb; text-decoration: underline;'>${marker.title}</a></b><br>Müşteri: ${marker.customer}<br>Adres: ${marker.address}<br>Bayi: ${marker.dealer}<br>En Yakın Servis: ${marker.next_service}`
+                });
+                m.addListener('click', function() {
+                    info.open(map, m);
+                });
+            });
+        }
+        window.onload = initMap;
+    </script>
+</body>
+</html>

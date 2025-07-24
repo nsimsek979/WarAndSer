@@ -1,0 +1,885 @@
+{% load static %}
+{% load i18n %}
+<!DOCTYPE html>
+<html lang="tr" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" type="image/x-icon" href="{% static 'konnektom-logo.png' %}">
+    <title>Kurulum Formu - {{ inventory_item.name.name }}</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com?v=3.4.0"></script>
+    
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    
+    <style>
+        .btn-primary {
+            background-color: #2563eb;
+            color: white;
+            font-weight: 500;
+            padding: 12px 24px;
+            border-radius: 8px;
+            transition: all 0.2s;
+            border: none;
+            cursor: pointer;
+        }
+        .btn-primary:hover {
+            background-color: #1d4ed8;
+        }
+        .btn-secondary {
+            background-color: #f3f4f6;
+            color: #374151;
+            font-weight: 500;
+            padding: 12px 24px;
+            border-radius: 8px;
+            transition: all 0.2s;
+            border: none;
+            cursor: pointer;
+        }
+        .btn-secondary:hover {
+            background-color: #e5e7eb;
+        }
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+        .form-input:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px #3b82f6;
+            border-color: #3b82f6;
+        }
+        .card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+            border: 1px solid #e5e7eb;
+            padding: 24px;
+        }
+        .gradient-bg {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0e7ff 100%);
+        }
+    </style>
+</head>
+<body class="gradient-bg min-h-screen">
+    <div class="container mx-auto px-4 py-6 max-w-2xl">
+        <!-- Header -->
+        <div class="card mb-6">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <button onclick="goBack()" class="p-2 text-gray-500 hover:text-gray-700 rounded-lg hover:bg-gray-100">
+                        <i class="fas fa-arrow-left text-lg"></i>
+                    </button>
+                    <div>
+                        <h1 class="text-xl font-bold text-gray-900">Kurulum Formu</h1>
+                        <p class="text-sm text-gray-600">{{ inventory_item.name.name }}</p>
+                    </div>
+                </div>
+                <div class="bg-blue-100 text-blue-800 text-xs font-medium px-3 py-1 rounded-full">
+                    SN: {{ inventory_item.serial_no }}
+                </div>
+            </div>
+        </div>
+
+        <form id="installationForm" onsubmit="console.log('Form onsubmit triggered!'); return submitForm(event);">
+            {% csrf_token %}
+            <input type="hidden" name="item_id" value="{{ inventory_item.id }}">
+
+            <!-- Müşteri Seçimi -->
+            <div class="card mb-6">
+                <h2 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                    <i class="fas fa-building text-blue-600 mr-3"></i>
+                    Müşteri Bilgileri
+                </h2>
+                
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            Müşteri Firma Adı *
+                        </label>
+                        <div class="relative">
+                            <input 
+                                type="text" 
+                                id="customerSearch"
+                                class="form-input pr-10"
+                                placeholder="Firma adı yazın veya arayın..."
+                                oninput="searchCustomers(this.value)"
+                                autocomplete="off"
+                                required
+                            >
+                            <i class="fas fa-search absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                        </div>
+                        
+                        <!-- Arama Sonuçları -->
+                        <div id="customerResults" class="hidden absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto"></div>
+                    </div>
+
+                    <!-- Seçili Müşteri -->
+                    <div id="selectedCustomer" class="hidden p-4 bg-green-50 border border-green-200 rounded-lg">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <div class="font-medium text-green-900" id="selectedCustomerName"></div>
+                                <div class="text-sm text-green-700" id="selectedCustomerDetails"></div>
+                            </div>
+                            <button type="button" onclick="clearCustomer()" class="text-green-600 hover:text-green-800">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Yeni Müşteri Butonu -->
+                    <div class="text-center py-3">
+                        <button type="button" onclick="toggleNewCustomerForm()" class="btn-secondary">
+                            <i class="fas fa-plus mr-2"></i>
+                            Yeni Müşteri Ekle
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Yeni Müşteri Formu -->
+            <div id="newCustomerForm" class="card mb-6 hidden">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                    <i class="fas fa-user-plus text-green-600 mr-3"></i>
+                    Yeni Müşteri
+                </h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Firma Adı *</label>
+                        <input type="text" name="new_customer_name" class="form-input" required>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Telefon</label>
+                        <input type="tel" name="new_customer_phone" class="form-input">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Şehir</label>
+                        <input type="text" name="new_customer_city" class="form-input">
+                    </div>
+                    
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                        <input type="email" name="new_customer_email" class="form-input">
+                    </div>
+                    
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Adres *</label>
+                        <textarea name="new_customer_address" rows="3" class="form-input" required></textarea>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">İletişim Kişisi *</label>
+                        <input type="text" name="new_customer_contact_person" class="form-input" required>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">İletişim Telefonu</label>
+                        <input type="tel" name="new_customer_contact_phone" class="form-input">
+                    </div>
+                    
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">İletişim Email</label>
+                        <input type="email" name="new_customer_contact_email" class="form-input" placeholder="Email bildirimleri için gerekli">
+                    </div>
+                </div>
+                
+                <div class="mt-4 flex space-x-3">
+                    <button type="button" onclick="createNewCustomer()" class="btn-primary">
+                        <i class="fas fa-save mr-2"></i>Kaydet
+                    </button>
+                    <button type="button" onclick="toggleNewCustomerForm()" class="btn-secondary">
+                        İptal
+                    </button>
+                </div>
+            </div>
+
+            <!-- Kurulum Detayları -->
+            <div class="card mb-6">
+                <h2 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                    <i class="fas fa-tools text-orange-600 mr-3"></i>
+                    Kurulum Detayları
+                </h2>
+                
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Kurulum Tarihi *</label>
+                        <input 
+                            type="datetime-local" 
+                            name="setup_date" 
+                            class="form-input"
+                            max=""
+                            required
+                        >
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Kurulum Adresi</label>
+                        <textarea name="location_address" rows="3" class="form-input" placeholder="Kurulum yapılacak detay adres..."></textarea>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">GPS Konumu</label>
+                        <div class="flex space-x-2">
+                            <button type="button" onclick="getCurrentLocation()" class="btn-secondary flex-1">
+                                <i class="fas fa-map-marker-alt mr-2"></i>
+                                <span id="locationButtonText">Mevcut Konumu Al</span>
+                            </button>
+                        </div>
+                        <div id="locationDisplay" class="hidden mt-2 p-3 bg-green-50 border border-green-200 rounded-lg">
+                            <div class="text-sm text-green-800">
+                                <i class="fas fa-check-circle mr-2"></i>
+                                Konum: <span id="locationCoords"></span>
+                            </div>
+                        </div>
+                        <input type="hidden" name="location_latitude" id="locationLat">
+                        <input type="hidden" name="location_longitude" id="locationLng">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Kurulum Notları</label>
+                        <textarea name="installation_notes" rows="4" class="form-input" placeholder="Kurulum ile ilgili özel notlar, dikkat edilmesi gereken noktalar..."></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Fotoğraf ve Dosyalar -->
+            <div class="card mb-6">
+                <h2 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                    <i class="fas fa-camera text-purple-600 mr-3"></i>
+                    Fotoğraf ve Dosyalar
+                </h2>
+                
+                <div class="space-y-4">
+                    <!-- Fotoğraf Çekme -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Fotoğraflar</label>
+                        <div class="flex space-x-2">
+                            <button type="button" onclick="takePhoto()" class="btn-secondary flex-1">
+                                <i class="fas fa-camera mr-2"></i>Fotoğraf Çek
+                            </button>
+                            <button type="button" onclick="selectPhotos()" class="btn-secondary flex-1">
+                                <i class="fas fa-image mr-2"></i>Galeri
+                            </button>
+                        </div>
+                        <input type="file" id="photoInput" multiple accept="image/*" class="hidden" onchange="handlePhotoSelect(event)">
+                    </div>
+                    
+                    <!-- Fotoğraf Önizleme -->
+                    <div id="photoPreview" class="hidden">
+                        <div class="grid grid-cols-2 gap-3" id="photoGrid"></div>
+                    </div>
+                    
+                    <!-- Dosya Yükleme -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Dosyalar</label>
+                        <button type="button" onclick="selectFiles()" class="btn-secondary w-full">
+                            <i class="fas fa-file mr-2"></i>Dosya Seç
+                        </button>
+                        <input type="file" id="fileInput" multiple accept=".pdf,.doc,.docx,.xls,.xlsx" class="hidden" onchange="handleFileSelect(event)">
+                    </div>
+                    
+                    <!-- Dosya Listesi -->
+                    <div id="fileList" class="hidden space-y-2"></div>
+                </div>
+            </div>
+
+            <!-- Gönder Butonu -->
+            <div class="card">
+                <button type="submit" class="btn-primary w-full text-lg" id="submitButton" onclick="console.log('Submit button clicked!');">
+                    <i class="fas fa-check mr-2"></i>
+                    <span id="submitButtonText">Kurulumu Tamamla</span>
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+        <div class="bg-white rounded-lg p-6 flex items-center space-x-3">
+            <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+            <span class="text-gray-700" id="loadingMessage">İşlem yapılıyor...</span>
+        </div>
+    </div>
+
+    <!-- Success/Error Messages -->
+    <div id="messageContainer" class="fixed top-4 left-4 right-4 z-50"></div>
+
+    <script>
+        // Global variables
+        let selectedCustomerId = null;
+        let selectedPhotos = [];
+        let selectedFiles = [];
+        
+        // Initialize form
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set max date to today
+            const now = new Date();
+            now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+            document.querySelector('input[name="setup_date"]').max = now.toISOString().slice(0, 16);
+            
+            // Set default date to current time
+            document.querySelector('input[name="setup_date"]').value = now.toISOString().slice(0, 16);
+            
+            // Başlangıçta yeni müşteri formu gizli olduğu için required alanları devre dışı bırak
+            enableNewCustomerRequiredFields(false);
+        });
+
+        // Navigation
+        function goBack() {
+            if (confirm('Formdan çıkmak istediğinize emin misiniz? Girilen bilgiler kaybolacak.')) {
+                window.location.href = '/warranty-services/installation/mobile/';
+            }
+        }
+
+        // Customer search
+        let searchTimeout;
+        function searchCustomers(query) {
+            clearTimeout(searchTimeout);
+            
+            if (query.length < 2) {
+                hideCustomerResults();
+                return;
+            }
+            
+            searchTimeout = setTimeout(() => {
+                performCustomerSearch(query);
+            }, 300);
+        }
+
+        async function performCustomerSearch(query) {
+            try {
+                const response = await fetch('/warranty-services/api/customers/search/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCsrfToken()
+                    },
+                    body: JSON.stringify({ search: query })
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    showCustomerResults(data.customers);
+                } else {
+                    showCustomerResults([]);
+                }
+            } catch (error) {
+                console.error('Customer search error:', error);
+                showCustomerResults([]);
+            }
+        }
+
+        function showCustomerResults(customers) {
+            const resultsDiv = document.getElementById('customerResults');
+            
+            if (customers.length === 0) {
+                resultsDiv.innerHTML = '<div class="p-3 text-gray-500 text-center">Müşteri bulunamadı</div>';
+            } else {
+                resultsDiv.innerHTML = customers.map(customer => `
+                    <div class="p-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0" onclick="selectCustomer(${customer.id}, '${customer.name}', '${customer.email || ''}')">
+                        <div class="font-medium text-gray-900">${customer.name}</div>
+                        <div class="text-sm text-gray-500">${customer.email || 'Email yok'}</div>
+                    </div>
+                `).join('');
+            }
+            
+            resultsDiv.classList.remove('hidden');
+        }
+
+        function hideCustomerResults() {
+            document.getElementById('customerResults').classList.add('hidden');
+        }
+
+        function selectCustomer(id, name, email) {
+            console.log('selectCustomer called with:', { id, name, email });
+            selectedCustomerId = id;
+            console.log('selectedCustomerId set to:', selectedCustomerId);
+            
+            // Yeni müşteri formu açıksa kapat (input temizlenmeden önce)
+            const newCustomerForm = document.getElementById('newCustomerForm');
+            if (!newCustomerForm.classList.contains('hidden')) {
+                toggleNewCustomerForm();
+            }
+            
+            // Input alanlarını set et (form kapandıktan sonra)
+            document.getElementById('customerSearch').value = name;
+            document.getElementById('selectedCustomerName').textContent = name;
+            document.getElementById('selectedCustomerDetails').textContent = email || 'Email bilgisi yok';
+            document.getElementById('selectedCustomer').classList.remove('hidden');
+            hideCustomerResults();
+            
+            console.log('Customer selection completed. selectedCustomerId is now:', selectedCustomerId);
+            console.log('Customer search input value:', document.getElementById('customerSearch').value);
+        }
+
+        function clearCustomer() {
+            console.log('🗑️ clearCustomer() called - clearing selected customer');
+            selectedCustomerId = null;
+            document.getElementById('customerSearch').value = '';
+            document.getElementById('selectedCustomer').classList.add('hidden');
+            hideCustomerResults();
+        }
+
+        // New customer form
+        function toggleNewCustomerForm() {
+            const form = document.getElementById('newCustomerForm');
+            const isHidden = form.classList.contains('hidden');
+            
+            form.classList.toggle('hidden');
+            
+            // Form açılırken
+            if (isHidden) {
+                // Arama sonuçlarını gizle
+                hideCustomerResults();
+                // Required alanları aktif et
+                enableNewCustomerRequiredFields(true);
+            } else {
+                // Form kapanırken required alanları devre dışı bırak
+                enableNewCustomerRequiredFields(false);
+                // Formu temizle
+                const inputs = form.querySelectorAll('input, textarea');
+                inputs.forEach(input => input.value = '');
+            }
+        }
+
+        function enableNewCustomerRequiredFields(enable) {
+            const requiredFields = document.querySelectorAll('#newCustomerForm [required]');
+            requiredFields.forEach(field => {
+                if (enable) {
+                    field.setAttribute('required', 'required');
+                } else {
+                    field.removeAttribute('required');
+                }
+            });
+        }
+
+        async function createNewCustomer() {
+            const inputs = document.querySelectorAll('#newCustomerForm input, #newCustomerForm textarea');
+            const customerData = {};
+            
+            inputs.forEach(input => {
+                if (input.value.trim()) {
+                    customerData[input.name] = input.value.trim();
+                }
+            });
+
+            // Validate required fields
+            if (!customerData.new_customer_name) {
+                showMessage('Firma adı gereklidir', 'error');
+                return;
+            }
+            if (!customerData.new_customer_address) {
+                showMessage('Adres gereklidir', 'error');
+                return;
+            }
+            if (!customerData.new_customer_contact_person) {
+                showMessage('İletişim kişisi gereklidir', 'error');
+                return;
+            }
+
+            showLoading('Müşteri oluşturuluyor...');
+
+            try {
+                const response = await fetch('/warranty-services/api/customers/create/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCsrfToken()
+                    },
+                    body: JSON.stringify(customerData)
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Müşteriyi seç
+                    const customerEmail = data.customer.email || '';
+                    console.log('Created customer:', data.customer);
+                    selectCustomer(data.customer.id, data.customer.name, customerEmail);
+                    toggleNewCustomerForm();
+                    showMessage('Müşteri başarıyla oluşturuldu', 'success');
+                    
+                    // Clear form
+                    inputs.forEach(input => input.value = '');
+                } else {
+                    showMessage(data.message || 'Müşteri oluşturulamadı', 'error');
+                }
+            } catch (error) {
+                console.error('Customer creation error:', error);
+                showMessage('Müşteri oluşturulurken bir hata oluştu', 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // Location
+        function getCurrentLocation() {
+            if (!navigator.geolocation) {
+                showMessage('Bu tarayıcı GPS konumu desteklemiyor', 'error');
+                return;
+            }
+
+            const button = document.getElementById('locationButtonText');
+            button.textContent = 'Konum alınıyor...';
+
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const lat = position.coords.latitude.toFixed(8);
+                    const lng = position.coords.longitude.toFixed(8);
+                    
+                    document.getElementById('locationLat').value = lat;
+                    document.getElementById('locationLng').value = lng;
+                    document.getElementById('locationCoords').textContent = `${lat}, ${lng}`;
+                    document.getElementById('locationDisplay').classList.remove('hidden');
+                    
+                    button.textContent = 'Konum Güncelle';
+                    showMessage('GPS konumu başarıyla alındı', 'success');
+                },
+                (error) => {
+                    button.textContent = 'Mevcut Konumu Al';
+                    let message = 'Konum alınamadı';
+                    
+                    switch (error.code) {
+                        case error.PERMISSION_DENIED:
+                            message = 'Konum izni reddedildi';
+                            break;
+                        case error.POSITION_UNAVAILABLE:
+                            message = 'Konum bilgisi alınamadı';
+                            break;
+                        case error.TIMEOUT:
+                            message = 'Konum alma işlemi zaman aşımına uğradı';
+                            break;
+                    }
+                    
+                    showMessage(message, 'error');
+                },
+                {
+                    enableHighAccuracy: true,
+                    timeout: 10000,
+                    maximumAge: 60000
+                }
+            );
+        }
+
+        // Photo handling
+        function takePhoto() {
+            // For mobile devices, try to open camera
+            if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                openCamera();
+            } else {
+                // Fallback to file input with capture
+                const fileInput = document.getElementById('photoInput');
+                fileInput.setAttribute('capture', 'environment');
+                fileInput.click();
+            }
+        }
+
+        function openCamera() {
+            const constraints = {
+                video: { 
+                    facingMode: 'environment', // Use back camera if available
+                    width: { ideal: 1280 },
+                    height: { ideal: 720 }
+                }
+            };
+            
+            navigator.mediaDevices.getUserMedia(constraints)
+                .then(function(stream) {
+                    // Create a video element to show camera feed
+                    const modal = document.createElement('div');
+                    modal.className = 'fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50';
+                    modal.innerHTML = `
+                        <div class="bg-white p-4 rounded-lg max-w-lg w-full mx-4">
+                            <div class="text-center mb-4">
+                                <h3 class="text-lg font-semibold">Fotoğraf Çek</h3>
+                            </div>
+                            <video id="cameraVideo" class="w-full h-64 bg-black rounded" autoplay playsinline></video>
+                            <canvas id="cameraCanvas" class="hidden"></canvas>
+                            <div class="flex gap-2 mt-4">
+                                <button type="button" id="captureBtn" class="bg-blue-600 text-white px-4 py-2 rounded flex-1">
+                                    <i class="fas fa-camera mr-2"></i>Çek
+                                </button>
+                                <button type="button" id="cancelCameraBtn" class="bg-gray-500 text-white px-4 py-2 rounded flex-1">
+                                    İptal
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                    
+                    document.body.appendChild(modal);
+                    
+                    const video = document.getElementById('cameraVideo');
+                    const canvas = document.getElementById('cameraCanvas');
+                    const captureBtn = document.getElementById('captureBtn');
+                    const cancelBtn = document.getElementById('cancelCameraBtn');
+                    
+                    video.srcObject = stream;
+                    
+                    captureBtn.onclick = function() {
+                        const context = canvas.getContext('2d');
+                        canvas.width = video.videoWidth;
+                        canvas.height = video.videoHeight;
+                        context.drawImage(video, 0, 0);
+                        
+                        canvas.toBlob(function(blob) {
+                            const file = new File([blob], `photo_${Date.now()}.jpg`, { type: 'image/jpeg' });
+                            const dataTransfer = new DataTransfer();
+                            dataTransfer.items.add(file);
+                            
+                            const fileInput = document.getElementById('photoInput');
+                            fileInput.files = dataTransfer.files;
+                            
+                            // Update photo preview
+                            handlePhotoSelect({ target: fileInput });
+                            
+                            // Clean up
+                            stream.getTracks().forEach(track => track.stop());
+                            document.body.removeChild(modal);
+                        }, 'image/jpeg', 0.8);
+                    };
+                    
+                    cancelBtn.onclick = function() {
+                        stream.getTracks().forEach(track => track.stop());
+                        document.body.removeChild(modal);
+                    };
+                })
+                .catch(function(err) {
+                    console.log('Camera access failed:', err);
+                    alert('Kamera erişimi başarısız. Lütfen dosya seçin.');
+                    selectPhotos();
+                });
+        }
+
+        function selectPhotos() {
+            document.getElementById('photoInput').click();
+        }
+
+        function handlePhotoSelect(event) {
+            const files = Array.from(event.target.files);
+            files.forEach(file => {
+                if (file.type.startsWith('image/')) {
+                    selectedPhotos.push(file);
+                }
+            });
+            updatePhotoPreview();
+        }
+
+        function updatePhotoPreview() {
+            const container = document.getElementById('photoPreview');
+            const grid = document.getElementById('photoGrid');
+            
+            if (selectedPhotos.length === 0) {
+                container.classList.add('hidden');
+                return;
+            }
+            
+            container.classList.remove('hidden');
+            grid.innerHTML = selectedPhotos.map((file, index) => {
+                const url = URL.createObjectURL(file);
+                return `
+                    <div class="relative">
+                        <img src="${url}" class="w-full h-32 object-cover rounded-lg border">
+                        <button type="button" onclick="removePhoto(${index})" 
+                                class="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-600">
+                            ×
+                        </button>
+                        <div class="absolute bottom-1 left-1 bg-black bg-opacity-50 text-white text-xs px-1 rounded">
+                            ${file.name}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function removePhoto(index) {
+            selectedPhotos.splice(index, 1);
+            updatePhotoPreview();
+        }
+
+        // File handling
+        function selectFiles() {
+            document.getElementById('fileInput').click();
+        }
+
+        function handleFileSelect(event) {
+            const files = Array.from(event.target.files);
+            selectedFiles.push(...files);
+            updateFileList();
+        }
+
+        function updateFileList() {
+            const container = document.getElementById('fileList');
+            
+            if (selectedFiles.length === 0) {
+                container.classList.add('hidden');
+                return;
+            }
+            
+            container.classList.remove('hidden');
+            container.innerHTML = selectedFiles.map((file, index) => `
+                <div class="flex items-center justify-between bg-gray-50 p-3 rounded-lg">
+                    <div class="flex items-center">
+                        <i class="fas fa-file mr-3 text-gray-500"></i>
+                        <span class="text-sm">${file.name}</span>
+                        <span class="text-xs text-gray-500 ml-2">(${formatFileSize(file.size)})</span>
+                    </div>
+                    <button type="button" onclick="removeFile(${index})" class="text-red-500 hover:text-red-700">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function removeFile(index) {
+            selectedFiles.splice(index, 1);
+            updateFileList();
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        // Form submission
+        async function submitForm(event) {
+            event.preventDefault();
+            
+            console.log('Form submit started');
+            console.log('selectedCustomerId value:', selectedCustomerId);
+            console.log('selectedCustomerId type:', typeof selectedCustomerId);
+            
+            if (!selectedCustomerId) {
+                console.log('❌ No customer selected!');
+                showMessage('Lütfen bir müşteri seçin', 'error');
+                return false;
+            }
+
+            console.log('✅ Customer ID:', selectedCustomerId);
+            showLoading('Kurulum kaydediliyor...');
+            
+            try {
+                const formData = new FormData();
+                
+                // Basic form data - yeni müşteri formu alanlarını hariç tut
+                const form = document.getElementById('installationForm');
+                const inputs = form.querySelectorAll('input:not([type="file"]):not([name^="new_customer_"]), textarea:not([name^="new_customer_"]), select:not([name^="new_customer_"])');
+                inputs.forEach(input => {
+                    if (input.value) {
+                        console.log('Adding field:', input.name, '=', input.value);
+                        formData.append(input.name, input.value);
+                    }
+                });
+                
+                // Customer ID
+                formData.append('customer_id', selectedCustomerId);
+                console.log('Customer ID added:', selectedCustomerId);
+                
+                // Photos
+                console.log('Selected photos count:', selectedPhotos.length);
+                selectedPhotos.forEach((photo, index) => {
+                    console.log(`Adding photo ${index}:`, photo.name);
+                    formData.append('photos', photo);
+                });
+                
+                // Files
+                console.log('Selected files count:', selectedFiles.length);
+                selectedFiles.forEach((file, index) => {
+                    console.log(`Adding file ${index}:`, file.name);
+                    formData.append('files', file);
+                });
+
+                console.log('About to submit form to API...');
+                const response = await fetch('/warranty-services/api/installation/create/', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': getCsrfToken()
+                    },
+                    body: formData
+                });
+
+                console.log('API Response status:', response.status);
+                const data = await response.json();
+                console.log('API Response data:', data);
+                
+                if (data.success) {
+                    showMessage('Kurulum başarıyla kaydedildi!', 'success');
+                    setTimeout(() => {
+                        window.location.href = '/warranty-services/installation/mobile/';
+                    }, 2000);
+                } else {
+                    showMessage(data.message || 'Kurulum kaydedilemedi', 'error');
+                }
+            } catch (error) {
+                console.error('Form submission error:', error);
+                showMessage('Kurulum kaydedilirken bir hata oluştu', 'error');
+            } finally {
+                hideLoading();
+            }
+            
+            return false; // Prevent form default submission
+        }
+
+        // Utility functions
+        function getCsrfToken() {
+            return document.querySelector('[name=csrfmiddlewaretoken]').value;
+        }
+
+        function showLoading(message) {
+            document.getElementById('loadingMessage').textContent = message;
+            document.getElementById('loadingOverlay').classList.remove('hidden');
+        }
+
+        function hideLoading() {
+            document.getElementById('loadingOverlay').classList.add('hidden');
+        }
+
+        function showMessage(message, type) {
+            const container = document.getElementById('messageContainer');
+            const alertClass = type === 'success' ? 'bg-green-50 border-green-200 text-green-800' : 'bg-red-50 border-red-200 text-red-800';
+            const iconClass = type === 'success' ? 'fa-check-circle text-green-600' : 'fa-exclamation-triangle text-red-600';
+            
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `${alertClass} border rounded-lg p-4 mb-3 flex items-center justify-between`;
+            messageDiv.innerHTML = `
+                <div class="flex items-center">
+                    <i class="fas ${iconClass} mr-3"></i>
+                    <span>${message}</span>
+                </div>
+                <button onclick="this.parentElement.remove()" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times"></i>
+                </button>
+            `;
+            
+            container.appendChild(messageDiv);
+            
+            // Auto remove after 5 seconds
+            setTimeout(() => {
+                if (messageDiv.parentElement) {
+                    messageDiv.remove();
+                }
+            }, 5000);
+        }
+
+        // Close customer results when clicking outside
+        document.addEventListener('click', function(event) {
+            const customerSearch = document.getElementById('customerSearch');
+            const customerResults = document.getElementById('customerResults');
+            
+            if (!customerSearch.contains(event.target) && !customerResults.contains(event.target)) {
+                hideCustomerResults();
+            }
+        });
+    </script>
+</body>
+</html>

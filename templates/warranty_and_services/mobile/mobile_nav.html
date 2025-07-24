@@ -1,0 +1,41 @@
+<!-- Mobile Navigation Component -->
+<div id="mobileNav" class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50 transform translate-y-full transition-transform duration-300">
+    <div class="grid grid-cols-4 h-16">
+        <!-- Home -->
+        <a href="{% url 'warranty_and_services:mobile_main' %}" 
+           class="flex flex-col items-center justify-center space-y-1 text-gray-600 hover:text-blue-600 hover:bg-blue-50 transition-colors">
+            <i class="fas fa-home text-lg"></i>
+            <span class="text-xs">Ana Sayfa</span>
+        </a>
+        
+        <!-- Installation -->
+        <a href="{% url 'warranty_and_services:mobile_installation_scanner' %}" 
+           class="flex flex-col items-center justify-center space-y-1 text-gray-600 hover:text-blue-600 hover:bg-blue-50 transition-colors">
+            <i class="fas fa-tools text-lg"></i>
+            <span class="text-xs">Kurulum</span>
+        </a>
+        
+        <!-- Maintenance -->
+        <a href="{% url 'warranty_and_services:mobile_maintenance_scanner' %}" 
+           class="flex flex-col items-center justify-center space-y-1 text-gray-600 hover:text-green-600 hover:bg-green-50 transition-colors">
+            <i class="fas fa-wrench text-lg"></i>
+            <span class="text-xs">Bakım</span>
+        </a>
+        
+        <!-- More -->
+        <a href="{% url 'dashboard:home' %}" 
+           class="flex flex-col items-center justify-center space-y-1 text-gray-600 hover:text-purple-600 hover:bg-purple-50 transition-colors">
+            <i class="fas fa-tachometer-alt text-lg"></i>
+            <span class="text-xs">Dashboard</span>
+        </a>
+    </div>
+</div>
+
+<script>
+// Show navigation on page load
+document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(() => {
+        document.getElementById('mobileNav').classList.remove('translate-y-full');
+    }, 500);
+});
+</script>

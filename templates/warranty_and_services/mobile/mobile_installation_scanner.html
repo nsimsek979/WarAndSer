@@ -1,0 +1,365 @@
+{% load static %}
+{% load i18n %}
+<!DOCTYPE html>
+<html lang="tr" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Kurulum Scanner - GVS Mobile</title>
+    <link rel="shortcut icon" type="image/x-icon" href="{% static 'konnektom-logo.png' %}">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com?v=3.4.0"></script>
+    
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+
+    <style>
+        .mobile-card {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .mobile-card:active {
+            transform: scale(0.98);
+        }
+        
+        .header-bg {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+        }
+        
+        .scanner-area {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(29, 78, 216, 0.1) 100%);
+            border: 2px dashed #3b82f6;
+        }
+    </style>
+</head>
+
+<body class="h-full bg-gray-50 pb-20">
+    <!-- Header -->
+    <div class="header-bg text-white shadow-lg">
+        <div class="px-4 py-6 pt-12">
+            <div class="flex items-center space-x-3">
+                <a href="{% url 'warranty_and_services:mobile_main' %}" 
+                   class="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center hover:bg-white/30 transition-colors">
+                    <i class="fas fa-arrow-left text-white"></i>
+                </a>
+                <div>
+                    <h1 class="text-lg font-bold">Kurulum Scanner</h1>
+                    <p class="text-white/80 text-sm">QR Kod ile Kurulum</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="px-4 py-6 space-y-6">
+        <!-- Scanner Area -->
+        <div class="scanner-area rounded-xl p-8 text-center mobile-card">
+            <!-- Camera Preview -->
+            <div id="cameraPreview" class="w-full h-64 bg-black rounded-lg mb-4 relative overflow-hidden" style="display: none;">
+                <video id="video" class="w-full h-full object-cover"></video>
+                <div class="absolute inset-0 border-2 border-blue-500 rounded-lg pointer-events-none"></div>
+                <canvas id="canvas" style="display: none;"></canvas>
+            </div>
+            
+            <!-- Default Scanner UI -->
+            <div id="scannerUI">
+                <div class="w-24 h-24 mx-auto mb-4 bg-blue-100 rounded-full flex items-center justify-center">
+                    <i class="fas fa-qrcode text-blue-600 text-3xl"></i>
+                </div>
+                <h2 class="text-xl font-bold text-gray-900 mb-2">QR Kod Okutun</h2>
+                <p class="text-gray-600 mb-6">Ekipmanın QR kodunu kameraya tutun</p>
+            </div>
+            
+            <button id="startCamera" class="w-full bg-blue-600 text-white py-4 rounded-xl font-semibold hover:bg-blue-700 transition-colors mobile-card">
+                <i class="fas fa-camera mr-2"></i>
+                <span id="cameraButtonText">Kamerayı Başlat</span>
+            </button>
+        </div>
+
+        <!-- Manual Entry -->
+        <div class="bg-white rounded-xl p-6 mobile-card">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Manuel Giriş</h3>
+            
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Seri Numarası</label>
+                    <input type="text" placeholder="Ekipman seri numarasını girin" 
+                           class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                </div>
+                
+                <button id="manualSearchBtn" class="w-full bg-gray-600 text-white py-3 rounded-lg font-semibold hover:bg-gray-700 transition-colors">
+                    <i class="fas fa-search mr-2"></i>
+                    Ekipman Ara
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mobile Navigation -->
+    {% include 'warranty_and_services/mobile/mobile_nav.html' %}
+
+    <!-- QR Code Scanner Script -->
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+    
+    <script>
+        let cameraStarted = false;
+        let html5QrCode = null;
+
+        document.getElementById('startCamera').addEventListener('click', function() {
+            if (!cameraStarted) {
+                startQRScanner();
+            } else {
+                stopQRScanner();
+            }
+        });
+
+        function startQRScanner() {
+            const cameraPreview = document.getElementById('cameraPreview');
+            const scannerUI = document.getElementById('scannerUI');
+            const button = document.getElementById('startCamera');
+            const buttonText = document.getElementById('cameraButtonText');
+
+            // Show camera preview
+            cameraPreview.style.display = 'block';
+            scannerUI.style.display = 'none';
+            
+            // Update button
+            button.classList.remove('bg-blue-600', 'hover:bg-blue-700');
+            button.classList.add('bg-red-600', 'hover:bg-red-700');
+            buttonText.innerHTML = '<i class="fas fa-stop mr-2"></i>Kamerayı Durdur';
+
+            // Start QR Code scanner
+            html5QrCode = new Html5Qrcode("cameraPreview");
+            
+            const config = {
+                fps: 10,
+                qrbox: { width: 250, height: 250 },
+                aspectRatio: 1.0
+            };
+
+            html5QrCode.start(
+                { facingMode: "environment" }, // Use back camera
+                config,
+                (decodedText, decodedResult) => {
+                    console.log(`QR Code detected: ${decodedText}`);
+                    
+                    // Stop scanner
+                    stopQRScanner();
+                    
+                    // Process QR code
+                    processQRCode(decodedText);
+                },
+                (errorMessage) => {
+                    // QR code not found, continue scanning
+                }
+            ).catch(err => {
+                console.error('Camera error:', err);
+                showError('Kamera erişimi başarısız. Lütfen kamera izinlerini kontrol edin.');
+                resetUI();
+            });
+
+            cameraStarted = true;
+        }
+
+        function stopQRScanner() {
+            if (html5QrCode) {
+                html5QrCode.stop().then(() => {
+                    html5QrCode.clear();
+                    resetUI();
+                }).catch(err => {
+                    console.error('Stop error:', err);
+                    resetUI();
+                });
+            }
+        }
+
+        function resetUI() {
+            const cameraPreview = document.getElementById('cameraPreview');
+            const scannerUI = document.getElementById('scannerUI');
+            const button = document.getElementById('startCamera');
+            const buttonText = document.getElementById('cameraButtonText');
+
+            // Hide camera preview
+            cameraPreview.style.display = 'none';
+            scannerUI.style.display = 'block';
+            
+            // Reset button
+            button.classList.remove('bg-red-600', 'hover:bg-red-700');
+            button.classList.add('bg-blue-600', 'hover:bg-blue-700');
+            buttonText.innerHTML = '<i class="fas fa-camera mr-2"></i>Kamerayı Başlat';
+
+            cameraStarted = false;
+        }
+
+        function processQRCode(qrData) {
+            // Show loading
+            showMessage('QR kod okundu, veriler işleniyor...', 'info');
+            
+            // API call to search by QR code
+            fetch('{% url "warranty_and_services:api_search_by_barcode" %}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({
+                    barcode: qrData
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showMessage(`QR kod okundu: ${data.item.name} (${data.item.brand})`, 'success');
+                    
+                    // Fill manual entry field with serial number
+                    const serialInput = document.querySelector('input[type="text"]');
+                    if (serialInput) {
+                        serialInput.value = data.item.serial_number;
+                    }
+                    
+                    // Display item details
+                    displayItemDetails(data.item);
+                } else {
+                    showError(data.message || 'QR kod ile eşleşen kuruluma hazır ekipman bulunamadı');
+                }
+            })
+            .catch(error => {
+                console.error('QR API Error:', error);
+                showError('QR kod işleme sırasında bir hata oluştu');
+            });
+        }
+
+        function searchBySerial(serialNumber) {
+            if (!serialNumber) {
+                showError('Seri numarası bulunamadı');
+                return;
+            }
+
+            // API call to search for available items
+            fetch('{% url "warranty_and_services:api_search_by_serial" %}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({
+                    serial_number: serialNumber
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showMessage(`Ekipman bulundu: ${data.item.name} (${data.item.brand})`, 'success');
+                    
+                    // Fill form with item data or redirect to installation form
+                    displayItemDetails(data.item);
+                } else {
+                    showError(data.message || 'Ekipman bulunamadı');
+                }
+            })
+            .catch(error => {
+                console.error('API Error:', error);
+                showError('Arama sırasında bir hata oluştu');
+            });
+        }
+
+        function displayItemDetails(item) {
+            // Create item details display
+            const itemDetails = `
+                <div class="bg-green-50 border border-green-200 rounded-lg p-4 mt-4">
+                    <h3 class="font-semibold text-green-900 mb-2">✓ Ekipman Bulundu</h3>
+                    <div class="space-y-1 text-sm">
+                        <p><strong>Adı:</strong> ${item.name}</p>
+                        <p><strong>Marka:</strong> ${item.brand}</p>
+                        <p><strong>Kategori:</strong> ${item.category}</p>
+                        <p><strong>Seri No:</strong> ${item.serial_number}</p>
+                    </div>
+                    <button onclick="startInstallation('${item.id}')" 
+                            class="w-full mt-3 bg-green-600 text-white py-2 rounded-lg font-semibold hover:bg-green-700 transition-colors">
+                        <i class="fas fa-play mr-2"></i>
+                        Kuruluma Başla
+                    </button>
+                </div>
+            `;
+            
+            // Add to manual entry section
+            const manualSection = document.querySelector('.bg-white.rounded-xl.p-6.mobile-card');
+            manualSection.innerHTML += itemDetails;
+        }
+
+        function startInstallation(itemId) {
+            showMessage('Kurulum formuna yönlendiriliyorsunuz...', 'info');
+            
+            // Redirect to installation form with item ID
+            setTimeout(() => {
+                window.location.href = `{% url 'warranty_and_services:mobile_installation_form' %}?item_id=${itemId}`;
+            }, 1000);
+        }
+
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        function showMessage(message, type = 'info') {
+            // Create toast message
+            const toast = document.createElement('div');
+            toast.className = `fixed top-4 left-4 right-4 p-4 rounded-lg z-50 text-white transform -translate-y-full transition-transform duration-300`;
+            
+            if (type === 'success') {
+                toast.classList.add('bg-green-600');
+            } else if (type === 'error') {
+                toast.classList.add('bg-red-600');
+            } else {
+                toast.classList.add('bg-blue-600');
+            }
+            
+            toast.innerHTML = message;
+            document.body.appendChild(toast);
+            
+            // Show toast
+            setTimeout(() => {
+                toast.classList.remove('-translate-y-full');
+            }, 100);
+            
+            // Hide toast after 3 seconds
+            setTimeout(() => {
+                toast.classList.add('-translate-y-full');
+                setTimeout(() => {
+                    document.body.removeChild(toast);
+                }, 300);
+            }, 3000);
+        }
+
+        function showError(message) {
+            showMessage(message, 'error');
+        }
+
+        // Manual search functionality
+        document.getElementById('manualSearchBtn').addEventListener('click', function() {
+            const serialInput = document.querySelector('input[type="text"]');
+            const serialNumber = serialInput.value.trim();
+            
+            if (serialNumber) {
+                searchBySerial(serialNumber);
+            } else {
+                showError('Lütfen bir seri numarası girin');
+            }
+        });
+    </script>
+</body>
+</html>
