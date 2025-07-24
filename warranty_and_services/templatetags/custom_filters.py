@@ -8,6 +8,15 @@ register = template.Library()
 
 
 @register.filter
+def humanize_number(value):
+    """Format number with thousand separators"""
+    try:
+        return f"{int(value):,}".replace(',', '.')
+    except (ValueError, TypeError):
+        return value
+
+
+@register.filter
 def get_item(dictionary, key):
     """Get item from dictionary by key"""
     if dictionary and hasattr(dictionary, 'get'):

@@ -180,80 +180,222 @@
                 <!-- Maintenance Type -->
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Bakım Türü *</label>
-                    <select x-model="formData.maintenance_type" 
-                            class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent bg-white">
-                        <option value="">Bakım türü seçin</option>
-                        <option value="preventive">Önleyici Bakım</option>
-                        <option value="corrective">Düzeltici Bakım</option>
-                        <option value="emergency">Acil Bakım</option>
-                        <option value="periodic">Periyodik Bakım</option>
-                    </select>
+                    <div class="space-y-3">
+                        <!-- Periodic Maintenance Option -->
+                        <label class="flex items-center p-4 border rounded-lg cursor-pointer transition-all duration-200"
+                               :class="formData.maintenance_type === 'periodic' ? 
+                                       'border-green-500 bg-green-50' : 
+                                       'border-gray-200 hover:bg-gray-50'"
+                               @click="formData.maintenance_type = 'periodic'; formData.is_periodic = true; formData.is_breakdown = false;">
+                            <input type="radio" 
+                                   x-model="formData.maintenance_type" 
+                                   value="periodic"
+                                   class="sr-only">
+                            <div class="ml-3">
+                                <div class="flex items-center">
+                                    <i class="fas fa-calendar-check mr-2 transition-colors duration-200"
+                                       :class="formData.maintenance_type === 'periodic' ? 'text-green-700' : 'text-green-600'"></i>
+                                    <span class="text-sm font-medium transition-colors duration-200"
+                                          :class="formData.maintenance_type === 'periodic' ? 'text-green-800' : 'text-gray-900'">Periyodik Bakım</span>
+                                    <i class="fas fa-check ml-2 text-green-600" 
+                                       x-show="formData.maintenance_type === 'periodic'"></i>
+                                </div>
+                                <div class="text-xs transition-colors duration-200"
+                                     :class="formData.maintenance_type === 'periodic' ? 'text-green-600' : 'text-gray-500'">Zamanında yapılan rutin bakım</div>
+                            </div>
+                        </label>
+                        
+                        <!-- Breakdown Maintenance Option -->
+                        <label class="flex items-center p-4 border rounded-lg cursor-pointer transition-all duration-200"
+                               :class="formData.maintenance_type === 'breakdown' ? 
+                                       'border-red-500 bg-red-50' : 
+                                       'border-gray-200 hover:bg-gray-50'"
+                               @click="formData.maintenance_type = 'breakdown'; formData.is_breakdown = true; formData.is_periodic = false;">
+                            <input type="radio" 
+                                   x-model="formData.maintenance_type" 
+                                   value="breakdown"
+                                   class="sr-only">
+                            <div class="ml-3">
+                                <div class="flex items-center">
+                                    <i class="fas fa-exclamation-triangle mr-2 transition-colors duration-200"
+                                       :class="formData.maintenance_type === 'breakdown' ? 'text-red-700' : 'text-red-600'"></i>
+                                    <span class="text-sm font-medium transition-colors duration-200"
+                                          :class="formData.maintenance_type === 'breakdown' ? 'text-red-800' : 'text-gray-900'">Arıza Bakımı</span>
+                                    <i class="fas fa-check ml-2 text-red-600" 
+                                       x-show="formData.maintenance_type === 'breakdown'"></i>
+                                </div>
+                                <div class="text-xs transition-colors duration-200"
+                                     :class="formData.maintenance_type === 'breakdown' ? 'text-red-600' : 'text-gray-500'">Arıza sonucu yapılan bakım</div>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Breakdown Reason (only for breakdown maintenance) -->
+                <div x-show="formData.maintenance_type === 'breakdown'" x-transition>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Arıza Sebebi *</label>
+                    <textarea x-model="formData.breakdown_reason" 
+                              placeholder="Arızanın nedenini detaylı olarak açıklayın..."
+                              rows="3"
+                              class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent resize-none"></textarea>
+                </div>
+
+                <!-- Work Performed (only for periodic maintenance) -->
+                <div x-show="formData.maintenance_type === 'periodic'" x-transition>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Yapılan İş *</label>
+                    <textarea x-model="formData.work_performed" 
+                              placeholder="Periyodik bakım kapsamında yapılan işleri açıklayın..."
+                              rows="3"
+                              class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent resize-none"></textarea>
+                </div>
+
+                <!-- Technician (Auto-filled, read-only) -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Teknisyen</label>
+                    <div class="flex items-center p-4 bg-gray-50 border border-gray-200 rounded-lg">
+                        <div class="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold text-sm mr-3">
+                            <span x-text="technicianInitials"></span>
+                        </div>
+                        <div>
+                            <div class="font-medium text-gray-900" x-text="technicianName"></div>
+                            <div class="text-sm text-gray-500">Bakım Teknisyeni</div>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Maintenance Date -->
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Bakım Tarihi *</label>
-                    <input type="date" x-model="formData.maintenance_date"
+                    <input type="date" 
+                           x-model="formData.service_date"
                            class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent">
                 </div>
+            </div>
+        </div>
 
-                <!-- Technician -->
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Teknisyen *</label>
-                    <input type="text" x-model="formData.technician" 
-                           placeholder="Teknisyen adı"
-                           class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent">
+        <!-- Service Forms Control Section -->
+        <div class="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden" x-show="serviceForms.length > 0">
+            <div class="bg-gradient-to-r from-blue-500 to-indigo-600 text-white p-4">
+                <div class="flex items-center space-x-3">
+                    <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+                        <i class="fas fa-clipboard-check text-xl"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-lg font-bold">Kontroller</h2>
+                        <p class="text-blue-100 text-sm">Yapılması gereken kontrol işlemleri</p>
+                    </div>
                 </div>
+            </div>
+            
+            <div class="p-6 space-y-3">
+                <template x-for="(form, index) in serviceForms" :key="form.id">
+                    <label class="flex items-center p-4 border rounded-lg cursor-pointer transition-all duration-200"
+                           :class="formData.completed_service_forms.includes(form.id) ? 
+                                   'border-green-500 bg-green-50' : 
+                                   'border-gray-200 hover:bg-gray-50'"
+                           @click="toggleServiceForm(form.id)">
+                        <input type="checkbox" 
+                               :checked="formData.completed_service_forms.includes(form.id)"
+                               @change="toggleServiceForm(form.id)"
+                               class="sr-only">
+                        <div class="ml-3 flex-1">
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm font-medium transition-colors duration-200"
+                                      :class="formData.completed_service_forms.includes(form.id) ? 
+                                              'text-green-800' : 'text-gray-900'"
+                                      x-text="form.name"></span>
+                                <i class="fas fa-check text-green-600 text-sm" 
+                                   x-show="formData.completed_service_forms.includes(form.id)"></i>
+                            </div>
+                            <div class="text-xs text-gray-500" x-text="form.description || 'Kontrol işlemi'"></div>
+                        </div>
+                    </label>
+                </template>
+            </div>
+        </div>
 
-                <!-- Work Performed -->
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Yapılan İşlemler *</label>
-                    <textarea x-model="formData.work_performed" 
-                              placeholder="Yapılan bakım işlemlerini detaylı olarak yazın..."
-                              rows="4"
-                              class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent resize-none"></textarea>
+        <!-- Spare Parts Section -->
+        <div class="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden" x-show="spareParts.length > 0">
+            <div class="bg-gradient-to-r from-green-500 to-emerald-600 text-white p-4">
+                <div class="flex items-center space-x-3">
+                    <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+                        <i class="fas fa-cogs text-xl"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-lg font-bold">Yedek Parçalar</h2>
+                        <p class="text-green-100 text-sm">Kullanılan yedek parçalar</p>
+                    </div>
                 </div>
+            </div>
+            
+            <div class="p-6 space-y-3">
+                <template x-for="(part, index) in spareParts" :key="part.id">
+                    <div class="border rounded-lg transition-all duration-200"
+                         :class="formData.used_spare_parts.some(p => p.id === part.id) ? 
+                                 'border-green-500 bg-green-50' : 'border-gray-200'">
+                        <label class="flex items-center p-4 cursor-pointer"
+                               :class="formData.used_spare_parts.some(p => p.id === part.id) ? 
+                                       'hover:bg-green-100' : 'hover:bg-gray-50'"
+                               @click="toggleSparePart(part)">
+                            <input type="checkbox" 
+                                   :checked="formData.used_spare_parts.some(p => p.id === part.id)"
+                                   @change="toggleSparePart(part)"
+                                   class="sr-only">
+                            <div class="ml-3 flex-1">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm font-medium transition-colors duration-200"
+                                          :class="formData.used_spare_parts.some(p => p.id === part.id) ? 
+                                                  'text-green-800' : 'text-gray-900'"
+                                          x-text="part.name"></span>
+                                    <i class="fas fa-check text-green-600 text-sm" 
+                                       x-show="formData.used_spare_parts.some(p => p.id === part.id)"></i>
+                                </div>
+                                <div class="text-xs transition-colors duration-200"
+                                     :class="formData.used_spare_parts.some(p => p.id === part.id) ? 
+                                             'text-green-600' : 'text-gray-500'"
+                                     x-text="part.part_number || 'Parça Kodu: Belirtilmemiş'"></div>
+                            </div>
+                        </label>
+                        
+                        <!-- Quantity input (shown when selected) -->
+                        <div x-show="formData.used_spare_parts.some(p => p.id === part.id)" 
+                             x-transition class="px-4 pb-4">
+                            <div class="flex items-center space-x-3">
+                                <label class="text-sm text-gray-600">Miktar:</label>
+                                <input type="number" 
+                                       :value="getSparePartQuantity(part.id)"
+                                       @input="updateSparePartQuantity(part.id, $event.target.value)"
+                                       min="1" 
+                                       class="w-20 px-3 py-1 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-green-500">
+                            </div>
+                        </div>
+                    </div>
+                </template>
+            </div>
+        </div>
 
+        <!-- Notes Section -->
+        <div class="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
+            <div class="bg-gradient-to-r from-yellow-500 to-orange-600 text-white p-4">
+                <div class="flex items-center space-x-3">
+                    <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+                        <i class="fas fa-sticky-note text-xl"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-lg font-bold">Notlar</h2>
+                        <p class="text-yellow-100 text-sm">Ek bilgiler ve açıklamalar</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="p-6">
                 <!-- Parts Used -->
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Kullanılan Parçalar</label>
-                    <textarea x-model="formData.parts_used" 
-                              placeholder="Değiştirilen veya kullanılan parçaları listeleyin..."
-                              rows="3"
-                              class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent resize-none"></textarea>
-                </div>
-
-                <!-- Issues Found -->
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Tespit Edilen Sorunlar</label>
-                    <textarea x-model="formData.issues_found" 
-                              placeholder="Bakım sırasında tespit edilen sorunları açıklayın..."
-                              rows="3"
-                              class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent resize-none"></textarea>
-                </div>
-
-                <!-- Recommendations -->
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Öneriler</label>
-                    <textarea x-model="formData.recommendations" 
-                              placeholder="Gelecekteki bakımlar için önerilerinizi yazın..."
-                              rows="3"
-                              class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent resize-none"></textarea>
-                </div>
-
-                <!-- Next Maintenance Date -->
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Sonraki Bakım Tarihi</label>
-                    <input type="date" x-model="formData.next_maintenance_date"
-                           class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent">
-                </div>
-
-                <!-- Cost -->
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Maliyet (TL)</label>
-                    <input type="number" x-model="formData.cost" 
-                           placeholder="0.00" step="0.01" min="0"
-                           class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Notlar</label>
+                    <textarea x-model="formData.notes" 
+                              placeholder="Bakım ile ilgili ek notlarınızı yazabilirsiniz..."
+                              rows="4"
+                              class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent resize-none"></textarea>
                 </div>
             </div>
         </div>
@@ -265,29 +407,99 @@
                     <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
                         <i class="fas fa-camera text-xl"></i>
                     </div>
-                    <div>
+                    <div class="flex-1">
                         <h2 class="text-lg font-bold">Fotoğraflar</h2>
-                        <p class="text-purple-100 text-sm">Bakım öncesi ve sonrası fotoğraflar</p>
+                        <p class="text-purple-100 text-sm">Bakım fotoğrafları ekleyin</p>
                     </div>
+                    <button @click.prevent="openCamera()" 
+                            class="px-4 py-2 bg-white/20 hover:bg-white/30 rounded-lg transition-colors">
+                        <i class="fas fa-camera mr-2"></i>
+                        Kamera Aç
+                    </button>
                 </div>
             </div>
             
             <div class="p-6">
-                <div class="grid grid-cols-2 gap-4">
-                    <button @click="takePhoto('before')" 
-                            class="aspect-square border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center hover:border-purple-500 transition-colors">
-                        <i x-show="!photos.before" class="fas fa-camera text-2xl text-gray-400 mb-2"></i>
-                        <img x-show="photos.before" :src="photos.before" class="w-full h-full object-cover rounded-lg" alt="Bakım öncesi">
-                        <span x-show="!photos.before" class="text-sm text-gray-500 text-center">Bakım Öncesi<br>Fotoğraf</span>
+                <!-- Photo Grid -->
+                <div class="grid grid-cols-3 gap-2 mb-4" x-show="photos.length > 0">
+                    <template x-for="(photo, index) in photos" :key="index">
+                        <div class="relative group">
+                            <img :src="photo.url" class="w-full h-24 object-cover rounded-lg border border-gray-200" :alt="'Foto ' + (index + 1)">
+                            <button @click="removePhoto(index)" 
+                                    class="absolute top-1 right-1 w-6 h-6 bg-red-500 hover:bg-red-600 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
+                                <i class="fas fa-times text-xs"></i>
+                            </button>
+                            <div class="absolute bottom-1 left-1 bg-black/50 text-white px-1 py-0.5 rounded text-xs">
+                                <span x-text="index + 1"></span>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+                
+                <!-- Photo Action Buttons -->
+                <div class="grid grid-cols-2 gap-3">
+                    <!-- Camera Button -->
+                    <button @click.prevent="openCamera()" 
+                            class="border-2 border-dashed border-gray-300 rounded-lg p-6 hover:border-blue-500 transition-colors flex flex-col items-center justify-center">
+                        <i class="fas fa-camera text-xl text-blue-500 mb-2"></i>
+                        <span class="text-sm text-gray-500">Kamera Aç</span>
                     </button>
                     
-                    <button @click="takePhoto('after')" 
-                            class="aspect-square border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center hover:border-purple-500 transition-colors">
-                        <i x-show="!photos.after" class="fas fa-camera text-2xl text-gray-400 mb-2"></i>
-                        <img x-show="photos.after" :src="photos.after" class="w-full h-full object-cover rounded-lg" alt="Bakım sonrası">
-                        <span x-show="!photos.after" class="text-sm text-gray-500 text-center">Bakım Sonrası<br>Fotoğraf</span>
+                    <!-- File Upload Button -->
+                    <button @click.prevent="openFileSelector()" 
+                            class="border-2 border-dashed border-gray-300 rounded-lg p-6 hover:border-green-500 transition-colors flex flex-col items-center justify-center">
+                        <i class="fas fa-image text-xl text-green-500 mb-2"></i>
+                        <span class="text-sm text-gray-500">Resim Seç</span>
                     </button>
                 </div>
+            </div>
+        </div>
+
+        <!-- Document Upload Section -->
+        <div class="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
+            <div class="bg-gradient-to-r from-indigo-500 to-blue-600 text-white p-4">
+                <div class="flex items-center space-x-3">
+                    <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+                        <i class="fas fa-file-alt text-xl"></i>
+                    </div>
+                    <div class="flex-1">
+                        <h2 class="text-lg font-bold">Belgeler</h2>
+                        <p class="text-indigo-100 text-sm">Bakım belgeleri ekleyin</p>
+                    </div>
+                    <button @click="openFileUpload()" 
+                            class="px-4 py-2 bg-white/20 hover:bg-white/30 rounded-lg transition-colors">
+                        <i class="fas fa-paperclip mr-2"></i>
+                        Dosya Ekle
+                    </button>
+                </div>
+            </div>
+            
+            <div class="p-6">
+                <!-- Document List -->
+                <div class="space-y-3 mb-4" x-show="documents.length > 0">
+                    <template x-for="(doc, index) in documents" :key="index">
+                        <div class="flex items-center p-3 border border-gray-200 rounded-lg">
+                            <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
+                                <i class="fas fa-file text-blue-600"></i>
+                            </div>
+                            <div class="flex-1">
+                                <div class="font-medium text-gray-900" x-text="doc.name"></div>
+                                <div class="text-sm text-gray-500" x-text="formatFileSize(doc.size)"></div>
+                            </div>
+                            <button @click="removeDocument(index)" 
+                                    class="w-8 h-8 bg-red-100 hover:bg-red-200 text-red-600 rounded-lg transition-colors">
+                                <i class="fas fa-times text-sm"></i>
+                            </button>
+                        </div>
+                    </template>
+                </div>
+                
+                <!-- Add Document Button -->
+                <button @click="openFileUpload()" 
+                        class="w-full border-2 border-dashed border-gray-300 rounded-lg p-6 hover:border-indigo-500 transition-colors flex flex-col items-center justify-center">
+                    <i class="fas fa-plus text-2xl text-gray-400 mb-2"></i>
+                    <span class="text-sm text-gray-500">Belge Ekle</span>
+                </button>
             </div>
         </div>
 
@@ -309,8 +521,19 @@
     <!-- Mobile Navigation -->
     {% include 'warranty_and_services/mobile/mobile_nav.html' %}
 
-    <!-- Camera Input (Hidden) -->
-    <input type="file" id="cameraInput" accept="image/*" capture="environment" style="display: none;">
+    <!-- Photo Input (Hidden) -->
+    <input type="file" 
+           id="photoInput" 
+           accept="image/*" 
+           multiple 
+           style="display: none;">
+    
+    <!-- File Input (Hidden) -->
+    <input type="file" 
+           id="fileInput" 
+           accept=".pdf,.doc,.docx,.xls,.xlsx,.txt" 
+           multiple 
+           style="display: none;">
 
     <!-- Success/Error Messages -->
     <div id="messageContainer" class="fixed top-4 left-4 right-4 z-50"></div>
@@ -330,82 +553,359 @@
                     last_maintenance_date: "{{ installation.last_maintenance_date|escapejs }}"
                 },
 
+                // Service Forms and Spare Parts (will be loaded from backend)
+                serviceForms: [],
+                spareParts: [],
+
+                // Technician info
+                technicianName: "{{ request.user.first_name }} {{ request.user.last_name }}".trim(),
+                technicianInitials: "{{ request.user.first_name.0 }}{{ request.user.last_name.0 }}",
+
                 // Form data
                 formData: {
                     maintenance_type: '',
-                    maintenance_date: new Date().toISOString().split('T')[0], // Today's date
-                    technician: '',
+                    is_periodic: false,
+                    is_breakdown: false,
+                    breakdown_reason: '',
                     work_performed: '',
-                    parts_used: '',
-                    issues_found: '',
-                    recommendations: '',
-                    next_maintenance_date: '',
-                    cost: ''
+                    notes: '',
+                    service_date: new Date().toISOString().split('T')[0], // Default to today
+                    completed_service_forms: [], // Array of service form IDs
+                    used_spare_parts: [] // Array of {id, quantity} objects
                 },
 
-                // Photos
-                photos: {
-                    before: null,
-                    after: null
-                },
+                // Media files
+                photos: [],
+                documents: [],
 
                 // State
                 submitting: false,
 
-                // Methods
-                isFormValid() {
-                    return this.formData.maintenance_type && 
-                           this.formData.maintenance_date && 
-                           this.formData.technician && 
-                           this.formData.work_performed;
+                // Initialize component
+                init() {
+                    this.loadServiceForms();
+                    this.loadSpareParts();
                 },
 
-                takePhoto(type) {
-                    const input = document.getElementById('cameraInput');
+                // Load service forms from backend
+                async loadServiceForms() {
+                    try {
+                        const response = await fetch(`/warranty-services/api/installation/${this.installation.id}/service-forms/`);
+                        if (response.ok) {
+                            this.serviceForms = await response.json();
+                        }
+                    } catch (error) {
+                        console.error('Failed to load service forms:', error);
+                    }
+                },
+
+                // Load spare parts from backend  
+                async loadSpareParts() {
+                    try {
+                        const response = await fetch(`/warranty-services/api/installation/${this.installation.id}/spare-parts/`);
+                        if (response.ok) {
+                            this.spareParts = await response.json();
+                        }
+                    } catch (error) {
+                        console.error('Failed to load spare parts:', error);
+                    }
+                },
+
+                // Methods
+                isFormValid() {
+                    const hasMaintenanceType = this.formData.maintenance_type;
+                    const hasRequiredField = this.formData.maintenance_type === 'breakdown' 
+                        ? this.formData.breakdown_reason 
+                        : this.formData.work_performed;
+                    const hasDate = this.formData.service_date;
+                    
+                    return hasMaintenanceType && hasRequiredField && hasDate;
+                },
+
+                // Service form methods
+                toggleServiceForm(formId) {
+                    const index = this.formData.completed_service_forms.indexOf(formId);
+                    if (index > -1) {
+                        this.formData.completed_service_forms.splice(index, 1);
+                    } else {
+                        this.formData.completed_service_forms.push(formId);
+                    }
+                },
+
+                // Spare parts methods
+                toggleSparePart(part) {
+                    const existingIndex = this.formData.used_spare_parts.findIndex(p => p.id === part.id);
+                    if (existingIndex > -1) {
+                        this.formData.used_spare_parts.splice(existingIndex, 1);
+                    } else {
+                        this.formData.used_spare_parts.push({
+                            id: part.id,
+                            name: part.name,
+                            quantity: 1
+                        });
+                    }
+                },
+
+                getSparePartQuantity(partId) {
+                    const part = this.formData.used_spare_parts.find(p => p.id === partId);
+                    return part ? part.quantity : 1;
+                },
+
+                updateSparePartQuantity(partId, quantity) {
+                    const part = this.formData.used_spare_parts.find(p => p.id === partId);
+                    if (part) {
+                        part.quantity = parseInt(quantity) || 1;
+                    }
+                },
+
+                // Photo methods
+                async openCamera() {
+                    try {
+                        // Check if camera is supported
+                        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                            this.showMessage('Kamera bu cihazda desteklenmiyor', 'error');
+                            return;
+                        }
+
+                        // Create camera modal
+                        const modal = document.createElement('div');
+                        modal.innerHTML = `
+                            <div class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
+                                <div class="bg-white rounded-lg p-4 max-w-sm w-full mx-4">
+                                    <div class="text-center mb-4">
+                                        <h3 class="text-lg font-semibold">Fotoğraf Çek</h3>
+                                    </div>
+                                    <video id="cameraVideo" class="w-full rounded-lg mb-4" autoplay playsinline></video>
+                                    <canvas id="cameraCanvas" class="hidden"></canvas>
+                                    <div class="flex gap-2">
+                                        <button id="captureBtn" class="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700">
+                                            <i class="fas fa-camera mr-2"></i>Çek
+                                        </button>
+                                        <button id="cancelCameraBtn" class="flex-1 bg-gray-500 text-white py-2 px-4 rounded-lg hover:bg-gray-600">
+                                            İptal
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                        document.body.appendChild(modal);
+
+                        const video = document.getElementById('cameraVideo');
+                        const canvas = document.getElementById('cameraCanvas');
+                        const captureBtn = document.getElementById('captureBtn');
+                        const cancelBtn = document.getElementById('cancelCameraBtn');
+
+                        // Start camera
+                        const stream = await navigator.mediaDevices.getUserMedia({
+                            video: { 
+                                facingMode: 'environment', // Back camera
+                                width: { ideal: 1280 },  // High resolution for quality
+                                height: { ideal: 720 }   // High resolution for quality
+                            }
+                        });
+                        
+                        video.srcObject = stream;
+
+                        // Capture photo
+                        captureBtn.onclick = () => {
+                            const context = canvas.getContext('2d');
+                            
+                            // Keep original camera resolution for quality
+                            canvas.width = video.videoWidth;
+                            canvas.height = video.videoHeight;
+                            context.drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
+                            
+                            canvas.toBlob(blob => {
+                                const file = new File([blob], `photo_${Date.now()}.jpg`, { type: 'image/jpeg' });
+                                this.photos.push({
+                                    file: file,
+                                    url: URL.createObjectURL(file),
+                                    name: file.name,
+                                    title: `Foto ${this.photos.length + 1}`
+                                });
+                                
+                                // Stop camera and close modal
+                                stream.getTracks().forEach(track => track.stop());
+                                document.body.removeChild(modal);
+                                
+                                this.showMessage('Fotoğraf başarıyla çekildi', 'success');
+                            }, 'image/jpeg', 0.8); // Higher quality for better image
+                        };
+
+                        // Cancel
+                        cancelBtn.onclick = () => {
+                            stream.getTracks().forEach(track => track.stop());
+                            document.body.removeChild(modal);
+                        };
+
+                    } catch (error) {
+                        console.error('Camera error:', error);
+                        this.showMessage('Kamera açılırken bir hata oluştu: ' + error.message, 'error');
+                    }
+                },
+
+                removePhoto(index) {
+                    this.photos.splice(index, 1);
+                },
+
+                // File selector for photos
+                openFileSelector() {
+                    try {
+                        const input = document.getElementById('photoInput');
+                        
+                        if (!input) {
+                            console.error('Photo input element bulunamadı!');
+                            this.showMessage('Resim seçici bulunamadı!', 'error');
+                            return;
+                        }
+                        
+                        // Clear previous value and event listeners
+                        input.value = '';
+                        input.onchange = null;
+                        
+                        input.onchange = (e) => {
+                            const files = e.target.files;
+                            
+                            if (!files || files.length === 0) {
+                                return;
+                            }
+                            
+                            Array.from(files).forEach((file) => {
+                                if (!file.type.startsWith('image/')) {
+                                    this.showMessage(`${file.name} geçerli bir resim dosyası değil`, 'error');
+                                    return;
+                                }
+                                
+                                // Compress image before adding
+                                this.compressImage(file, (compressedFile) => {
+                                    this.photos.push({
+                                        file: compressedFile,
+                                        url: URL.createObjectURL(compressedFile),
+                                        name: compressedFile.name,
+                                        title: `Foto ${this.photos.length + 1}`
+                                    });
+                                });
+                            });
+                            
+                            this.showMessage(`${files.length} resim başarıyla eklendi`, 'success');
+                            
+                            // Clear input for next use
+                            e.target.value = '';
+                        };
+                        
+                        input.click();
+                        
+                    } catch (error) {
+                        console.error('File selector error:', error);
+                        this.showMessage('Resim seçerken bir hata oluştu: ' + error.message, 'error');
+                    }
+                },
+
+                // Compress image helper function
+                compressImage(file, callback) {
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    const img = new Image();
+                    
+                    img.onload = function() {
+                        // Keep original dimensions for better quality
+                        // Only compress if image is very large (over 2048px)
+                        const maxWidth = 2048;
+                        const maxHeight = 2048;
+                        let { width, height } = img;
+                        
+                        if (width > height) {
+                            if (width > maxWidth) {
+                                height = (height * maxWidth) / width;
+                                width = maxWidth;
+                            }
+                        } else {
+                            if (height > maxHeight) {
+                                width = (width * maxHeight) / height;
+                                height = maxHeight;
+                            }
+                        }
+                        
+                        canvas.width = width;
+                        canvas.height = height;
+                        
+                        // Draw and compress with higher quality
+                        ctx.drawImage(img, 0, 0, width, height);
+                        
+                        // Higher quality (0.8 for better image quality)
+                        canvas.toBlob(callback, 'image/jpeg', 0.8);
+                    };
+                    
+                    img.src = URL.createObjectURL(file);
+                },
+
+                // Document methods
+                openFileUpload() {
+                    const input = document.getElementById('fileInput');
                     input.onchange = (e) => {
-                        const file = e.target.files[0];
-                        if (file) {
-                            const reader = new FileReader();
-                            reader.onload = (e) => {
-                                this.photos[type] = e.target.result;
-                            };
-                            reader.readAsDataURL(file);
+                        for (let file of e.target.files) {
+                            if (file) {
+                                this.documents.push({
+                                    file: file,
+                                    name: file.name,
+                                    size: file.size
+                                });
+                            }
                         }
                     };
                     input.click();
                 },
 
+                removeDocument(index) {
+                    this.documents.splice(index, 1);
+                },
+
+                formatFileSize(bytes) {
+                    if (bytes === 0) return '0 Bytes';
+                    const k = 1024;
+                    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+                    const i = Math.floor(Math.log(bytes) / Math.log(k));
+                    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+                },
+
                 async submitMaintenance() {
+                    console.log('Form validation:', this.isFormValid());
+                    console.log('Form data:', this.formData);
+                    
                     if (!this.isFormValid()) {
                         this.showMessage('Lütfen tüm zorunlu alanları doldurun', 'error');
                         return;
                     }
 
                     this.submitting = true;
+                    console.log('Starting maintenance submission...');
 
                     try {
                         const formData = new FormData();
                         
                         // Add form data
-                        Object.keys(this.formData).forEach(key => {
-                            if (this.formData[key]) {
-                                formData.append(key, this.formData[key]);
-                            }
-                        });
-
-                        // Add installation ID
+                        formData.append('maintenance_type', this.formData.maintenance_type);
+                        formData.append('breakdown_reason', this.formData.breakdown_reason);
+                        formData.append('work_performed', this.formData.work_performed);
+                        formData.append('notes', this.formData.notes);
+                        formData.append('service_date', this.formData.service_date);
                         formData.append('installation_id', this.installation.id);
 
-                        // Add photos
-                        if (this.photos.before) {
-                            const beforeBlob = this.dataURLToBlob(this.photos.before);
-                            formData.append('photo_before', beforeBlob, 'maintenance_before.jpg');
-                        }
+                        // Add service forms
+                        formData.append('completed_service_forms', JSON.stringify(this.formData.completed_service_forms));
                         
-                        if (this.photos.after) {
-                            const afterBlob = this.dataURLToBlob(this.photos.after);
-                            formData.append('photo_after', afterBlob, 'maintenance_after.jpg');
-                        }
+                        // Add spare parts  
+                        formData.append('used_spare_parts', JSON.stringify(this.formData.used_spare_parts));
+
+                        // Add photos
+                        this.photos.forEach((photo, index) => {
+                            formData.append(`photo_${index}`, photo.file);
+                        });
+
+                        // Add documents
+                        this.documents.forEach((doc, index) => {
+                            formData.append(`document_${index}`, doc.file);
+                        });
 
                         const response = await fetch('{% url "warranty_and_services:api_maintenance_submit" %}', {
                             method: 'POST',
@@ -415,7 +915,9 @@
                             body: formData
                         });
 
+                        console.log('Response status:', response.status);
                         const data = await response.json();
+                        console.log('Response data:', data);
 
                         if (data.success) {
                             this.showMessage('Bakım kaydı başarıyla oluşturuldu!', 'success');

@@ -1,45 +1,148 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Kurulum Lokasyonları Haritası</title>
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAt0CrhP93-WFBTjiA4ls_1OxBud5K5oPI"></script>
-    <style>
-        #map { height: 600px; width: 100%; }
-    </style>
-</head>
-<body>
-    <h2>Kurulum Lokasyonları</h2>
-    <div id="map"></div>
-    <script>
-        function getMarkerIcon(color) {
-            // Basit renkli marker SVG
-            return {
-                url: `data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='32' height='32'><circle cx='16' cy='16' r='12' fill='${color}' stroke='black' stroke-width='2'/></svg>`,
-                scaledSize: new google.maps.Size(32, 32)
-            };
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Installation Map - Kurulum Lokasyonları{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50 py-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Header -->
+        <div class="mb-8">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                    <div class="p-2 bg-green-100 rounded-lg mr-3">
+                        <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                        </svg>
+                    </div>
+                    <h1 class="text-3xl font-bold text-gray-900">Kurulum Lokasyonları Haritası</h1>
+                </div>
+                <div class="flex space-x-3">
+                    <a href="{% url 'warranty_and_services:installation_list' %}" 
+                       class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path>
+                        </svg>
+                        Liste Görünümü
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Map Info -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 mb-6 p-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <div class="text-sm text-gray-600">
+                        <span class="font-medium">Toplam Kurulum:</span> {{ total_installations }}
+                    </div>
+                    <div class="flex items-center space-x-4 text-sm">
+                        <div class="flex items-center">
+                            <div class="w-3 h-3 bg-green-500 rounded-full mr-1"></div>
+                            <span>Aktif Garanti</span>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="w-3 h-3 bg-yellow-500 rounded-full mr-1"></div>
+                            <span>Servis Gerekli</span>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="w-3 h-3 bg-red-500 rounded-full mr-1"></div>
+                            <span>Geciken Servis</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Map Container -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+            <div id="map" style="height: 600px; width: 100%;"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Leaflet CSS and JS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" 
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" 
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+<script>
+    // Initialize map
+    var map = L.map('map').setView([39.925533, 32.866287], 6); // Türkiye merkez
+
+    // Add OpenStreetMap tiles
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+        maxZoom: 18
+    }).addTo(map);
+
+    // Custom marker icons
+    function createMarkerIcon(color) {
+        return L.divIcon({
+            className: 'custom-div-icon',
+            html: `<div style="
+                background-color: ${color};
+                width: 20px;
+                height: 20px;
+                border-radius: 50%;
+                border: 3px solid white;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            "></div>`,
+            iconSize: [20, 20],
+            iconAnchor: [10, 10]
+        });
+    }
+
+    // Parse markers data
+    var markers = JSON.parse('{{ markers_json|escapejs }}');
+    var markersLayer = L.layerGroup().addTo(map);
+
+    // Add markers to map
+    markers.forEach(function(markerData) {
+        var marker = L.marker([markerData.lat, markerData.lng], {
+            icon: createMarkerIcon(markerData.color)
+        }).addTo(markersLayer);
+
+        // Create popup content
+        var popupContent = `
+            <div style="min-width: 250px;">
+                <h3 style="margin: 0 0 10px 0; color: #1f2937; font-size: 16px; font-weight: bold;">
+                    <a href="/warranty-services/installation/${markerData.installation_id}/" 
+                       target="_blank" 
+                       style="color: #2563eb; text-decoration: none;">
+                        ${markerData.title}
+                    </a>
+                </h3>
+                <div style="color: #6b7280; font-size: 14px; line-height: 1.5;">
+                    <p><strong>Müşteri:</strong> ${markerData.customer}</p>
+                    <p><strong>Adres:</strong> ${markerData.address}</p>
+                    <p><strong>Bayi:</strong> ${markerData.dealer}</p>
+                    <p><strong>Sonraki Servis:</strong> ${markerData.next_service}</p>
+                </div>
+            </div>
+        `;
+
+        marker.bindPopup(popupContent);
+        
+        // Add hover effect
+        marker.on('mouseover', function() {
+            this.openPopup();
+        });
+    });
+
+    // Fit map to show all markers
+    if (markers.length > 0) {
+        var group = new L.featureGroup(markersLayer.getLayers());
+        map.fitBounds(group.getBounds().pad(0.1));
+        
+        // Don't zoom in too much for single marker
+        if (map.getZoom() > 15) {
+            map.setZoom(15);
         }
-        function initMap() {
-            var map = new google.maps.Map(document.getElementById('map'), {
-                zoom: 6,
-                center: {lat: 39.925533, lng: 32.866287} // Türkiye merkez
-            });
-            var markers = JSON.parse('{{ markers_json|escapejs }}');
-            markers.forEach(function(marker) {
-                var m = new google.maps.Marker({
-                    position: {lat: marker.lat, lng: marker.lng},
-                    map: map,
-                    title: marker.title,
-                    icon: getMarkerIcon(marker.color)
-                });
-                var info = new google.maps.InfoWindow({
-                    content: `<b><a href='/warranty-services/installation/${marker.installation_id}/' target='_blank' style='color: #2563eb; text-decoration: underline;'>${marker.title}</a></b><br>Müşteri: ${marker.customer}<br>Adres: ${marker.address}<br>Bayi: ${marker.dealer}<br>En Yakın Servis: ${marker.next_service}`
-                });
-                m.addListener('click', function() {
-                    info.open(map, m);
-                });
-            });
-        }
-        window.onload = initMap;
-    </script>
-</body>
-</html>
+    }
+
+    console.log(`Map initialized with ${markers.length} markers`);
+</script>
+{% endblock %}

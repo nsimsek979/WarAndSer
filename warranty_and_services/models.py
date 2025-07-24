@@ -1009,3 +1009,413 @@ class ServiceFollowUp(models.Model):
                     'calculation_notes': f"Default service interval: {service_config['value']} {service_config['type']}"
                 }
             )
+
+
+class MaintenanceRecord(models.Model):
+    """
+    Ana bakım kaydı modeli - ServiceFollowUp'ı genişletir
+    """
+    MAINTENANCE_TYPE_CHOICES = [
+        ('periodic', 'Periodic Maintenance'),
+        ('breakdown', 'Breakdown Maintenance'),
+    ]
+
+    service_followup = models.OneToOneField(
+        ServiceFollowUp,
+        on_delete=models.CASCADE,
+        related_name='maintenance_record',
+        verbose_name="Service Follow-Up"
+    )
+    
+    # Bakım türü (choice field)
+    maintenance_type = models.CharField(
+        max_length=20,
+        choices=MAINTENANCE_TYPE_CHOICES,
+        verbose_name="Maintenance Type",
+        help_text="Select the type of maintenance performed"
+    )
+    
+    # Teknisyen (otomatik user bilgisi)
+    technician = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        verbose_name="Technician"
+    )
+    
+    # Arıza sebebi (sadece breakdown maintenance için)
+    breakdown_reason = models.TextField(
+        blank=True,
+        verbose_name="Breakdown Reason",
+        help_text="Required for breakdown maintenance"
+    )
+    
+    # Notlar
+    notes = models.TextField(
+        blank=True,
+        verbose_name="Notes"
+    )
+    
+    # Bakım tarihi
+    service_date = models.DateField(
+        verbose_name="Service Date",
+        help_text="Date when maintenance was performed"
+    )
+    
+    maintenance_date = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name="Maintenance Date"
+    )
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Maintenance Record"
+        verbose_name_plural = "Maintenance Records"
+        ordering = ['-maintenance_date']
+
+    def __str__(self):
+        maintenance_type_display = self.get_maintenance_type_display() if self.maintenance_type else "Unknown"
+        technician_name = f"{self.technician.first_name} {self.technician.last_name}".strip() if self.technician else "Unknown"
+        
+        return f"{maintenance_type_display} - {technician_name} ({self.maintenance_date.strftime('%d.%m.%Y')})"
+
+    def clean(self):
+        from django.core.exceptions import ValidationError
+        
+        # Maintenance type is required
+        if not self.maintenance_type:
+            raise ValidationError("Maintenance type must be selected.")
+        
+        # Breakdown maintenance için arıza sebebi zorunlu
+        if self.maintenance_type == 'breakdown' and not self.breakdown_reason:
+            raise ValidationError("Breakdown reason is required for breakdown maintenance.")
+
+    def save(self, *args, **kwargs):
+        self.clean()
+        is_new = not self.pk
+        super().save(*args, **kwargs)
+        
+        # Handle service follow-up logic for periodic maintenance
+        if is_new and self.maintenance_type == 'periodic':
+            self.handle_periodic_maintenance_completion()
+
+    def handle_periodic_maintenance_completion(self):
+        """
+        Handle service follow-up logic when periodic maintenance is completed.
+        Similar to Installation model's logic.
+        """
+        from datetime import datetime, timedelta
+        
+        installation = self.service_followup.installation
+        
+        # Mark current service as completed
+        current_service = self.service_followup
+        current_service.is_completed = True
+        current_service.completed_date = timezone.now()
+        current_service.completion_notes = f"Maintenance completed - {self.maintenance_type}"
+        current_service.save()
+        
+        # Create new service follow-up based on the same service type and value
+        if current_service.service_type == 'time_term':
+            # Time-based service: current service date + months
+            try:
+                # Parse service_date if it's a string
+                if isinstance(self.service_date, str):
+                    from datetime import datetime
+                    service_date = datetime.strptime(self.service_date, '%Y-%m-%d').date()
+                else:
+                    service_date = self.service_date
+                
+                months = int(current_service.service_value)
+                next_service_date = timezone.make_aware(
+                    datetime.combine(service_date + timedelta(days=months * 30), datetime.min.time())
+                )
+                
+                calculation_notes = f"Time-term service: {months} month(s) from last maintenance date ({service_date.strftime('%d.%m.%Y')})"
+                
+            except Exception as e:
+                # Fallback to current date + months
+                months = int(current_service.service_value)
+                next_service_date = timezone.now() + timedelta(days=months * 30)
+                calculation_notes = f"Time-term service: {months} month(s) from current date (fallback)"
+                
+        elif current_service.service_type == 'working_hours':
+            # Working hours-based service
+            service_hours = float(current_service.service_value)
+            
+            try:
+                working_hours = installation.customer.working_hours
+                weekly_hours = working_hours.weekly_working_hours
+                
+                if weekly_hours > 0:
+                    weeks_needed = service_hours / weekly_hours
+                    days_needed = weeks_needed * 7
+                    
+                    # Calculate from service date
+                    if isinstance(self.service_date, str):
+                        service_date = datetime.strptime(self.service_date, '%Y-%m-%d').date()
+                    else:
+                        service_date = self.service_date
+                        
+                    next_service_date = timezone.make_aware(
+                        datetime.combine(service_date + timedelta(days=days_needed), datetime.min.time())
+                    )
+                    
+                    calculation_notes = (
+                        f"Working hours service: {service_hours} hours, "
+                        f"Weekly working hours: {weekly_hours}, "
+                        f"From last maintenance: {service_date.strftime('%d.%m.%Y')}"
+                    )
+                else:
+                    # Fallback: 6 months
+                    next_service_date = timezone.now() + timedelta(days=180)
+                    calculation_notes = f"Working hours service fallback: 6 months (no working hours data)"
+                    
+            except Exception as e:
+                # Fallback: 6 months from current date
+                next_service_date = timezone.now() + timedelta(days=180)
+                calculation_notes = f"Working hours service fallback: 6 months (calculation error: {e})"
+        
+        # Create new service follow-up
+        ServiceFollowUp.objects.create(
+            installation=installation,
+            service_type=current_service.service_type,
+            service_value=current_service.service_value,
+            next_service_date=next_service_date,
+            calculation_notes=calculation_notes
+        )
+
+    def send_maintenance_notification(self):
+        """Bakım tamamlandığında mail gönder"""
+        try:
+            from django.core.mail import EmailMultiAlternatives
+            from django.template.loader import render_to_string
+            from django.conf import settings
+            import logging
+            
+            # Mail content
+            context = {
+                'maintenance_record': self,
+                'maintenance': self,  # Template compatibility
+                'installation': self.service_followup.installation,
+                'customer': self.service_followup.installation.customer,
+                'service_forms': self.service_forms.all(),
+                'spare_parts': self.spare_parts.all(),
+                'photos': self.photos.all(),
+                'documents': self.documents.all(),
+                'technician_name': f"{self.technician.first_name} {self.technician.last_name}".strip() if self.technician else "Unknown",
+                'maintenance_type_display': self.get_maintenance_type_display() if self.maintenance_type else "Unknown",
+                'current_date': timezone.now().strftime('%d.%m.%Y %H:%M'),
+                'service_date_formatted': self.service_date if isinstance(self.service_date, str) else self.service_date.strftime('%d.%m.%Y') if self.service_date else 'N/A',
+                'language': 'tr'
+            }
+            
+            subject = f"Maintenance Completed - {self.service_followup.installation.inventory_item.name.name}"
+            
+            # HTML mail template
+            html_content = render_to_string('warranty_and_services/emails/maintenance_notification.html', context)
+            
+            # Recipients - Use same logic as installation notification
+            recipients = set()
+            
+            # 1. Servis yapılan firma maili
+            if self.service_followup.installation.customer and self.service_followup.installation.customer.email:
+                recipients.add(self.service_followup.installation.customer.email)
+            
+            # 2. ContactPerson - servis yapılan firmadaki iletişim kişileri
+            if hasattr(self.service_followup.installation.customer, 'contactperson_set'):
+                for contact in self.service_followup.installation.customer.contactperson_set.all():
+                    if contact.email:
+                        recipients.add(contact.email)
+            
+            # 3. Servis yapan user
+            if self.technician and self.technician.email:
+                recipients.add(self.technician.email)
+            
+            # 4. Servis yapan firmanın manager ve servis personeli
+            if self.technician.company:
+                for u in self.technician.company.customuser_set.filter(role__in=[
+                    'manager_main', 'salesmanager_main', 'service_main',
+                    'manager_distributor', 'salesmanager_distributor', 'service_distributor']):
+                    if u.email:
+                        recipients.add(u.email)
+                
+                # 5. Related manager
+                if self.technician.company.related_manager and self.technician.company.related_manager.email:
+                    recipients.add(self.technician.company.related_manager.email)
+            
+            if recipients:
+                email = EmailMultiAlternatives(
+                    subject,
+                    html_content,
+                    settings.DEFAULT_FROM_EMAIL,
+                    list(recipients)
+                )
+                email.attach_alternative(html_content, "text/html")
+                
+                # PDF generation completely disabled for performance
+                pdf_buffer = None
+                # Note: PDF attachment temporarily disabled to improve response time
+                # Users will receive detailed HTML email instead
+                
+                # PDF attachment - only if PDF was generated successfully
+                if pdf_buffer:
+                    filename = f"bakim_raporu_{self.service_followup.installation.inventory_item.serial_no}_{self.service_date.strftime('%d%m%Y')}.pdf"
+                    email.attach(filename, pdf_buffer.read(), 'application/pdf')
+                
+                email.send()
+                print(f"✅ Maintenance notification email sent to: {list(recipients)}")
+                if pdf_buffer:
+                    print("📎 PDF attachment included")
+                else:
+                    print("📧 Email sent without PDF attachment")
+                
+            else:
+                print("❌ No recipients found for maintenance notification email")
+                
+        except Exception as e:
+            print(f"❌ Error sending maintenance notification email: {e}")
+            import traceback
+            traceback.print_exc()
+            raise e
+
+
+class MaintenanceServiceForm(models.Model):
+    """
+    Bakım sırasında yapılan kontrol formları
+    """
+    maintenance_record = models.ForeignKey(
+        MaintenanceRecord,
+        on_delete=models.CASCADE,
+        related_name='service_forms',
+        verbose_name="Maintenance Record"
+    )
+    service_form = models.ForeignKey(
+        'item_master.ServiceForm',
+        on_delete=models.CASCADE,
+        verbose_name="Service Form"
+    )
+    is_completed = models.BooleanField(
+        default=False,
+        verbose_name="Completed"
+    )
+    notes = models.TextField(
+        blank=True,
+        verbose_name="Notes"
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Maintenance Service Form"
+        verbose_name_plural = "Maintenance Service Forms"
+        unique_together = ('maintenance_record', 'service_form')
+
+    def __str__(self):
+        status = "✓" if self.is_completed else "⏳"
+        return f"{status} {self.service_form.name}"
+
+
+class MaintenanceSparePart(models.Model):
+    """
+    Bakım sırasında kullanılan yedek parçalar
+    """
+    maintenance_record = models.ForeignKey(
+        MaintenanceRecord,
+        on_delete=models.CASCADE,
+        related_name='spare_parts',
+        verbose_name="Maintenance Record"
+    )
+    spare_part = models.ForeignKey(
+        'item_master.ItemMaster',
+        on_delete=models.CASCADE,
+        verbose_name="Spare Part"
+    )
+    is_used = models.BooleanField(
+        default=False,
+        verbose_name="Used"
+    )
+    quantity_used = models.PositiveIntegerField(
+        default=1,
+        verbose_name="Quantity Used"
+    )
+    notes = models.TextField(
+        blank=True,
+        verbose_name="Notes"
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Maintenance Spare Part"
+        verbose_name_plural = "Maintenance Spare Parts"
+        unique_together = ('maintenance_record', 'spare_part')
+
+    def __str__(self):
+        status = "✓" if self.is_used else "⏳"
+        qty = f" (x{self.quantity_used})" if self.is_used and self.quantity_used > 1 else ""
+        return f"{status} {self.spare_part.name}{qty}"
+
+
+class MaintenancePhoto(models.Model):
+    """
+    Bakım fotoğrafları
+    """
+    maintenance_record = models.ForeignKey(
+        MaintenanceRecord,
+        on_delete=models.CASCADE,
+        related_name='photos',
+        verbose_name="Maintenance Record"
+    )
+    image = models.ImageField(
+        upload_to='maintenance_photos/',
+        verbose_name="Photo"
+    )
+    description = models.CharField(
+        max_length=255,
+        blank=True,
+        verbose_name="Description"
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Maintenance Photo"
+        verbose_name_plural = "Maintenance Photos"
+        ordering = ['created_at']
+
+    def __str__(self):
+        return f"Photo {self.id} - {self.maintenance_record}"
+
+
+class MaintenanceDocument(models.Model):
+    """
+    Bakım belgeleri
+    """
+    maintenance_record = models.ForeignKey(
+        MaintenanceRecord,
+        on_delete=models.CASCADE,
+        related_name='documents',
+        verbose_name="Maintenance Record"
+    )
+    document = models.FileField(
+        upload_to='maintenance_documents/',
+        verbose_name="Document"
+    )
+    name = models.CharField(
+        max_length=255,
+        verbose_name="Document Name"
+    )
+    description = models.CharField(
+        max_length=255,
+        blank=True,
+        verbose_name="Description"
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Maintenance Document"
+        verbose_name_plural = "Maintenance Documents"
+        ordering = ['created_at']
+
+    def __str__(self):
+        return f"{self.name} - {self.maintenance_record}"

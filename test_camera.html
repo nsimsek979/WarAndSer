@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kamera Test</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-4">
+    <div class="max-w-md mx-auto bg-white rounded-lg shadow-lg p-6">
+        <h1 class="text-xl font-bold mb-4">Kamera Test</h1>
+        
+        <button onclick="openCamera()" 
+                class="w-full bg-blue-500 text-white py-3 px-4 rounded-lg mb-4">
+            <i class="fas fa-camera mr-2"></i>Kamera Aç
+        </button>
+        
+        <div id="photos" class="grid grid-cols-2 gap-2"></div>
+    </div>
+    
+    <!-- Camera Input (Hidden) -->
+    <input type="file" 
+           id="cameraInput" 
+           accept="image/*" 
+           capture
+           multiple 
+           style="display: none;">
+    
+    <script>
+        let photos = [];
+        
+        function openCamera() {
+            console.log('Camera açılıyor...');
+            const input = document.getElementById('cameraInput');
+            
+            if (!input) {
+                console.error('Camera input element bulunamadı!');
+                return;
+            }
+            
+            // Clear previous event listeners and value
+            input.onchange = null;
+            input.value = '';
+            
+            input.onchange = (e) => {
+                console.log('File input changed, dosya sayısı:', e.target.files.length);
+                const files = e.target.files;
+                
+                if (files && files.length > 0) {
+                    for (let i = 0; i < files.length; i++) {
+                        const file = files[i];
+                        console.log('İşlenen dosya:', file.name, 'Tip:', file.type);
+                        
+                        if (file && file.type.startsWith('image/')) {
+                            const reader = new FileReader();
+                            reader.onload = (event) => {
+                                console.log('Fotoğraf yüklendi:', file.name);
+                                photos.push({
+                                    url: event.target.result,
+                                    file: file,
+                                    name: file.name,
+                                    title: `Foto ${photos.length + 1}`
+                                });
+                                displayPhotos();
+                            };
+                            reader.onerror = (error) => {
+                                console.error('FileReader hatası:', error);
+                            };
+                            reader.readAsDataURL(file);
+                        } else {
+                            console.warn('Geçersiz dosya tipi:', file.type);
+                        }
+                    }
+                } else {
+                    console.log('Hiç dosya seçilmedi');
+                }
+                
+                // Reset input for reuse
+                setTimeout(() => {
+                    input.value = '';
+                }, 100);
+            };
+            
+            console.log('Input click edilecek...');
+            input.click();
+        }
+        
+        function displayPhotos() {
+            const container = document.getElementById('photos');
+            container.innerHTML = '';
+            
+            photos.forEach((photo, index) => {
+                const div = document.createElement('div');
+                div.className = 'relative';
+                div.innerHTML = `
+                    <img src="${photo.url}" alt="${photo.name}" class="w-full h-24 object-cover rounded">
+                    <button onclick="removePhoto(${index})" class="absolute top-1 right-1 bg-red-500 text-white w-6 h-6 rounded-full text-xs">×</button>
+                `;
+                container.appendChild(div);
+            });
+        }
+        
+        function removePhoto(index) {
+            photos.splice(index, 1);
+            displayPhotos();
+        }
+    </script>
+</body>
+</html>

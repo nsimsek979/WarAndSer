@@ -29,6 +29,8 @@ urlpatterns = [
     # API Endpoints for Maintenance
     path('api/installations/search-by-qr/', views.api_installation_search_by_qr, name='api_installation_search_by_qr'),
     path('api/installations/search-by-serial/', views.api_installation_search_by_serial, name='api_installation_search_by_serial'),
+    path('api/installation/<int:installation_id>/service-forms/', views.api_installation_service_forms, name='api_installation_service_forms'),
+    path('api/installation/<int:installation_id>/spare-parts/', views.api_installation_spare_parts, name='api_installation_spare_parts'),
     path('api/maintenance/create/', views.api_maintenance_create, name='api_maintenance_create'),
     path('api/maintenance/search/', views.api_maintenance_search, name='api_maintenance_search'),
     path('api/maintenance/item-detail/', views.api_maintenance_item_detail, name='api_maintenance_item_detail'),
@@ -41,4 +43,8 @@ urlpatterns = [
     # Service tracking
     path('service-tracking/', views.service_tracking_list, name='service_tracking_list'),
     path('service/<int:service_id>/', views.service_detail, name='service_detail'),
+    path('item/<int:installation_id>/service-history/', views.item_service_history, name='item_service_history'),
+    
+    # Installation Map
+    path('installations/map/', views.installation_map_view, name='installation_map'),
 ]

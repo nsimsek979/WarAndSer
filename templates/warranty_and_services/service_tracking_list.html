@@ -247,21 +247,19 @@
                         </td>
                         <td class="px-3 py-4 whitespace-nowrap text-sm font-medium">
                             <div class="flex space-x-2">
+                                <a href="{% url 'warranty_and_services:item_service_history' installation.id %}" 
+                                   class="text-blue-600 hover:text-blue-900" title="Service History">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                    </svg>
+                                </a>
                                 <a href="{% url 'warranty_and_services:installation_detail' installation.id %}" 
-                                   class="text-indigo-600 hover:text-indigo-900">
+                                   class="text-indigo-600 hover:text-indigo-900" title="Installation Detail">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
                                     </svg>
                                 </a>
-                                {% if not installation.critical_service.is_completed %}
-                                <button onclick="markCompleted({{ installation.critical_service.id }})"
-                                        class="text-green-600 hover:text-green-900">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                                    </svg>
-                                </button>
-                                {% endif %}
                             </div>
                         </td>
                     </tr>
@@ -285,13 +283,4 @@
     </div>
 </div>
 
-<script>
-function markCompleted(serviceId) {
-    if (confirm('Bu servisi tamamlandı olarak işaretlemek istediğinizden emin misiniz?')) {
-        // AJAX call to mark service as completed
-        // Bu kısmı daha sonra implement edebiliriz
-        alert('Bu özellik yakında eklenecek!');
-    }
-}
-</script>
 {% endblock %}

@@ -4,8 +4,9 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import ListView, DetailView
 from django.db.models import Q, Count, Case, When, IntegerField
 from django.utils import timezone
+from django.conf import settings
 from django.core.paginator import Paginator
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from django.contrib import messages
@@ -1611,7 +1612,7 @@ def api_maintenance_item_detail(request):
 @require_http_methods(["POST"])
 def api_maintenance_submit(request):
     """
-    Bakım kaydı oluştur
+    Bakım kaydı oluştur - Yeni MaintenanceRecord modeli ile
     """
     try:
         installation_id = request.POST.get('installation_id')
@@ -1624,86 +1625,138 @@ def api_maintenance_submit(request):
         
         installation = get_object_or_404(Installation, id=installation_id)
         
-        # Create maintenance record (ServiceFollowUp)
-        from datetime import datetime
+        # Get form data
+        maintenance_type = request.POST.get('maintenance_type')
+        breakdown_reason = request.POST.get('breakdown_reason', '')
+        notes = request.POST.get('work_performed', '')
+        service_date = request.POST.get('service_date')
         
-        maintenance_date = request.POST.get('maintenance_date')
-        next_maintenance_date = request.POST.get('next_maintenance_date')
-        cost = request.POST.get('cost', '0')
+        # Validate required fields
+        if not maintenance_type:
+            return JsonResponse({
+                'success': False,
+                'message': 'Bakım türü seçimi zorunludur'
+            })
         
-        # Parse dates
-        maintenance_date_obj = datetime.strptime(maintenance_date, '%Y-%m-%d').date() if maintenance_date else datetime.now().date()
-        next_maintenance_date_obj = datetime.strptime(next_maintenance_date, '%Y-%m-%d').date() if next_maintenance_date else None
+        if not service_date:
+            return JsonResponse({
+                'success': False,
+                'message': 'Bakım tarihi zorunludur'
+            })
         
-        # Create maintenance record
-        maintenance = ServiceFollowUp.objects.create(
+        if maintenance_type == 'breakdown' and not breakdown_reason:
+            return JsonResponse({
+                'success': False,
+                'message': 'Arıza bakımı için arıza sebebi zorunludur'
+            })
+        
+        # Find an existing incomplete service follow-up or create one
+        service_followup = ServiceFollowUp.objects.filter(
             installation=installation,
-            service_type='maintenance',
-            service_value=float(cost) if cost else 0.0,
-            next_service_date=next_maintenance_date_obj or maintenance_date_obj,
-            is_completed=True,
-            completed_date=maintenance_date_obj,
-            completion_notes=f"""
-Bakım Türü: {request.POST.get('maintenance_type', 'N/A')}
-Teknisyen: {request.POST.get('technician', 'N/A')}
-
-Yapılan İşlemler:
-{request.POST.get('work_performed', 'N/A')}
-
-Kullanılan Parçalar:
-{request.POST.get('parts_used', 'N/A')}
-
-Tespit Edilen Sorunlar:
-{request.POST.get('issues_found', 'N/A')}
-
-Öneriler:
-{request.POST.get('recommendations', 'N/A')}
-            """.strip(),
-            created_by=request.user
+            is_completed=False
+        ).first()
+        
+        if not service_followup:
+            # Create a new service follow-up
+            from datetime import timedelta
+            next_service_date = timezone.now() + timedelta(days=180)  # 6 months default
+            
+            service_followup = ServiceFollowUp.objects.create(
+                installation=installation,
+                service_type='time_term',
+                service_value=6,  # 6 months
+                next_service_date=next_service_date,
+                calculation_notes='Created automatically for maintenance record'
+            )
+        
+        # Import the new models
+        from .models import MaintenanceRecord, MaintenancePhoto, MaintenanceDocument
+        
+        # Create MaintenanceRecord
+        maintenance_record = MaintenanceRecord.objects.create(
+            service_followup=service_followup,
+            maintenance_type=maintenance_type,
+            technician=request.user,
+            breakdown_reason=breakdown_reason,
+            notes=notes,
+            service_date=service_date
         )
         
-        # Handle photo uploads
-        photo_paths = []
+        # Handle multiple photos
+        for key, file in request.FILES.items():
+            if key.startswith('photo_'):
+                MaintenancePhoto.objects.create(
+                    maintenance_record=maintenance_record,
+                    image=file,
+                    description=f'Bakım fotoğrafı'
+                )
+            elif key.startswith('document_'):
+                MaintenanceDocument.objects.create(
+                    maintenance_record=maintenance_record,
+                    document=file,
+                    name=file.name,
+                    description=f'Bakım belgesi'
+                )
+
+        # Handle service forms
+        completed_service_forms = request.POST.get('completed_service_forms', '[]')
+        try:
+            import json
+            completed_forms = json.loads(completed_service_forms)
+            from .models import MaintenanceServiceForm
+            
+            for form_id in completed_forms:
+                try:
+                    service_form = installation.inventory_item.name.service_forms.get(id=form_id)
+                    MaintenanceServiceForm.objects.create(
+                        maintenance_record=maintenance_record,
+                        service_form=service_form,
+                        is_completed=True
+                    )
+                except:
+                    pass  # Skip if service form not found
+        except:
+            pass
+
+        # Handle spare parts
+        used_spare_parts = request.POST.get('used_spare_parts', '[]')
+        try:
+            used_parts = json.loads(used_spare_parts)
+            from .models import MaintenanceSparePart
+            
+            for part_data in used_parts:
+                try:
+                    spare_part = installation.inventory_item.name.spare_parts.get(id=part_data['id'])
+                    MaintenanceSparePart.objects.create(
+                        maintenance_record=maintenance_record,
+                        spare_part=spare_part,
+                        is_used=True,
+                        quantity_used=part_data.get('quantity', 1)
+                    )
+                except:
+                    pass  # Skip if spare part not found
+        except:
+            pass
         
-        if 'photo_before' in request.FILES:
-            before_photo = request.FILES['photo_before']
-            before_path = f'maintenance_photos/{installation.id}/before_{maintenance.id}_{before_photo.name}'
-            
-            # Save file
-            import os
-            from django.conf import settings
-            full_path = os.path.join(settings.MEDIA_ROOT, before_path)
-            os.makedirs(os.path.dirname(full_path), exist_ok=True)
-            
-            with open(full_path, 'wb+') as destination:
-                for chunk in before_photo.chunks():
-                    destination.write(chunk)
-            
-            photo_paths.append(before_path)
+        # Mark service follow-up as completed
+        service_followup.is_completed = True
+        service_followup.completed_date = timezone.now()
+        service_followup.completion_notes = f"Maintenance completed - {maintenance_type}"
+        service_followup.save()
         
-        if 'photo_after' in request.FILES:
-            after_photo = request.FILES['photo_after']
-            after_path = f'maintenance_photos/{installation.id}/after_{maintenance.id}_{after_photo.name}'
-            
-            # Save file
-            full_path = os.path.join(settings.MEDIA_ROOT, after_path)
-            os.makedirs(os.path.dirname(full_path), exist_ok=True)
-            
-            with open(full_path, 'wb+') as destination:
-                for chunk in after_photo.chunks():
-                    destination.write(chunk)
-            
-            photo_paths.append(after_path)
-        
-        # Update maintenance record with photo paths if any
-        if photo_paths:
-            maintenance.completion_notes += f"\n\nFotoğraflar: {', '.join(photo_paths)}"
-            maintenance.save()
+        # Send notification email
+        try:
+            maintenance_record.send_maintenance_notification()
+            print(f"✅ Email notification sent successfully for maintenance ID: {maintenance_record.id}")
+        except Exception as e:
+            print(f"❌ Email notification failed: {e}")
+            import traceback
+            traceback.print_exc()
         
         return JsonResponse({
             'success': True,
             'message': 'Bakım kaydı başarıyla oluşturuldu',
-            'maintenance_id': maintenance.id
+            'maintenance_id': maintenance_record.id
         })
         
     except ValueError as e:
@@ -1713,7 +1766,242 @@ Tespit Edilen Sorunlar:
         })
     except Exception as e:
         print(f"Maintenance submit error: {e}")  # Debug
+        import traceback
+        traceback.print_exc()
         return JsonResponse({
             'success': False,
-            'message': 'Bakım kaydı oluşturulurken bir hata oluştu'
+            'message': f'Bakım kaydı oluşturulurken bir hata oluştu: {str(e)}'
         })
+
+
+@login_required
+def api_installation_service_forms(request, installation_id):
+    """
+    Installation için service form'ları getir
+    """
+    try:
+        installation = get_object_or_404(Installation, id=installation_id)
+        service_forms = installation.inventory_item.name.service_forms.all()
+        
+        forms_data = []
+        for form in service_forms:
+            forms_data.append({
+                'id': form.id,
+                'name': form.name,
+                'description': getattr(form, 'description', ''),
+            })
+        
+        return JsonResponse(forms_data, safe=False)
+        
+    except Exception as e:
+        print(f"Service forms API error: {e}")
+        return JsonResponse([], safe=False)
+
+
+@login_required  
+def api_installation_spare_parts(request, installation_id):
+    """
+    Installation için spare parts'ları getir
+    """
+    try:
+        installation = get_object_or_404(Installation, id=installation_id)
+        spare_parts = installation.inventory_item.name.spare_parts.all()
+        
+        parts_data = []
+        for part in spare_parts:
+            parts_data.append({
+                'id': part.id,
+                'name': part.name,
+                'description': getattr(part, 'description', ''),
+            })
+        
+        return JsonResponse(parts_data, safe=False)
+        
+    except Exception as e:
+        print(f"Spare parts API error: {e}")
+        return JsonResponse([], safe=False)
+
+
+@login_required
+def item_service_history(request, installation_id):
+    """
+    Item bazlı service history detail sayfası - o item'a yapılan tüm maintenance kayıtları
+    """
+    try:
+        installation = get_object_or_404(Installation, id=installation_id)
+        
+        # User permissions check
+        company_filter = get_user_accessible_companies_filter(request.user, 'installation')
+        if not Installation.objects.filter(id=installation_id).filter(company_filter).exists():
+            messages.error(request, 'Bu kuruluma erişim yetkiniz yok.')
+            return redirect('warranty_and_services:service_tracking_list')
+        
+        # Get all maintenance records for this installation (directly from MaintenanceRecord)
+        from .models import MaintenanceRecord
+        
+        all_maintenance_records = MaintenanceRecord.objects.filter(
+            service_followup__installation=installation
+        ).prefetch_related(
+            'spare_parts__spare_part',
+            'service_forms__service_form',
+            'photos',
+            'documents',
+            'technician',
+            'service_followup'
+        ).order_by('-created_at')
+        
+        # Sort by service date (most recent first)
+        all_maintenance_records = list(all_maintenance_records)
+        all_maintenance_records.sort(key=lambda x: x.service_date if isinstance(x.service_date, str) else x.service_date.strftime('%Y-%m-%d'), reverse=True)
+        
+        # Get current active service follow-ups
+        active_services = installation.service_followups.filter(
+            is_completed=False
+        ).order_by('next_service_date')
+        
+        # Statistics
+        total_maintenances = len(all_maintenance_records)
+        periodic_count = len([m for m in all_maintenance_records if m.maintenance_type == 'periodic'])
+        breakdown_count = len([m for m in all_maintenance_records if m.maintenance_type == 'breakdown'])
+        
+        # Last maintenance date
+        last_maintenance = all_maintenance_records[0] if all_maintenance_records else None
+        
+        context = {
+            'installation': installation,
+            'customer': installation.customer,
+            'inventory_item': installation.inventory_item,
+            'maintenance_records': all_maintenance_records,
+            'active_services': active_services,
+            'total_maintenances': total_maintenances,
+            'periodic_count': periodic_count,
+            'breakdown_count': breakdown_count,
+            'last_maintenance': last_maintenance,
+            'warranties': installation.warranty_followups.all().order_by('end_of_warranty_date'),
+        }
+        
+        return render(request, 'warranty_and_services/item_service_history.html', context)
+        
+    except Installation.DoesNotExist:
+        messages.error(request, 'Kurulum bulunamadı.')
+        return redirect('warranty_and_services:service_tracking_list')
+    except Exception as e:
+        messages.error(request, f'Bir hata oluştu: {str(e)}')
+        return redirect('warranty_and_services:service_tracking_list')
+
+
+def installation_map_view(request):
+    """
+    Display installations on a Google Map
+    """
+    print("=== MAP VIEW START ===")
+    print(f"User authenticated: {request.user.is_authenticated}")
+    print(f"User: {request.user}")
+    print(f"Request path: {request.path}")
+    print(f"Request method: {request.method}")
+    
+    try:
+        # Get all installations with location data
+        installations = Installation.objects.filter(
+            location_latitude__isnull=False,
+            location_longitude__isnull=False
+        ).select_related('customer', 'inventory_item', 'inventory_item__name')
+        
+        print(f"Found {installations.count()} installations with coordinates")
+        
+        markers = []
+        for installation in installations:
+            print(f"Processing installation: {installation.id}")
+            
+            # Simple marker without complex date logic
+            markers.append({
+                'lat': float(installation.location_latitude),
+                'lng': float(installation.location_longitude),
+                'title': str(installation.inventory_item.name.name) if installation.inventory_item.name else 'Ürün',
+                'customer': installation.customer.name,
+                'address': installation.location_address or 'Adres belirtilmemiş',
+                'dealer': installation.customer.name,
+                'next_service': 'Test',
+                'installation_id': installation.id,
+                'color': '#10B981'  # Always green for now
+            })
+        
+        print(f"Created {len(markers)} markers")
+        
+        # Add test marker if no real markers exist
+        if len(markers) == 0:
+            print("No markers found, adding test marker")
+            markers.append({
+                'lat': 39.925533,
+                'lng': 32.866287,
+                'title': 'Test Marker - Ankara',
+                'customer': 'Test Müşteri',
+                'address': 'Test Adres, Ankara',
+                'dealer': 'Test Bayi',
+                'next_service': 'Test Servis',
+                'installation_id': 999,
+                'color': '#10B981'
+            })
+        
+        # Convert to JSON for JavaScript
+        markers_json = json.dumps(markers)
+        print("JSON conversion successful")
+        
+        context = {
+            'markers_json': markers_json,
+            'total_installations': len(markers),
+            'google_maps_api_key': settings.GOOGLE_MAPS_API_KEY
+        }
+        
+        print("Rendering template...")
+        return render(request, 'warranty_and_services/installation_map.html', context)
+        
+    except Exception as e:
+        print(f"ERROR in map view: {str(e)}")
+        import traceback
+        print(f"Full traceback: {traceback.format_exc()}")
+        return HttpResponse(f"<h1>Map Error</h1><p>{str(e)}</p><pre>{traceback.format_exc()}</pre>")
+        # Get all installations with location data
+        installations = Installation.objects.filter(
+            location_latitude__isnull=False,
+            location_longitude__isnull=False
+        ).select_related('customer', 'inventory_item', 'inventory_item__name')
+        
+        print(f"Found {installations.count()} installations with coordinates")
+        
+        markers = []
+        for installation in installations:
+            print(f"Processing installation: {installation.id}")
+            
+            # Simple marker without complex date logic
+            markers.append({
+                'lat': float(installation.location_latitude),
+                'lng': float(installation.location_longitude),
+                'title': str(installation.inventory_item.name.name) if installation.inventory_item.name else 'Ürün',
+                'customer': installation.customer.name,
+                'address': installation.location_address or 'Adres belirtilmemiş',
+                'dealer': installation.customer.name,
+                'next_service': 'Test',
+                'installation_id': installation.id,
+                'color': '#10B981'  # Always green for now
+            })
+        
+        print(f"Created {len(markers)} markers")
+        
+        # Convert to JSON for JavaScript
+        markers_json = json.dumps(markers)
+        
+        context = {
+            'markers_json': markers_json,
+            'total_installations': len(markers),
+            'google_maps_api_key': settings.GOOGLE_MAPS_API_KEY
+        }
+        
+        print("Rendering template...")
+        return render(request, 'warranty_and_services/installation_map.html', context)
+        
+    except Exception as e:
+        print(f"ERROR in map view: {str(e)}")
+        return HttpResponse(f"<h1>Map Error</h1><p>{str(e)}</p>")
+        
+
