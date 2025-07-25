@@ -18,6 +18,7 @@ class GarantiVeServisAdminSite(AdminSite):
         urls = super().get_urls()
         custom_urls = [
             path('populate-turkish-locations/', self.admin_view(self.populate_locations_view), name='populate-turkish-locations'),
+            path('populate-core-business/', self.admin_view(self.populate_core_business_view), name='populate-core-business'),
         ]
         return custom_urls + urls
     
@@ -41,6 +42,39 @@ class GarantiVeServisAdminSite(AdminSite):
         )
         return TemplateResponse(request, 'dashboard/admin_populate_locations.html', context)
     
+    def populate_core_business_view(self, request):
+        if request.method == 'POST':
+            clear_existing = request.POST.get('clear_existing', False)
+            command_args = ['python', 'manage.py', 'populate_core_business']
+            if clear_existing:
+                command_args.append('--clear')
+                
+            try:
+                result = subprocess.run(
+                    command_args, 
+                    capture_output=True, 
+                    text=True, 
+                    cwd=r'd:\GarantiVeServis'
+                )
+                if result.returncode == 0:
+                    messages.success(request, 'Core Business verileri başarıyla güncellendi!')
+                    if result.stdout:
+                        # stdout içeriğini satırlara böl ve mesaj olarak göster
+                        for line in result.stdout.strip().split('\n'):
+                            if line.strip():
+                                messages.info(request, line.strip())
+                else:
+                    messages.error(request, result.stderr or 'Komut çalıştırılamadı.')
+            except Exception as e:
+                messages.error(request, f'Hata oluştu: {str(e)}')
+            return HttpResponseRedirect(request.path)
+        
+        context = dict(
+            self.each_context(request),
+            title='Core Business Verilerini Güncelle',
+        )
+        return TemplateResponse(request, 'dashboard/admin_populate_core_business.html', context)
+    
     def index(self, request, extra_context=None):
         """Override admin index to add custom actions"""
         extra_context = extra_context or {}
@@ -53,6 +87,12 @@ class GarantiVeServisAdminSite(AdminSite):
                     'description': 'İl ve ilçe verilerini güncelleyin',
                     'url': 'admin:populate-turkish-locations',
                     'icon': '🏛️'
+                },
+                {
+                    'title': 'Core Business Verilerini Güncelle',
+                    'description': 'İTO meslek grupları ve faaliyet alanlarını güncelleyin',
+                    'url': 'admin:populate-core-business',
+                    'icon': '🏢'
                 }
             ]
         })

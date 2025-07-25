@@ -1,0 +1,93 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_urls static %}
+
+{% block title %}{{ title }} | {{ site_title|default:_('Django site admin') }}{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+    <a href="{% url 'admin:index' %}">{% translate 'Home' %}</a>
+    &rsaquo; {{ title }}
+</div>
+{% endblock %}
+
+{% block content %}
+<h1>{{ title }}</h1>
+
+<div class="module" style="margin: 20px 0;">
+    <h2>Core Business Verileri Güncelleme</h2>
+    <p>Bu araç İstanbul Ticaret Odası (İTO) meslek grupları ve kapsamlı faaliyet alanlarını veritabanına yükler.</p>
+    
+    <div style="background: #f8f9fa; padding: 15px; border: 1px solid #dee2e6; border-radius: 5px; margin: 15px 0;">
+        <h3 style="color: #495057; margin-top: 0;">📋 Güncellenecek Veriler:</h3>
+        <ul style="margin: 10px 0;">
+            <li><strong>İTO Meslek Grupları:</strong> A-T kategorilerinde tüm meslek grupları</li>
+            <li><strong>Sektörel Kategoriler:</strong> Tarım, Madencilik, İmalat, İnşaat, Ticaret vs.</li>
+            <li><strong>Modern İş Alanları:</strong> E-ticaret, Fintech, Startap, Dijital Pazarlama</li>
+            <li><strong>Özel Sektörler:</strong> Türkiye'ye özgü iş kolları</li>
+            <li><strong>Toplam:</strong> ~150+ farklı core business kategorisi</li>
+        </ul>
+    </div>
+
+    <form method="post" style="margin: 20px 0;">
+        {% csrf_token %}
+        
+        <div style="margin: 15px 0;">
+            <label style="display: block; margin-bottom: 10px;">
+                <input type="checkbox" name="clear_existing" value="true" style="margin-right: 8px;">
+                <strong>Mevcut verileri temizle</strong> (Dikkat: Bu seçenek tüm mevcut Core Business verilerini siler)
+            </label>
+        </div>
+        
+        <div style="margin: 20px 0;">
+            <input type="submit" value="Core Business Verilerini Güncelle" class="default" 
+                   style="background: #417690; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; font-size: 14px;"
+                   onclick="return confirm('Core Business verileri güncellensin mi?');">
+            <a href="{% url 'admin:index' %}" class="button cancel" style="margin-left: 10px;">İptal</a>
+        </div>
+    </form>
+    
+    <div style="background: #e7f3ff; padding: 15px; border: 1px solid #b3d7ff; border-radius: 5px; margin: 15px 0;">
+        <h4 style="color: #0066cc; margin-top: 0;">ℹ️ Bilgi</h4>
+        <ul style="margin: 5px 0;">
+            <li>Mevcut veriler korunur, sadece yeni kategoriler eklenir</li>
+            <li>"Temizle" seçeneği ile tüm veriler silinip yeniden oluşturulur</li>
+            <li>İşlem birkaç saniye sürebilir</li>
+            <li>Başarılı tamamlanma durumunda detaylı rapor gösterilir</li>
+        </ul>
+    </div>
+</div>
+
+<style>
+.module h2 {
+    background: #417690;
+    color: white;
+    padding: 10px 15px;
+    margin: -1px -1px 15px -1px;
+    border-radius: 4px 4px 0 0;
+}
+
+.module {
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background: white;
+    padding: 15px;
+}
+
+input[type="submit"]:hover {
+    background: #2e5568 !important;
+}
+
+.button.cancel {
+    background: #6c757d;
+    color: white;
+    padding: 10px 20px;
+    text-decoration: none;
+    border-radius: 4px;
+    display: inline-block;
+}
+
+.button.cancel:hover {
+    background: #545b62;
+}
+</style>
+{% endblock %}

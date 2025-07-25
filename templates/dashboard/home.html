@@ -43,7 +43,7 @@
             </div>
             <div class="bg-gray-50 px-6 py-3">
                 <div class="text-sm">
-                    <a href="{% url 'warranty_and_services:installation_list' %}" class="font-medium text-blue-600 hover:text-blue-500">
+                    <a href="{% url 'warranty_and_services:installation_list' %}" target="_blank" rel="noopener noreferrer" class="font-medium text-blue-600 hover:text-blue-500">
                         View Details
                         <span aria-hidden="true"> &rarr;</span>
                     </a>
@@ -71,7 +71,7 @@
             </div>
             <div class="bg-gray-50 px-6 py-3">
                 <div class="text-sm">
-                    <a href="{% url 'warranty_and_services:installation_list' %}?filter=active_warranty" class="font-medium text-green-600 hover:text-green-500">
+                    <a href="{% url 'warranty_and_services:installation_list' %}?filter=active_warranty" target="_blank" rel="noopener noreferrer" class="font-medium text-green-600 hover:text-green-500">
                         View Details
                         <span aria-hidden="true"> &rarr;</span>
                     </a>
@@ -99,7 +99,7 @@
             </div>
             <div class="bg-gray-50 px-6 py-3">
                 <div class="text-sm">
-                    <a href="{% url 'warranty_and_services:warranty_tracking_list' %}?filter=expiring_soon" class="font-medium text-yellow-600 hover:text-yellow-500">
+                    <a href="{% url 'warranty_and_services:warranty_tracking_list' %}?filter=expiring_soon" target="_blank" rel="noopener noreferrer" class="font-medium text-yellow-600 hover:text-yellow-500">
                         View Details
                         <span aria-hidden="true"> &rarr;</span>
                     </a>
@@ -127,7 +127,7 @@
             </div>
             <div class="bg-gray-50 px-6 py-3">
                 <div class="text-sm">
-                    <a href="{% url 'warranty_and_services:service_tracking_list' %}?filter=overdue" class="font-medium text-red-600 hover:text-red-500">
+                    <a href="{% url 'warranty_and_services:service_tracking_list' %}?filter=overdue" target="_blank" rel="noopener noreferrer" class="font-medium text-red-600 hover:text-red-500">
                         View Details
                         <span aria-hidden="true"> &rarr;</span>
                     </a>
@@ -135,6 +135,49 @@
             </div>
         </div>
     </div>
+
+    <!-- Core Business Statistics Section -->
+    {% if core_business_summary %}
+    <div class="bg-white shadow-lg rounded-lg border border-gray-200 mb-8">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h2 class="text-lg font-medium text-gray-900 flex items-center">
+                <svg class="w-5 h-5 mr-2 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                </svg>
+                Core Business Overview
+            </h2>
+        </div>
+        
+        <!-- Summary Stats -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 p-6">
+            <div class="text-center">
+                <div class="text-3xl font-bold text-purple-600">{{ core_business_summary.total_businesses }}</div>
+                <div class="text-sm text-gray-500 mt-1">Total Core Businesses</div>
+            </div>
+            <div class="text-center">
+                <div class="text-3xl font-bold text-blue-600">{{ core_business_summary.businesses_with_installations }}</div>
+                <div class="text-sm text-gray-500 mt-1">With Installations</div>
+            </div>
+            <div class="text-center">
+                {% if core_business_summary.top_business %}
+                <div class="text-lg font-semibold text-green-600">{{ core_business_summary.top_business.customer__core_business__name|truncatechars:20 }}</div>
+                <div class="text-sm text-gray-500 mt-1">Top Business ({{ core_business_summary.top_business.installation_count }} installations)</div>
+                {% else %}
+                <div class="text-lg font-semibold text-gray-400">No Data</div>
+                <div class="text-sm text-gray-500 mt-1">Top Business</div>
+                {% endif %}
+            </div>
+            <div class="text-center">
+                <a href="{% url 'dashboard:core_business_report' %}" target="_blank" rel="noopener noreferrer" class="inline-block bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 shadow-md hover:shadow-lg">
+                    <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                    </svg>
+                    View Full Report
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
 
     <!-- Quick Access -->
     <div class="bg-white shadow-lg rounded-lg border border-gray-200 mb-8">
