@@ -1,0 +1,71 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_urls static admin_list %}
+
+{% block bodyclass %}{{ block.super }} dashboard{% endblock %}
+
+{% block breadcrumbs %}{% endblock %}
+
+{% block coltype %}colMS{% endblock %}
+
+{% block content %}
+<div id="content-main">
+
+{% if dashboard_actions %}
+<div class="module filtered" id="dashboard-actions">
+    <h2>Dashboard Aksiyonları</h2>
+    <div class="dashboard-actions-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin: 20px 0;">
+        {% for action in dashboard_actions %}
+        <div class="dashboard-action-card" style="border: 1px solid #ddd; border-radius: 8px; padding: 20px; background: #f8f9fa;">
+            <h3 style="color: #417690; margin-top: 0;">
+                {% if action.icon %}{{ action.icon }} {% endif %}{{ action.title }}
+            </h3>
+            <p style="color: #666; margin: 10px 0;">{{ action.description }}</p>
+            <a href="{% url action.url %}" class="button default" style="display: inline-block; margin-top: 10px;">
+                Çalıştır
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+{% if app_list %}
+    {% for app in app_list %}
+        <div class="app-{{ app.app_label }} module">
+            <table>
+                <caption>
+                    <a href="{{ app.app_url }}" class="section" title="{% blocktranslate with name=app.name %}Models in the {{ name }} application{% endblocktranslate %}">{{ app.name }}</a>
+                </caption>
+                {% for model in app.models %}
+                    <tr class="model-{{ model.object_name|lower }}">
+                        {% if model.admin_url %}
+                            <th scope="row"><a href="{{ model.admin_url }}">{{ model.name }}</a></th>
+                        {% else %}
+                            <th scope="row">{{ model.name }}</th>
+                        {% endif %}
+
+                        {% if model.add_url %}
+                            <td><a href="{{ model.add_url }}" class="addlink">{% translate 'Add' %}</a></td>
+                        {% else %}
+                            <td>&nbsp;</td>
+                        {% endif %}
+
+                        {% if model.admin_url %}
+                            {% if model.view_only %}
+                                <td><a href="{{ model.admin_url }}" class="viewlink">{% translate 'View' %}</a></td>
+                            {% else %}
+                                <td><a href="{{ model.admin_url }}" class="changelink">{% translate 'Change' %}</a></td>
+                            {% endif %}
+                        {% else %}
+                            <td>&nbsp;</td>
+                        {% endif %}
+                    </tr>
+                {% endfor %}
+            </table>
+        </div>
+    {% endfor %}
+{% else %}
+    <p>{% translate "You don't have permission to view or edit anything." %}</p>
+{% endif %}
+</div>
+{% endblock %}

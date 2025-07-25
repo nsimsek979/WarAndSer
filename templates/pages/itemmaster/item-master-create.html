@@ -2,10 +2,6 @@
 {% load i18n %}
 {% load static %}
 
-{% trans "hour" as hour_label %}
-{% trans "month" as month_label %}
-{% trans "year" as year_label %}
-
 {% block title %}{% trans 'Create New Item' %}{% endblock %}
 {% block content %}
 <div class="pl-8 pr-8 space-y-6">
@@ -572,33 +568,33 @@
                                                 <span x-text="warranty.type"></span>
                                             </span>
                                             <span class="text-sm font-semibold text-gray-900">
-    <span x-show="warranty.type.toLowerCase().includes('hour')">
-        <span x-text="(warranty.value % 1 !== 0) ? warranty.value + ' {{ hour_label }}' : parseInt(warranty.value).toLocaleString('tr-TR') + ' {{ hour_label }}'"></span>
-    </span>
-    <span x-show="warranty.type.toLowerCase().includes('month')">
-        <span x-text="(warranty.value % 1 !== 0) ? warranty.value + ' {{ month_label }}' : parseInt(warranty.value).toLocaleString('tr-TR') + ' {{ month_label }}'"></span>
-    </span>
-    <span x-show="warranty.type.toLowerCase().includes('year')">
-        <span x-text="(warranty.value % 1 !== 0) ? warranty.value + ' {{ year_label }}' : parseInt(warranty.value).toLocaleString('tr-TR') + ' {{ year_label }}'"></span>
-    </span>
-    <span x-show="!warranty.type.toLowerCase().includes('hour') && !warranty.type.toLowerCase().includes('month') && !warranty.type.toLowerCase().includes('year')">
-        <span x-text="(warranty.value % 1 !== 0) ? warranty.value : parseInt(warranty.value).toLocaleString('tr-TR')"></span>
-    </span>
+                                                <span x-show="warranty.type.toLowerCase().includes('hour')">
+                                                    <span x-text="(warranty.value % 1 !== 0) ? warranty.value + ' saat' : parseInt(warranty.value).toLocaleString('tr-TR') + ' saat'"></span>
+                                                </span>
+                                                <span x-show="warranty.type.toLowerCase().includes('month')">
+                                                    <span x-text="(warranty.value % 1 !== 0) ? warranty.value + ' ay' : parseInt(warranty.value).toLocaleString('tr-TR') + ' ay'"></span>
+                                                </span>
+                                                <span x-show="warranty.type.toLowerCase().includes('year')">
+                                                    <span x-text="(warranty.value % 1 !== 0) ? warranty.value + ' yıl' : parseInt(warranty.value).toLocaleString('tr-TR') + ' yıl'"></span>
+                                                </span>
+                                                <span x-show="!warranty.type.toLowerCase().includes('hour') && !warranty.type.toLowerCase().includes('month') && !warranty.type.toLowerCase().includes('year')">
+                                                    <span x-text="(warranty.value % 1 !== 0) ? warranty.value : parseInt(warranty.value).toLocaleString('tr-TR')"></span>
+                                                </span>
                                             </span>
                                         </div>
                                         <p class="text-xs text-gray-500 mt-1">
-        <span x-show="warranty.type.toLowerCase().includes('hour')">
-            <span x-text="'Garanti: ' + warranty.type + ' - ' + ((warranty.value % 1 !== 0) ? warranty.value : parseInt(warranty.value).toLocaleString('tr-TR')) + ' {{ hour_label }}'"></span>
-        </span>
-        <span x-show="warranty.type.toLowerCase().includes('month')">
-            <span x-text="'Garanti: ' + warranty.type + ' - ' + ((warranty.value % 1 !== 0) ? warranty.value : parseInt(warranty.value).toLocaleString('tr-TR')) + ' {{ month_label }}'"></span>
-        </span>
-        <span x-show="warranty.type.toLowerCase().includes('year')">
-            <span x-text="'Garanti: ' + warranty.type + ' - ' + ((warranty.value % 1 !== 0) ? warranty.value : parseInt(warranty.value).toLocaleString('tr-TR')) + ' {{ year_label }}'"></span>
-        </span>
-        <span x-show="!warranty.type.toLowerCase().includes('hour') && !warranty.type.toLowerCase().includes('month') && !warranty.type.toLowerCase().includes('year')">
-            <span x-text="'Garanti: ' + warranty.type + ' - ' + ((warranty.value % 1 !== 0) ? warranty.value : parseInt(warranty.value).toLocaleString('tr-TR')) + ' '"></span>
-        </span>
+                                            <span x-show="warranty.type.toLowerCase().includes('hour')">
+                                                <span x-text="'Garanti: ' + warranty.type + ' - ' + ((warranty.value % 1 !== 0) ? warranty.value : parseInt(warranty.value).toLocaleString('tr-TR')) + ' saat '"></span>
+                                            </span>
+                                            <span x-show="warranty.type.toLowerCase().includes('month')">
+                                                <span x-text="'Garanti: ' + warranty.type + ' - ' + ((warranty.value % 1 !== 0) ? warranty.value : parseInt(warranty.value).toLocaleString('tr-TR')) + ' ay'"></span>
+                                            </span>
+                                            <span x-show="warranty.type.toLowerCase().includes('year')">
+                                                <span x-text="'Garanti: ' + warranty.type + ' - ' + ((warranty.value % 1 !== 0) ? warranty.value : parseInt(warranty.value).toLocaleString('tr-TR')) + ' yıl'"></span>
+                                            </span>
+                                            <span x-show="!warranty.type.toLowerCase().includes('hour') && !warranty.type.toLowerCase().includes('month') && !warranty.type.toLowerCase().includes('year')">
+                                                <span x-text="'Garanti: ' + warranty.type + ' - ' + ((warranty.value % 1 !== 0) ? warranty.value : parseInt(warranty.value).toLocaleString('tr-TR')) + ' '"></span>
+                                            </span>
                                         </p>
                                     </div>
                                     <button type="button" 

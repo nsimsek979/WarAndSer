@@ -1,13 +1,18 @@
 <?xml version="1.0" encoding="UTF-16"?>
 <Task version="1.4" xmlns="http://schemas.microsoft.com/windows/2004/02/mit/task">
   <RegistrationInfo>
-    <Date>2025-07-25T08:00:00</Date>
-    <Author>GitHub Copilot</Author>
-    <Description>Send service due notifications daily for Django project.</Description>
+    <Date>2025-07-25T10:00:00</Date>
+    <Author>GarantiVeServis System</Author>
+    <Version>1.0</Version>
+    <Description>Automated service due notifications for warranty and services system. This task runs daily at 9:00 AM to send service reminder emails to customers whose equipment is due for maintenance.</Description>
+    <URI>\GarantiVeServis\ServiceDueNotifications</URI>
   </RegistrationInfo>
   <Triggers>
     <CalendarTrigger>
-      <StartBoundary>2025-07-25T08:00:00</StartBoundary>
+      <Repetition>
+        <Interval>P1D</Interval>
+      </Repetition>
+      <StartBoundary>2025-07-25T09:00:00</StartBoundary>
       <Enabled>true</Enabled>
       <ScheduleByDay>
         <DaysInterval>1</DaysInterval>
@@ -16,7 +21,7 @@
   </Triggers>
   <Principals>
     <Principal id="Author">
-      <LogonType>InteractiveToken</LogonType>
+      <UserId>S-1-5-18</UserId>
       <RunLevel>LeastPrivilege</RunLevel>
     </Principal>
   </Principals>
@@ -26,15 +31,17 @@
     <StopIfGoingOnBatteries>false</StopIfGoingOnBatteries>
     <AllowHardTerminate>true</AllowHardTerminate>
     <StartWhenAvailable>true</StartWhenAvailable>
-    <RunOnlyIfNetworkAvailable>false</RunOnlyIfNetworkAvailable>
+    <RunOnlyIfNetworkAvailable>true</RunOnlyIfNetworkAvailable>
     <IdleSettings>
-      <StopOnIdleEnd>false</StopOnIdleEnd>
+      <StopOnIdleEnd>true</StopOnIdleEnd>
       <RestartOnIdle>false</RestartOnIdle>
     </IdleSettings>
     <AllowStartOnDemand>true</AllowStartOnDemand>
     <Enabled>true</Enabled>
     <Hidden>false</Hidden>
     <RunOnlyIfIdle>false</RunOnlyIfIdle>
+    <DisallowStartOnRemoteAppSession>false</DisallowStartOnRemoteAppSession>
+    <UseUnifiedSchedulingEngine>true</UseUnifiedSchedulingEngine>
     <WakeToRun>false</WakeToRun>
     <ExecutionTimeLimit>PT1H</ExecutionTimeLimit>
     <Priority>7</Priority>

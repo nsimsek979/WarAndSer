@@ -1,0 +1,80 @@
+===============================================
+🔧 SERVİS ZAMANI BİLDİRİMİ
+===============================================
+Ekipman Bakım Hatırlatması
+
+{% if days_before == 0 %}⚠️  ACİL - SERVİS GÜNÜ BUGÜN!
+{% elif days_before <= 3 %}🚨 YÜKSEK ÖNCELİK - {{ days_before }} GÜN KALDI
+{% elif days_before <= 7 %}⚡ ORTA ÖNCELİK - {{ days_before }} GÜN KALDI
+{% else %}📅 NORMAL - {{ days_before }} GÜN KALDI
+{% endif %}
+
+===============================================
+📅 SERVİS TARİHİ: {{ service_date|date:"d F Y" }}
+===============================================
+
+👤 MÜŞTERİ BİLGİLERİ
+---------------------------------------------
+Firma Adı: {{ customer.name }}
+Müşteri Tipi: {{ customer.get_customer_type_display }}
+{% if customer.email %}E-posta: {{ customer.email }}
+{% endif %}{% if customer.telephone %}Telefon: {{ customer.telephone }}
+{% endif %}{% if customer.related_manager %}Sorumlu Yönetici: {{ customer.related_manager.get_full_name }}
+{% endif %}
+
+⚙️  EKİPMAN BİLGİLERİ
+---------------------------------------------
+Ürün: {{ item.name }}
+Seri Numarası: {{ inventory_item.serial_number }}
+Kategori: {{ item.category.name }}
+Marka: {{ item.brand.name }}
+Kurulum Tarihi: {{ installation.setup_date|date:"d F Y" }}
+{% if installation.location %}Konum: {{ installation.location }}
+{% endif %}
+
+{% if days_before == 0 %}===============================================
+⚠️  ACİL UYARI
+===============================================
+Bu ekipman için servis zamanı BUGÜN geldi!
+
+Ekipmanın güvenli çalışması ve garanti kapsamında 
+kalması için lütfen acilen servis işlemini başlatın.
+
+{% elif days_before <= 3 %}===============================================
+🚨 ÖNEMLİ UYARI
+===============================================
+Bu ekipman için sadece {{ days_before }} gün kaldı!
+
+Servis randevusunu almayı ve gerekli hazırlıkları 
+yapmayı unutmayın.
+
+{% else %}===============================================
+📋 BİLGİ
+===============================================
+Bu ekipman için {{ days_before }} gün sonra servis zamanı 
+gelecek. Önceden planlama yaparak servis sürecini 
+organize edebilirsiniz.
+
+{% endif %}===============================================
+📞 İLETİŞİM BİLGİLERİ
+===============================================
+Servis Hotline: 0850 XXX XX XX
+E-posta: servis@firmaniz.com
+Çalışma Saatleri: 08:00 - 18:00 (Pazartesi-Cuma)
+
+===============================================
+SERVİS İŞLEMLERİ İÇİN
+===============================================
+1. Servis randevusu almak için hotline'ı arayın
+2. Ekipman çevresini temizleyin ve erişilebilir yapın
+3. Gerekli dokümantasyonu hazırlayın
+4. Sorumlu personeli bilgilendirin
+
+===============================================
+
+Bu e-posta otomatik olarak gönderilmiştir.
+© {{ today.year }} Konnektom - Tüm hakları saklıdır.
+
+Gönderim Zamanı: {{ today|date:"d F Y H:i" }}
+
+===============================================

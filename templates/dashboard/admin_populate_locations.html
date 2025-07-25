@@ -1,0 +1,180 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block title %}{{ title }} | {{ site_title|default:_('Django site admin') }}{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+<a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+&rsaquo; {{ title }}
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="module">
+    <div class="module-header">
+        <h2>{{ title }}</h2>
+    </div>
+    
+    <div class="module-body">
+        <form method="post" action="">
+            {% csrf_token %}
+            
+            <div class="form-row">
+                <div class="field-box">
+                    <h3>{% trans "Turkey Location Update" %}</h3>
+                    <p class="help">
+                        Bu işlem Türkiye'deki tüm il ve ilçe verilerini güncelleyecektir. 
+                        İşlem birkaç dakika sürebilir.
+                    </p>
+                    
+                    <div class="form-group">
+                        <label><strong>İşlem kapsamı:</strong></label>
+                        <ul style="margin-left: 20px;">
+                            <li>81 il verisi güncellenir</li>
+                            <li>973 ilçe verisi güncellenir</li>
+                            <li>Mevcut veriler korunur, sadece eksikler eklenir</li>
+                            <li>Duplicate veriler oluşmaz</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label><strong>Süre:</strong></label>
+                        <p>Yaklaşık 2-3 dakika</p>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label><strong>Durum:</strong></label>
+                        {% if messages %}
+                            {% for message in messages %}
+                                <div class="alert alert-{{ message.tags }}" style="padding: 10px; margin: 10px 0; border: 1px solid; border-radius: 4px; 
+                                    {% if message.tags == 'success' %}background-color: #d4edda; border-color: #c3e6cb; color: #155724;{% endif %}
+                                    {% if message.tags == 'error' %}background-color: #f8d7da; border-color: #f5c6cb; color: #721c24;{% endif %}">
+                                    <strong>
+                                        {% if message.tags == 'success' %}✅ Başarılı{% endif %}
+                                        {% if message.tags == 'error' %}❌ Hata{% endif %}
+                                    </strong>
+                                    {{ message }}
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <p style="color: #666;">Henüz işlem yapılmadı</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="submit-row">
+                <input type="submit" value="{% trans 'Update Turkish Locations' %}" class="default" name="_save" 
+                       onclick="this.value='İşlem yapılıyor...'; this.disabled=true; this.form.submit();">
+                <a href="{% url 'admin:index' %}" class="button cancel-link">{% trans "Cancel" %}</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('form');
+    const submitBtn = form.querySelector('input[type="submit"]');
+    
+    form.addEventListener('submit', function() {
+        submitBtn.value = 'İşlem yapılıyor...';
+        submitBtn.disabled = true;
+        
+        // Show loading indicator
+        const loadingDiv = document.createElement('div');
+        loadingDiv.innerHTML = '<p style="color: #007cba; font-weight: bold;">⏳ Lokasyon verileri güncelleniyor, lütfen bekleyin...</p>';
+        loadingDiv.style.marginTop = '10px';
+        submitBtn.parentNode.appendChild(loadingDiv);
+    });
+});
+</script>
+
+<style>
+.module {
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-bottom: 20px;
+}
+
+.module-header {
+    background: #f8f8f8;
+    border-bottom: 1px solid #ddd;
+    padding: 10px 15px;
+}
+
+.module-header h2 {
+    margin: 0;
+    font-size: 18px;
+    color: #333;
+}
+
+.module-body {
+    padding: 20px;
+}
+
+.field-box {
+    margin-bottom: 20px;
+}
+
+.field-box h3 {
+    color: #007cba;
+    margin-bottom: 10px;
+}
+
+.help {
+    color: #666;
+    font-style: italic;
+    margin-bottom: 15px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.submit-row {
+    padding-top: 20px;
+    border-top: 1px solid #ddd;
+}
+
+.submit-row input[type="submit"] {
+    background: #007cba;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-right: 10px;
+}
+
+.submit-row input[type="submit"]:hover {
+    background: #005a87;
+}
+
+.submit-row input[type="submit"]:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+}
+
+.cancel-link {
+    color: #666;
+    text-decoration: none;
+    padding: 10px 15px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    display: inline-block;
+}
+
+.cancel-link:hover {
+    background: #f8f8f8;
+}
+</style>
+{% endblock %}

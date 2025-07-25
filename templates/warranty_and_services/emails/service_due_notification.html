@@ -1,35 +1,295 @@
-{% load i18n %}
 <!DOCTYPE html>
-<html>
+<html lang="tr">
 <head>
-    <meta charset="utf-8">
-    <title>{% trans "Service Due Notification" %}</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Servis Zamanı Bildirimi</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            padding: 0;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-align: center;
+            padding: 30px;
+            border-radius: 10px 10px 0 0;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .priority-banner {
+            text-align: center;
+            padding: 15px;
+            margin: 0;
+            font-weight: bold;
+            font-size: 18px;
+        }
+        .priority-high {
+            background-color: #ff4757;
+            color: white;
+        }
+        .priority-medium {
+            background-color: #ffa502;
+            color: white;
+        }
+        .priority-normal {
+            background-color: #5f27cd;
+            color: white;
+        }
+        .content {
+            padding: 30px;
+        }
+        .info-box {
+            background-color: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin: 10px 0;
+            padding: 8px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        .info-row:last-child {
+            border-bottom: none;
+        }
+        .info-label {
+            font-weight: bold;
+            color: #333;
+            flex: 1;
+        }
+        .info-value {
+            flex: 2;
+            text-align: right;
+            color: #666;
+        }
+        .service-date {
+            background-color: #ff4757;
+            color: white;
+            padding: 15px;
+            text-align: center;
+            border-radius: 5px;
+            margin: 20px 0;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .customer-info {
+            background-color: #e8f4fd;
+            border-radius: 5px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .equipment-info {
+            background-color: #fff3cd;
+            border-radius: 5px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .action-buttons {
+            text-align: center;
+            margin: 30px 0;
+        }
+        .btn {
+            display: inline-block;
+            padding: 12px 25px;
+            margin: 10px;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+            text-align: center;
+        }
+        .btn-primary {
+            background-color: #667eea;
+            color: white;
+        }
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+        .footer {
+            background-color: #f8f9fa;
+            text-align: center;
+            padding: 20px;
+            border-radius: 0 0 10px 10px;
+            color: #666;
+            font-size: 14px;
+        }
+        .warning-box {
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        .warning-box h3 {
+            color: #856404;
+            margin-top: 0;
+        }
+        @media (max-width: 600px) {
+            .container {
+                margin: 10px;
+                border-radius: 5px;
+            }
+            .content {
+                padding: 20px;
+            }
+            .info-row {
+                flex-direction: column;
+            }
+            .info-value {
+                text-align: left;
+                margin-top: 5px;
+            }
+        }
+    </style>
 </head>
 <body>
-    {% if days_before > 0 %}
-        <h2>{% blocktrans with days=days_before %}Service Due in {{ days }} Days{% endblocktrans %}</h2>
-        <p>{% blocktrans with name=installation.inventory_item.name.name date=service_followup.next_service_date|date:'d.m.Y' days=days_before %}
-            The service for item <strong>{{ name }}</strong> is due on <strong>{{ date }}</strong> (in {{ days }} days).
-        {% endblocktrans %}</p>
-    {% elif days_before == 0 %}
-        <h2>{% trans "Service Due Today" %}</h2>
-        <p>{% blocktrans with name=installation.inventory_item.name.name date=service_followup.next_service_date|date:'d.m.Y' %}
-            The service for item <strong>{{ name }}</strong> is due today ({{ date }}).
-        {% endblocktrans %}</p>
-    {% else %}
-        <h2>{% trans "Service Expired" %}</h2>
-        <p>{% blocktrans with name=installation.inventory_item.name.name date=service_followup.next_service_date|date:'d.m.Y' %}
-            The service for item <strong>{{ name }}</strong> was due on <strong>{{ date }}</strong> and is now expired.
-        {% endblocktrans %}</p>
-    {% endif %}
-    <ul>
-        <li><strong>{% trans "Customer" %}:</strong> {{ customer }}</li>
-        <li><strong>{% trans "Service Type" %}:</strong> {{ service_type_display }}</li>
-        <li><strong>{% trans "Service Value" %}:</strong> {{ service_value }}</li>
-        <li><strong>{% trans "Next Service Date" %}:</strong> {{ next_service_date|date:'d.m.Y' }}</li>
-        <li><strong>{% trans "Days Until Due" %}:</strong> {{ days_until_due }}</li>
-    </ul>
-    <p>{% trans "Please ensure the necessary preparations are made for the upcoming service." %}</p>
-    <p>{% trans "This is an automated notification." %}</p>
+    <div class="container">
+        <div class="header">
+            <h1>🔧 SERVİS ZAMANI BİLDİRİMİ</h1>
+            <p>Ekipman Bakım Hatırlatması</p>
+        </div>
+
+        {% if days_before == 0 %}
+            <div class="priority-banner priority-high">
+                ⚠️ ACİL - SERVİS GÜNÜ BUGÜN!
+            </div>
+        {% elif days_before <= 3 %}
+            <div class="priority-banner priority-high">
+                🚨 YÜKSEK ÖNCELİK - {{ days_before }} GÜN KALDI
+            </div>
+        {% elif days_before <= 7 %}
+            <div class="priority-banner priority-medium">
+                ⚡ ORTA ÖNCELİK - {{ days_before }} GÜN KALDI
+            </div>
+        {% else %}
+            <div class="priority-banner priority-normal">
+                📅 NORMAL - {{ days_before }} GÜN KALDI
+            </div>
+        {% endif %}
+
+        <div class="content">
+            <div class="service-date">
+                📅 Servis Tarihi: {{ service_date|date:"d F Y" }}
+            </div>
+
+            <div class="customer-info">
+                <h3>👤 Müşteri Bilgileri</h3>
+                <div class="info-row">
+                    <span class="info-label">Firma Adı:</span>
+                    <span class="info-value">{{ customer.name }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Müşteri Tipi:</span>
+                    <span class="info-value">{{ customer.get_customer_type_display }}</span>
+                </div>
+                {% if customer.email %}
+                <div class="info-row">
+                    <span class="info-label">E-posta:</span>
+                    <span class="info-value">{{ customer.email }}</span>
+                </div>
+                {% endif %}
+                {% if customer.telephone %}
+                <div class="info-row">
+                    <span class="info-label">Telefon:</span>
+                    <span class="info-value">{{ customer.telephone }}</span>
+                </div>
+                {% endif %}
+                {% if customer.related_manager %}
+                <div class="info-row">
+                    <span class="info-label">Sorumlu Yönetici:</span>
+                    <span class="info-value">{{ customer.related_manager.get_full_name }}</span>
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="equipment-info">
+                <h3>⚙️ Ekipman Bilgileri</h3>
+                <div class="info-row">
+                    <span class="info-label">Ürün:</span>
+                    <span class="info-value">{{ item.name }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Seri Numarası:</span>
+                    <span class="info-value">{{ inventory_item.serial_number }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Kategori:</span>
+                    <span class="info-value">{{ item.category.name }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Marka:</span>
+                    <span class="info-value">{{ item.brand.name }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Kurulum Tarihi:</span>
+                    <span class="info-value">{{ installation.setup_date|date:"d F Y" }}</span>
+                </div>
+                {% if installation.location %}
+                <div class="info-row">
+                    <span class="info-label">Konum:</span>
+                    <span class="info-value">{{ installation.location }}</span>
+                </div>
+                {% endif %}
+            </div>
+
+            {% if days_before == 0 %}
+            <div class="warning-box">
+                <h3>⚠️ Acil Uyarı</h3>
+                <p><strong>Bu ekipman için servis zamanı BUGÜN geldi!</strong></p>
+                <p>Ekipmanın güvenli çalışması ve garanti kapsamında kalması için lütfen acilen servis işlemini başlatın.</p>
+            </div>
+            {% elif days_before <= 3 %}
+            <div class="warning-box">
+                <h3>🚨 Önemli Uyarı</h3>
+                <p><strong>Bu ekipman için sadece {{ days_before }} gün kaldı!</strong></p>
+                <p>Servis randevusunu almayı ve gerekli hazırlıkları yapmayı unutmayın.</p>
+            </div>
+            {% else %}
+            <div class="info-box">
+                <h3>📋 Bilgi</h3>
+                <p>Bu ekipman için {{ days_before }} gün sonra servis zamanı gelecek. Önceden planlama yaparak servis sürecini organize edebilirsiniz.</p>
+            </div>
+            {% endif %}
+
+            <div class="action-buttons">
+                <a href="#" class="btn btn-primary">📞 Servis Randevusu Al</a>
+                <a href="#" class="btn btn-secondary">📋 Kurulum Detayları</a>
+            </div>
+
+            <div class="info-box">
+                <h3>📞 İletişim Bilgileri</h3>
+                <p><strong>Servis Hotline:</strong> 0850 XXX XX XX</p>
+                <p><strong>E-posta:</strong> servis@firmaniz.com</p>
+                <p><strong>Çalışma Saatleri:</strong> 08:00 - 18:00 (Pazartesi-Cuma)</p>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>Bu e-posta otomatik olarak gönderilmiştir.</p>
+            <p>© {{ today.year }} Konnektom - Tüm hakları saklıdır.</p>
+            <p style="font-size: 12px; color: #999;">
+                Gönderim Zamanı: {{ today|date:"d F Y H:i" }}
+            </p>
+        </div>
+    </div>
 </body>
 </html>

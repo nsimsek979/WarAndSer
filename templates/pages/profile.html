@@ -22,7 +22,7 @@
       <span class="font-semibold">{% trans 'Company' %}:</span> {{ user.company|default:'-' }}
     </div>
     <div>
-      <span class="font-semibold">{% trans 'Manager' %}:</span> {{ user.company.related_manager|default:'-' }}
+      <span class="font-semibold">{% trans 'Manager' %}:</span> {{ user.company.related_manager.full_name|default:'-' }}
     </div>
     <div>
       <span class="font-semibold">{% trans 'Default Language' %}:</span>
