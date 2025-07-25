@@ -1,12 +1,12 @@
 {% load static %}
 {% load i18n %}
 <!DOCTYPE html>
-<html lang="tr" class="h-full">
+<html lang="en" class="h-full">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="shortcut icon" type="image/x-icon" href="{% static 'konnektom-logo.png' %}">
-    <title>Kurulum Formu - {{ inventory_item.name.name }}</title>
+    <title>{% trans "Installation Form" %} - {{ inventory_item.name.name }}</title>
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com?v=3.4.0"></script>
@@ -75,12 +75,12 @@
                         <i class="fas fa-arrow-left text-lg"></i>
                     </button>
                     <div>
-                        <h1 class="text-xl font-bold text-gray-900">Kurulum Formu</h1>
+                        <h1 class="text-xl font-bold text-gray-900">{% trans "Installation Form" %}</h1>
                         <p class="text-sm text-gray-600">{{ inventory_item.name.name }}</p>
                     </div>
                 </div>
                 <div class="bg-blue-100 text-blue-800 text-xs font-medium px-3 py-1 rounded-full">
-                    SN: {{ inventory_item.serial_no }}
+                    {% trans "SN:" %} {{ inventory_item.serial_no }}
                 </div>
             </div>
         </div>
@@ -93,20 +93,20 @@
             <div class="card mb-6">
                 <h2 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
                     <i class="fas fa-building text-blue-600 mr-3"></i>
-                    Müşteri Bilgileri
+                    {% trans "Customer Information" %}
                 </h2>
                 
                 <div class="space-y-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">
-                            Müşteri Firma Adı *
+                            {% trans "Customer Company Name" %} *
                         </label>
                         <div class="relative">
                             <input 
                                 type="text" 
                                 id="customerSearch"
                                 class="form-input pr-10"
-                                placeholder="Firma adı yazın veya arayın..."
+                                placeholder="{% trans 'Type or search company name...' %}"
                                 oninput="searchCustomers(this.value)"
                                 autocomplete="off"
                                 required
@@ -135,7 +135,7 @@
                     <div class="text-center py-3">
                         <button type="button" onclick="toggleNewCustomerForm()" class="btn-secondary">
                             <i class="fas fa-plus mr-2"></i>
-                            Yeni Müşteri Ekle
+                            {% trans "Add New Customer" %}
                         </button>
                     </div>
                 </div>
@@ -145,57 +145,57 @@
             <div id="newCustomerForm" class="card mb-6 hidden">
                 <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
                     <i class="fas fa-user-plus text-green-600 mr-3"></i>
-                    Yeni Müşteri
+                    {% trans "New Customer" %}
                 </h3>
                 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div class="md:col-span-2">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Firma Adı *</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">{% trans "Company Name" %} *</label>
                         <input type="text" name="new_customer_name" class="form-input" required>
                     </div>
                     
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Telefon</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">{% trans "Phone" %}</label>
                         <input type="tel" name="new_customer_phone" class="form-input">
                     </div>
                     
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Şehir</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">{% trans "City" %}</label>
                         <input type="text" name="new_customer_city" class="form-input">
                     </div>
                     
                     <div class="md:col-span-2">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">{% trans "Email" %}</label>
                         <input type="email" name="new_customer_email" class="form-input">
                     </div>
                     
                     <div class="md:col-span-2">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Adres *</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">{% trans "Address" %} *</label>
                         <textarea name="new_customer_address" rows="3" class="form-input" required></textarea>
                     </div>
                     
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">İletişim Kişisi *</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">{% trans "Contact Person" %} *</label>
                         <input type="text" name="new_customer_contact_person" class="form-input" required>
                     </div>
                     
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">İletişim Telefonu</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">{% trans "Contact Phone" %}</label>
                         <input type="tel" name="new_customer_contact_phone" class="form-input">
                     </div>
                     
                     <div class="md:col-span-2">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">İletişim Email</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">{% trans "Contact Email" %}</label>
                         <input type="email" name="new_customer_contact_email" class="form-input" placeholder="Email bildirimleri için gerekli">
                     </div>
                 </div>
                 
                 <div class="mt-4 flex space-x-3">
                     <button type="button" onclick="createNewCustomer()" class="btn-primary">
-                        <i class="fas fa-save mr-2"></i>Kaydet
+                        <i class="fas fa-save mr-2"></i>{% trans "Save" %}
                     </button>
                     <button type="button" onclick="toggleNewCustomerForm()" class="btn-secondary">
-                        İptal
+                        {% trans "Cancel" %}
                     </button>
                 </div>
             </div>
@@ -204,12 +204,12 @@
             <div class="card mb-6">
                 <h2 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
                     <i class="fas fa-tools text-orange-600 mr-3"></i>
-                    Kurulum Detayları
+                    {% trans "Installation Details" %}
                 </h2>
                 
                 <div class="space-y-4">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Kurulum Tarihi *</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">{% trans "Installation Date" %} *</label>
                         <input 
                             type="datetime-local" 
                             name="setup_date" 
@@ -220,22 +220,22 @@
                     </div>
                     
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Kurulum Adresi</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">{% trans "Installation Address" %}</label>
                         <textarea name="location_address" rows="3" class="form-input" placeholder="Kurulum yapılacak detay adres..."></textarea>
                     </div>
                     
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">GPS Konumu</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">{% trans "GPS Location" %}</label>
                         <div class="flex space-x-2">
                             <button type="button" onclick="getCurrentLocation()" class="btn-secondary flex-1">
                                 <i class="fas fa-map-marker-alt mr-2"></i>
-                                <span id="locationButtonText">Mevcut Konumu Al</span>
+                                <span id="locationButtonText">{% trans "Get Current Location" %}</span>
                             </button>
                         </div>
                         <div id="locationDisplay" class="hidden mt-2 p-3 bg-green-50 border border-green-200 rounded-lg">
                             <div class="text-sm text-green-800">
                                 <i class="fas fa-check-circle mr-2"></i>
-                                Konum: <span id="locationCoords"></span>
+                                {% trans "Location:" %} <span id="locationCoords"></span>
                             </div>
                         </div>
                         <input type="hidden" name="location_latitude" id="locationLat">
@@ -243,7 +243,7 @@
                     </div>
                     
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Kurulum Notları</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">{% trans "Installation Notes" %}</label>
                         <textarea name="installation_notes" rows="4" class="form-input" placeholder="Kurulum ile ilgili özel notlar, dikkat edilmesi gereken noktalar..."></textarea>
                     </div>
                 </div>
@@ -253,19 +253,19 @@
             <div class="card mb-6">
                 <h2 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
                     <i class="fas fa-camera text-purple-600 mr-3"></i>
-                    Fotoğraf ve Dosyalar
+                    {% trans "Photos and Files" %}
                 </h2>
                 
                 <div class="space-y-4">
                     <!-- Fotoğraf Çekme -->
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Fotoğraflar</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">{% trans "Photos" %}</label>
                         <div class="flex space-x-2">
                             <button type="button" onclick="takePhoto()" class="btn-secondary flex-1">
-                                <i class="fas fa-camera mr-2"></i>Fotoğraf Çek
+                                <i class="fas fa-camera mr-2"></i>{% trans "Take Photo" %}
                             </button>
                             <button type="button" onclick="selectPhotos()" class="btn-secondary flex-1">
-                                <i class="fas fa-image mr-2"></i>Galeri
+                                <i class="fas fa-image mr-2"></i>{% trans "Gallery" %}
                             </button>
                         </div>
                         <input type="file" id="photoInput" multiple accept="image/*" class="hidden" onchange="handlePhotoSelect(event)">
@@ -278,9 +278,9 @@
                     
                     <!-- Dosya Yükleme -->
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Dosyalar</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">{% trans "Files" %}</label>
                         <button type="button" onclick="selectFiles()" class="btn-secondary w-full">
-                            <i class="fas fa-file mr-2"></i>Dosya Seç
+                            <i class="fas fa-file mr-2"></i>{% trans "Select File" %}
                         </button>
                         <input type="file" id="fileInput" multiple accept=".pdf,.doc,.docx,.xls,.xlsx" class="hidden" onchange="handleFileSelect(event)">
                     </div>
@@ -294,7 +294,7 @@
             <div class="card">
                 <button type="submit" class="btn-primary w-full text-lg" id="submitButton" onclick="console.log('Submit button clicked!');">
                     <i class="fas fa-check mr-2"></i>
-                    <span id="submitButtonText">Kurulumu Tamamla</span>
+                    <span id="submitButtonText">{% trans "Complete Installation" %}</span>
                 </button>
             </div>
         </form>
@@ -304,7 +304,7 @@
     <div id="loadingOverlay" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
         <div class="bg-white rounded-lg p-6 flex items-center space-x-3">
             <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
-            <span class="text-gray-700" id="loadingMessage">İşlem yapılıyor...</span>
+            <span class="text-gray-700" id="loadingMessage">{% trans "Processing..." %}</span>
         </div>
     </div>
 

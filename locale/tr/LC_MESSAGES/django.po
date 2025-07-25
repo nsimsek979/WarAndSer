@@ -6,1370 +6,2450 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: \n"
+"Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-07-22 15:26+0300\n"
-"PO-Revision-Date: 2025-07-22 17:00+0300\n"
-"Last-Translator: \n"
-"Language-Team: \n"
-"Language: tr\n"
+"POT-Creation-Date: 2025-07-25 17:04+0300\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 3.6\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-#: .\customer\models.py:66 .\tepmlates\pages\customer\customer-create.html:94
-#: .\tepmlates\pages\customer\customer-update.html:148
+#: .\customer\models.py:66 .\templates\pages\customer\customer-create.html:94
+#: .\templates\pages\customer\customer-update.html:148
 msgid "Main"
-msgstr "Ana"
+msgstr "Ana Firma"
 
-#: .\customer\models.py:67 .\tepmlates\pages\customer\customer-create.html:95
-#: .\tepmlates\pages\customer\customer-update.html:149
+#: .\customer\models.py:67 .\templates\pages\customer\customer-create.html:95
+#: .\templates\pages\customer\customer-update.html:149
 msgid "Distributor"
 msgstr "Bayi"
 
-#: .\customer\models.py:68 .\tepmlates\pages\customer\customer-create.html:96
-#: .\tepmlates\pages\customer\customer-update.html:150
+#: .\customer\models.py:68 .\templates\pages\customer\customer-create.html:96
+#: .\templates\pages\customer\customer-update.html:150
 msgid "End User"
 msgstr "Son Kullanıcı"
 
-#: .\customer\models.py:135 .\tepmlates\components\sidebar.html:77 .\tepmlates\pages\customer\customer-detail.html:161
-#: .\tepmlates\pages\customer\customer-list.html:20 .\warranty_and_services\models.py:70
+#: .\customer\models.py:135 .\templates\components\sidebar.html:73
+#: .\templates\pages\customer\customer-detail.html:161
+#: .\templates\pages\customer\customer-list.html:20
+#: .\templates\warranty_and_services\installation_list.html:117
+#: .\templates\warranty_and_services\mobile\maintenance_form.html:142
+#: .\templates\warranty_and_services\service_tracking_list.html:180
+#: .\templates\warranty_and_services\warranty_tracking_list.html:169
+#: .\warranty_and_services\models.py:89
 msgid "Customer"
 msgstr "Müşteri"
 
-#: .\customer\models.py:139 .\tepmlates\pages\customer\customer-create.html:264
-#: .\tepmlates\pages\customer\customer-update.html:342
+#: .\customer\models.py:139 .\templates\pages\customer\customer-create.html:264
+#: .\templates\pages\customer\customer-update.html:342
 msgid "Daily Working Hours"
 msgstr "Günlük Çalışma Saati"
 
-#: .\customer\models.py:140 .\tepmlates\pages\customer\customer-create.html:275
-#: .\tepmlates\pages\customer\customer-update.html:353
+#: .\customer\models.py:140 .\templates\pages\customer\customer-create.html:275
+#: .\templates\pages\customer\customer-update.html:353
 msgid "Maximum 24 hours per day"
-msgstr "Bir günde maksimum 24 saat"
+msgstr "Bir günde max 24 saat"
 
-#: .\customer\models.py:144 .\tepmlates\pages\customer\customer-detail.html:107
+#: .\customer\models.py:144 .\templates\pages\customer\customer-detail.html:107
 msgid "Working on Saturday"
-msgstr "Pazar çalışıyor"
+msgstr "Cumartesi Çalışıyor"
 
-#: .\customer\models.py:148 .\tepmlates\pages\customer\customer-detail.html:116
+#: .\customer\models.py:148 .\templates\pages\customer\customer-detail.html:116
 msgid "Working on Sunday"
-msgstr "Cumartesi çalışıyor"
+msgstr "Pazar Çalışıyor"
 
 #: .\customer\models.py:157
 msgid "Daily working hours cannot exceed 24 hours."
-msgstr "Günlük çalışma saati 24'ü geçemez."
+msgstr "Günlük Çalışma saati 24 saati geçemez"
 
 #: .\customer\models.py:161
 msgid "Daily working hours must be at least 1 hour."
-msgstr "Günlük çalışma min 1 saat olmalı."
+msgstr "Günlük çalışma saati min 1 saat olmalı"
 
+#: .\customer\models.py:195 .\customer\models.py:196
+#: .\templates\pages\customer\customer-create.html:73
+#: .\templates\pages\customer\customer-update.html:128
+msgid "Working Hours"
+msgstr "Çalışma Saatleri"
+
+#: .\customer\views.py:95 .\templates\components\sidebar.html:80
+#: .\templates\dashboard\home.html:249
+#: .\templates\pages\customer\customer-list.html:7
 msgid "Customer List"
 msgstr "Müşteri Listesi"
 
 #: .\customer\views.py:205
 msgid "Customer created successfully!"
-msgstr "Müşteri başarıyla eklendi!"
+msgstr "Müşteri başarıyla kaydedildi"
 
+#: .\customer\views.py:378
+msgid "Customer updated successfully!"
+msgstr "Müşteri başarıyla güncellendi"
+
+#: .\gvs\settings.py:131 .\templates\base.html:139 .\templates\base.html:150
 msgid "Turkish"
 msgstr "Türkçe"
 
+#: .\gvs\settings.py:132 .\templates\base.html:139 .\templates\base.html:146
+msgid "English"
+msgstr "İngilizce"
+
+#: .\item_master\views.py:819 .\item_master\views.py:979
 msgid "Please select an item master."
-msgstr "Ana ürün seçiniz."
+msgstr "Lütfen ana ürün seçiniz."
 
-#| msgid "Customer created successfully!"
+#: .\item_master\views.py:871
 msgid "Inventory item created successfully."
-msgstr "Stok Ürün oluşturuldu."
+msgstr "Stok ürün başarıyla kaydedildi."
 
+#: .\item_master\views.py:875
+msgid "An error occurred while creating the inventory item: {}"
+msgstr "Kayıt sırasında bir sorun oluştu: {}"
+
+#: .\item_master\views.py:923 .\item_master\views.py:1093
 msgid "Inventory item not found."
-msgstr "Stok ürün bulunamadı."
+msgstr "Stok ürün bulunamadı"
 
+#: .\item_master\views.py:941 .\item_master\views.py:962
+msgid "You don't have permission to update this item."
+msgstr "Bu ürünü güncellemeye yetkiniz yok."
+
+#: .\item_master\views.py:944 .\item_master\views.py:965
 #: .\item_master\views.py:1114 .\item_master\views.py:1135
-msgid "Şirket bilginiz tanımlı değil."
-msgstr "Envanter ürünü \"{} ({})\" başarıyla silindi."
+msgid "Your company information is not defined."
+msgstr "Firma bilgileriniz tanımlanmamış."
 
 #: .\item_master\views.py:986
 msgid "Selected item master does not exist."
 msgstr "Seçilen ürün mevcut değil."
 
-#| msgid "Customer updated successfully!"
+#: .\item_master\views.py:1043
 msgid "Inventory item updated successfully."
-msgstr "Stok Ürün başarıyla eklendi."
+msgstr "Stok ürün başarıyla güncellendi."
 
 #: .\item_master\views.py:1047
 msgid "An error occurred while updating the inventory item: {}"
-msgstr "{} güncellenirken bir hata oluştu"
+msgstr "Stok ürün güncellenirken hata oluştu: {}"
+
+#: .\item_master\views.py:1111 .\item_master\views.py:1132
+msgid "You don't have permission to access this item."
+msgstr "Bu ürünü görmeye yetkiniz yok."
+
+#: .\item_master\views.py:1144
+msgid "Inventory item \"{} ({})\" has been deleted successfully."
+msgstr "Stok ürün \"{} ({})\" başarıyla silindi."
 
 #: .\item_master\views.py:1147
 msgid "An error occurred while deleting the inventory item: {}"
-msgstr "{} silinirken bir hata oluştu"
+msgstr "Stok  ürün silinirken bir hata oluştu : {}"
 
-#: .\tepmlates\base.html:109
+#: .\templates\base.html:109
 msgid "Open sidebar"
-msgstr "Kenarı Aç"
+msgstr "Kenarı aç"
 
-#: .\tepmlates\base.html:164 .\tepmlates\pages\profile.html:4
+#: .\templates\base.html:164 .\templates\pages\profile.html:4
 msgid "Profile"
 msgstr "Profil"
 
-#: .\tepmlates\base.html:174
+#: .\templates\base.html:174
 msgid "View Profile"
-msgstr "Profili Görüntüle"
+msgstr "Profili Gör"
 
-#: .\tepmlates\base.html:179
+#: .\templates\base.html:179
 msgid "Sign Out"
 msgstr "Çıkış Yap"
 
-#: .\tepmlates\components\sidebar.html:22
+#: .\templates\components\sidebar.html:22
 msgid "Dashboard"
 msgstr "Dashboard"
 
+#: .\templates\components\sidebar.html:33
+msgid "Product Menu"
+msgstr "Ürün Menüsü"
+
+#: .\templates\components\sidebar.html:40
+#: .\templates\pages\itemmaster\item-master-list.html:6
 msgid "Item Master List"
 msgstr "Ana Ürün Listesi"
 
-#| msgid "Add Main Item"
+#: .\templates\components\sidebar.html:46
+#: .\templates\pages\itemmaster\item-master-list.html:26
 msgid "Add New Item"
 msgstr "Yeni Ürün Ekle"
 
-#: .\tepmlates\components\sidebar.html:52 .\tepmlates\pages\inventory\inventory-item-list.html:6
-#: .\tepmlates\pages\inventory\inventory-item-list.html:20
+#: .\templates\components\sidebar.html:52
+#: .\templates\pages\inventory\inventory-item-list.html:6
+#: .\templates\pages\inventory\inventory-item-list.html:20
 msgid "Inventory Items"
-msgstr "Stok Ürün"
+msgstr "Stok ürünler"
 
-#: .\tepmlates\components\sidebar.html:57
-msgid "Stock Item List"
-msgstr "Stok Ürün Listesi"
-
-#: .\tepmlates\components\sidebar.html:63
+#: .\templates\components\sidebar.html:59
 msgid "Add Stock Item"
-msgstr "Stok Ürün Ekle"
+msgstr "Yeni Stok Ürün Ekle"
 
-#: .\tepmlates\components\sidebar.html:90 .\tepmlates\pages\customer\customer-list.html:27
+#: .\templates\components\sidebar.html:86
+#: .\templates\pages\customer\customer-list.html:27
+#: .\templates\warranty_and_services\mobile\installation_form_new.html:138
 msgid "Add New Customer"
 msgstr "Yeni Müşteri Ekle"
 
-#: .\tepmlates\pages\customer\customer-create.html:4 .\tepmlates\pages\customer\customer-create.html:21
-#: .\tepmlates\pages\customer\customer-create.html:343
-msgid "Create Customer"
-msgstr "Müşteri Oluştur"
-
-#: .\tepmlates\pages\customer\customer-create.html:22 .\tepmlates\pages\customer\customer-list.html:21
-#: .\tepmlates\pages\customer\customer-update.html:55
-msgid "Customer Management"
-msgstr "Müşteri Yönetimi"
-
-#: .\tepmlates\pages\customer\customer-create.html:70
-msgid "General Info"
-msgstr "Genel Bilgiler"
-
-#: .\tepmlates\pages\customer\customer-create.html:71 .\tepmlates\pages\customer\customer-detail.html:59
-#: .\tepmlates\pages\customer\customer-update.html:118
-msgid "Contacts"
-msgstr "İletişim"
-
-#: .\tepmlates\pages\customer\customer-create.html:72 .\tepmlates\pages\customer\customer-detail.html:43
-#: .\tepmlates\pages\customer\customer-update.html:123 .\tepmlates\pages\customer\customer-update.html:257
-msgid "Addresses"
-msgstr "Adresler"
-
-#: .\tepmlates\pages\customer\customer-create.html:81 .\tepmlates\pages\customer\customer-list.html:55
-#: .\tepmlates\pages\inventory\inventory-item-create.html:169 .\tepmlates\pages\inventory\inventory-item-detail.html:121
-#: .\tepmlates\pages\inventory\inventory-item-detail.html:195 .\tepmlates\pages\inventory\inventory-item-update.html:228
-#: .\tepmlates\pages\itemmaster\item-master-create.html:236 .\tepmlates\pages\itemmaster\item-master-detail.html:47
-#: .\tepmlates\pages\itemmaster\item-master-detail.html:94 .\tepmlates\pages\itemmaster\item-master-detail.html:178
-#: .\tepmlates\pages\itemmaster\item-master-update.html:311
-msgid "Name"
-msgstr "İsim"
-
-#: .\tepmlates\pages\customer\customer-create.html:84
-msgid "Enter customer name"
-msgstr "Müşteri adını girin"
-
-#: .\tepmlates\pages\customer\customer-create.html:89 .\tepmlates\pages\customer\customer-update.html:143
-msgid "Company Type"
-msgstr "Firma Tipi"
-
-#: .\tepmlates\pages\customer\customer-create.html:93 .\tepmlates\pages\customer\customer-update.html:147
-#: .\tepmlates\pages\inventory\inventory-item-create.html:244
-msgid "Select type"
-msgstr "Tip seçin"
-
-#: .\tepmlates\pages\customer\customer-create.html:103 .\tepmlates\pages\customer\customer-detail.html:14
-#: .\tepmlates\pages\customer\customer-list.html:58 .\tepmlates\pages\customer\customer-update.html:157
-msgid "Core Business"
-msgstr "Ana İş"
-
-#: .\tepmlates\pages\customer\customer-create.html:105 .\tepmlates\pages\customer\customer-update.html:159
-msgid "Select Core Business"
-msgstr "Ana İş Seçin"
-
-#: .\tepmlates\pages\customer\customer-create.html:112 .\tepmlates\pages\customer\customer-update.html:166
-msgid "Related Company"
-msgstr "Bağlı Olduğu Firma"
-
-#: .\tepmlates\pages\customer\customer-create.html:116 .\tepmlates\pages\customer\customer-update.html:170
-msgid "Select Related Company"
-msgstr "Bağlı Olduğu Firma"
-
-#: .\tepmlates\pages\customer\customer-create.html:126 .\tepmlates\pages\customer\customer-update.html:180
-msgid "Related Manager"
-msgstr "Bağlı Olduğu Yönetici"
-
-#: .\tepmlates\pages\customer\customer-create.html:130 .\tepmlates\pages\customer\customer-update.html:184
-msgid "Select Manager"
-msgstr "Bağlı Olduğu Yönetici"
-
-#: .\tepmlates\pages\customer\customer-create.html:140 .\tepmlates\pages\customer\customer-create.html:168
-#: .\tepmlates\pages\customer\customer-update.html:194 .\tepmlates\pages\customer\customer-update.html:238
-msgid "Email"
-msgstr "E-Posta"
-
-#: .\tepmlates\pages\customer\customer-create.html:141
-msgid "Enter email"
-msgstr "E-Posta"
-
-#: .\tepmlates\pages\customer\customer-create.html:144 .\tepmlates\pages\customer\customer-create.html:169
-#: .\tepmlates\pages\customer\customer-update.html:198 .\tepmlates\pages\customer\customer-update.html:242
-msgid "Telephone"
-msgstr "Telefon"
-
-#: .\tepmlates\pages\customer\customer-create.html:145
-msgid "Enter telephone"
-msgstr "Telefon Girin"
-
-#: .\tepmlates\pages\customer\customer-create.html:155 .\tepmlates\pages\customer\customer-detail.html:17
-#: .\tepmlates\pages\customer\customer-detail.html:203 .\tepmlates\pages\customer\customer-list.html:59
-#: .\tepmlates\pages\customer\customer-list.html:82 .\tepmlates\pages\customer\customer-update.html:206
-#: .\tepmlates\pages\inventory\inventory-item-detail.html:145 .\tepmlates\pages\itemmaster\item-master-detail.html:71
-#: .\tepmlates\pages\itemmaster\item-master-list.html:115 .\warranty_and_services\admin.py:131
-msgid "Active"
-msgstr "Aktif"
-
-#: .\tepmlates\pages\customer\customer-create.html:165 .\tepmlates\pages\customer\customer-update.html:230
-msgid "Full Name"
-msgstr "Tam isim"
-
-#: .\tepmlates\pages\customer\customer-create.html:167 .\tepmlates\pages\customer\customer-update.html:234
-msgid "Title"
-msgstr "Görevi"
-
-#: .\tepmlates\pages\customer\customer-create.html:171 .\tepmlates\pages\customer\customer-create.html:241
-#: .\tepmlates\pages\customer\customer-update.html:225 .\tepmlates\pages\customer\customer-update.html:268
-#: .\tepmlates\pages\inventory\inventory-item-create.html:280
-msgid "Remove"
-msgstr "Kaldır"
-
-#: .\tepmlates\pages\customer\customer-create.html:177 .\tepmlates\pages\customer\customer-update.html:216
-msgid "Add Contact"
-msgstr "İletişim Ekle"
-
-#: .\tepmlates\pages\customer\customer-create.html:188 .\tepmlates\pages\customer\customer-create.html:189
-#: .\tepmlates\pages\customer\customer-update.html:273
-msgid "Address Name"
-msgstr "Adres İsmi"
-
-#: .\tepmlates\pages\customer\customer-create.html:192 .\tepmlates\pages\customer\customer-update.html:277
-msgid "Country"
-msgstr "Ülke"
-
-#: .\tepmlates\pages\customer\customer-create.html:194 .\tepmlates\pages\customer\customer-update.html:279
-msgid "Select Country"
-msgstr "Ülke"
-
-#: .\tepmlates\pages\customer\customer-create.html:201 .\tepmlates\pages\customer\customer-list.html:57
-#: .\tepmlates\pages\customer\customer-update.html:286
-msgid "City"
-msgstr "Şehir"
-
-#: .\tepmlates\pages\customer\customer-create.html:203 .\tepmlates\pages\customer\customer-update.html:288
-msgid "Select City"
-msgstr "Şehir Seçin"
-
-#: .\tepmlates\pages\customer\customer-create.html:213 .\tepmlates\pages\customer\customer-update.html:295
-msgid "County"
-msgstr "Ülke"
-
-#: .\tepmlates\pages\customer\customer-create.html:215 .\tepmlates\pages\customer\customer-update.html:297
-msgid "Select County"
-msgstr "Ülke"
-
-#: .\tepmlates\pages\customer\customer-create.html:222 .\tepmlates\pages\customer\customer-update.html:304
-msgid "District"
-msgstr "Mahalle"
-
-#: .\tepmlates\pages\customer\customer-create.html:224 .\tepmlates\pages\customer\customer-update.html:306
-msgid "Select District"
-msgstr "Mahalle"
-
-#: .\tepmlates\pages\customer\customer-create.html:231 .\tepmlates\pages\customer\customer-create.html:232
-msgid "Zipcode"
-msgstr "Posta Kodu"
-
-#: .\tepmlates\pages\customer\customer-create.html:237 .\tepmlates\pages\customer\customer-update.html:266
-#: .\tepmlates\pages\customer\customer-update.html:318
-msgid "Address"
-msgstr "Adres"
-
-#: .\tepmlates\pages\customer\customer-create.html:238
-msgid "Enter full address"
-msgstr "Adresi Girin"
-
-#: .\tepmlates\pages\customer\customer-create.html:247 .\tepmlates\pages\customer\customer-update.html:259
-msgid "Add Address"
-msgstr "Adres Ekle"
-
-#: .\tepmlates\pages\customer\customer-create.html:258 .\tepmlates\pages\customer\customer-detail.html:78
-#: .\tepmlates\pages\customer\customer-update.html:336
-msgid "Working Hours Configuration"
-msgstr "Çalışma Saati Ayarları"
-
-#: .\tepmlates\pages\customer\customer-create.html:273 .\tepmlates\pages\customer\customer-update.html:351
-#: .\tepmlates\pages\itemmaster\item-master-create.html:512 .\tepmlates\pages\itemmaster\item-master-create.html:514
-#: .\tepmlates\pages\itemmaster\item-master-update.html:633 .\tepmlates\pages\itemmaster\item-master-update.html:635
-msgid "hours"
-msgstr "saat"
-
-#: .\tepmlates\pages\customer\customer-create.html:280 .\tepmlates\pages\customer\customer-update.html:358
-msgid "Saturday Work"
-msgstr "Pazar Çalışıyor"
-
-#: .\tepmlates\pages\customer\customer-create.html:287 .\tepmlates\pages\customer\customer-create.html:301
-#: .\tepmlates\pages\customer\customer-update.html:365 .\tepmlates\pages\customer\customer-update.html:379
-msgid "Working"
-msgstr "Çalışıyor"
-
-#: .\tepmlates\pages\customer\customer-create.html:287 .\tepmlates\pages\customer\customer-create.html:301
-#: .\tepmlates\pages\customer\customer-update.html:365 .\tepmlates\pages\customer\customer-update.html:379
-msgid "Not Working"
-msgstr "Çalışmıyor"
-
-#: .\tepmlates\pages\customer\customer-create.html:294 .\tepmlates\pages\customer\customer-update.html:372
-msgid "Sunday Work"
-msgstr "Pazar Çalışıyor"
-
-#: .\tepmlates\pages\customer\customer-create.html:314 .\tepmlates\pages\customer\customer-update.html:392
-msgid "Weekly Summary"
-msgstr "Haftalık Özet"
-
-#: .\tepmlates\pages\customer\customer-create.html:316 .\tepmlates\pages\customer\customer-update.html:394
-msgid "hours per week"
-msgstr "haftalık çalışma saati"
-
-#: .\tepmlates\pages\customer\customer-create.html:317 .\tepmlates\pages\customer\customer-update.html:395
-msgid "working days per week"
-msgstr "haftalık çalışma günü"
-
-#: .\tepmlates\pages\customer\customer-create.html:330 .\tepmlates\pages\customer\customer-update.html:408
-#, fuzzy
-#| msgid "General Information"
-msgid "Information"
-msgstr "Genel Bilgiler"
-
-#: .\tepmlates\pages\customer\customer-create.html:332 .\tepmlates\pages\customer\customer-update.html:410
-msgid "These working hours will be used to calculate service and warranty periods based on actual usage time."
-msgstr "Bu çalışma saatlerine göre servis ve garanti süreleri hesaplanacaktır."
-
-#: .\tepmlates\pages\customer\customer-create.html:333
-msgid "You can modify these settings later if needed."
-msgstr "Gerekirse sonra bu ayarları değiştirebilirsiniz."
-
-#: .\tepmlates\pages\customer\customer-create.html:342 .\tepmlates\pages\customer\customer-update.html:59
-#: .\tepmlates\pages\customer\customer-update.html:422 .\tepmlates\pages\inventory\inventory-item-create.html:307
-#: .\tepmlates\pages\inventory\inventory-item-update.html:363 .\tepmlates\pages\itemmaster\item-master-create.html:791
-#: .\tepmlates\pages\itemmaster\item-master-update.html:901
-msgid "Cancel"
-msgstr "İptal"
-
-#: .\tepmlates\pages\customer\customer-create.html:456 .\tepmlates\pages\customer\customer-update.html:636
-msgid "Are you sure you want to remove this contact?"
-msgstr "Bu iletişim bilgilerini silmek istediğinizden emin misiniz?"
-
-#: .\tepmlates\pages\customer\customer-create.html:465 .\tepmlates\pages\customer\customer-update.html:656
-msgid "Are you sure you want to remove this address?"
-msgstr "Bu adresi silmek istediğinizden emin misiniz?"
-
-#: .\tepmlates\pages\customer\customer-detail.html:19 .\tepmlates\pages\customer\customer-list.html:84
-msgid "Inactive"
-msgstr "Pasif"
-
-#: .\tepmlates\pages\customer\customer-detail.html:28 .\tepmlates\pages\customer\customer-list.html:91
-#: .\tepmlates\pages\itemmaster\item-master-list.html:146
-msgid "Edit"
-msgstr "Düzenle"
-
-#: .\tepmlates\pages\customer\customer-detail.html:32 .\tepmlates\pages\inventory\inventory-item-create.html:21
-#: .\tepmlates\pages\inventory\inventory-item-update.html:21 .\tepmlates\pages\itemmaster\item-master-create.html:21
-#: .\tepmlates\pages\itemmaster\item-master-detail.html:22
-msgid "Back to List"
-msgstr "Listeye dön"
-
-#: .\tepmlates\pages\customer\customer-detail.html:54
-msgid "No addresses found."
-msgstr "Adres Bulunamadı."
-
-#: .\tepmlates\pages\customer\customer-detail.html:70
-msgid "No contacts found."
-msgstr "İletişim bilgileri bulunamadı."
-
-#: .\tepmlates\pages\customer\customer-detail.html:86
-msgid "Hours per Day"
-msgstr "Günlük Çalışma Saati"
-
-#: .\tepmlates\pages\customer\customer-detail.html:92
-msgid "Days per Week"
-msgstr "Haftalık Çalışma Günü"
-
-#: .\tepmlates\pages\customer\customer-detail.html:98
-msgid "Hours per Week"
-msgstr "Haftalık Çalışma Saati"
-
-#: .\tepmlates\pages\customer\customer-detail.html:110
-msgid "Not working on Saturday"
-msgstr "Cumartesi Çalışmıyor"
-
-#: .\tepmlates\pages\customer\customer-detail.html:119
-msgid "Not working on Sunday"
-msgstr "Pazar Çalışmıyor"
-
-#: .\tepmlates\pages\customer\customer-detail.html:129
-msgid "Usage:"
-msgstr "Kullanım:"
-
-#: .\tepmlates\pages\customer\customer-detail.html:129
-msgid "These working hours are used to calculate service and warranty periods based on actual equipment usage time."
-msgstr "Bu çalışma saatlerine göre servis ve garanti süreleri hesaplanacaktır."
-
-#: .\tepmlates\pages\customer\customer-detail.html:137
-msgid "Working hours not configured for this customer."
-msgstr "Bu müşteri için çalışma saatleri ayarları yapılmamıştır."
-
-#: .\tepmlates\pages\customer\customer-detail.html:139
-msgid "Configure Working Hours"
-msgstr "Çalışma  Saatlerini Düzenle"
-
-#: .\tepmlates\pages\customer\customer-detail.html:150
-msgid "Installations (Company & Related End Users)"
-msgstr "Kurulum (Firma&Son Kullanıcı)"
-
-#: .\tepmlates\pages\customer\customer-detail.html:152 .\warranty_and_services\models.py:104
-msgid "Installations"
-msgstr "Kurulum"
-
-#: .\tepmlates\pages\customer\customer-detail.html:162
-#, fuzzy
-#| msgid "Product Menu"
-msgid "Product"
-msgstr "Ürün Menüsü"
-
-#: .\tepmlates\pages\customer\customer-detail.html:163
-msgid "Serial No"
-msgstr "Seri Numarası"
-
-#: .\tepmlates\pages\customer\customer-detail.html:164 .\warranty_and_services\models.py:57
-msgid "Setup Date"
-msgstr "Kurulum Tarihi"
-
-#: .\tepmlates\pages\customer\customer-detail.html:165
-msgid "Next Warranty End"
-msgstr "Garanti Sonu"
-
-#: .\tepmlates\pages\customer\customer-detail.html:166 .\warranty_and_services\models.py:750
-msgid "Next Service Date"
-msgstr "Sonraki Servis Zamanı"
-
-#: .\tepmlates\pages\customer\customer-detail.html:167
-msgid "Actions"
-msgstr "Hareketler"
-
-#: .\tepmlates\pages\customer\customer-detail.html:207
-msgid "Expired"
-msgstr "Süresi Dolmuş"
-
-#: .\tepmlates\pages\customer\customer-detail.html:211
-msgid "No warranty"
-msgstr "Garanti bilgileri yok"
-
-#: .\tepmlates\pages\customer\customer-detail.html:220
-msgid "Overdue"
-msgstr "Overdue"
-
-#: .\tepmlates\pages\customer\customer-detail.html:224
-msgid "This Week"
-msgstr "Bu Hafta"
-
-#: .\tepmlates\pages\customer\customer-detail.html:228
-msgid "Scheduled"
-msgstr "Planlanmış"
-
-#: .\tepmlates\pages\customer\customer-detail.html:232
-msgid "No service"
-msgstr "Servis bilgileri yok"
-
-#: .\tepmlates\pages\customer\customer-detail.html:254 .\tepmlates\pages\customer\customer-detail.html:280
-#: .\tepmlates\pages\inventory\inventory-item-create.html:295 .\tepmlates\pages\itemmaster\item-master-create.html:779
-#: .\tepmlates\pages\itemmaster\item-master-detail.html:128 .\tepmlates\pages\itemmaster\item-master-detail.html:144
-#: .\tepmlates\pages\itemmaster\item-master-detail.html:212 .\tepmlates\pages\itemmaster\item-master-detail.html:228
-msgid "Previous"
-msgstr "Önceki"
-
-#: .\tepmlates\pages\customer\customer-detail.html:260 .\tepmlates\pages\customer\customer-detail.html:303
-#: .\tepmlates\pages\inventory\inventory-item-create.html:301 .\tepmlates\pages\itemmaster\item-master-create.html:785
-#: .\tepmlates\pages\itemmaster\item-master-detail.html:131 .\tepmlates\pages\itemmaster\item-master-detail.html:157
-#: .\tepmlates\pages\itemmaster\item-master-detail.html:215 .\tepmlates\pages\itemmaster\item-master-detail.html:241
-msgid "Next"
-msgstr "Sonraki"
-
-#: .\tepmlates\pages\customer\customer-detail.html:270 .\tepmlates\pages\itemmaster\item-master-detail.html:137
-#: .\tepmlates\pages\itemmaster\item-master-detail.html:221
-msgid "of"
-msgstr ""
-
-#: .\tepmlates\pages\customer\customer-detail.html:272
-msgid "installations"
-msgstr "kurulumlar"
-
-#: .\tepmlates\pages\customer\customer-detail.html:318
-msgid "No installations found for this customer."
-msgstr "Bu müşteri için herhangi bir kurulum bilgisi bulunamadı."
-
-#: .\tepmlates\pages\customer\customer-detail.html:320
-msgid "View All Installations"
-msgstr "Tüm Kurulumları Gör"
-
-#: .\tepmlates\pages\customer\customer-list.html:39
-msgid "Search by name, city, or core business..."
-msgstr "İsim, şehir veya ana iş alanına göre arayın..."
-
-#: .\tepmlates\pages\customer\customer-list.html:42 .\tepmlates\pages\inventory\inventory-item-list.html:151
-#: .\tepmlates\pages\itemmaster\item-master-list.html:57
-msgid "Search"
-msgstr "Ara"
-
-#: .\tepmlates\pages\customer\customer-list.html:44 .\tepmlates\pages\inventory\inventory-item-list.html:153
-#: .\tepmlates\pages\itemmaster\item-master-list.html:59 .\venv\Lib\site-packages\django\forms\widgets.py:527
-msgid "Clear"
-msgstr "Temizle"
-
-#: .\tepmlates\pages\customer\customer-list.html:56 .\tepmlates\pages\inventory\inventory-item-detail.html:279
-#: .\tepmlates\pages\itemmaster\item-master-detail.html:305
-msgid "Type"
-msgstr "Tip"
-
-#: .\tepmlates\pages\customer\customer-list.html:98 .\tepmlates\pages\itemmaster\item-master-list.html:155
-msgid "no_data"
-msgstr "Veri Yok."
-
-#: .\tepmlates\pages\customer\customer-update.html:6 .\tepmlates\pages\customer\customer-update.html:54
-#: .\tepmlates\pages\customer\customer-update.html:425
-msgid "Update Customer"
-msgstr "Müşteriyi Güncelle"
-
-#: .\tepmlates\pages\customer\customer-update.html:113
-msgid "General Information"
-msgstr "Genel Bilgiler"
-
-#: .\tepmlates\pages\customer\customer-update.html:138
-#, fuzzy
-#| msgid "Company List"
-msgid "Company Name"
-msgstr "Firma Adı"
-
-#: .\tepmlates\pages\customer\customer-update.html:139
-msgid "Enter company name"
-msgstr "Firma ismi girin"
-
-#: .\tepmlates\pages\customer\customer-update.html:195
-msgid "Enter email address"
-msgstr "Mail adresi girin"
-
-#: .\tepmlates\pages\customer\customer-update.html:199
-msgid "Enter telephone number"
-msgstr "Telefon numarası girin"
-
-#: .\tepmlates\pages\customer\customer-update.html:214
-msgid "Contact Persons"
-msgstr "Kontak Kişi"
-
-#: .\tepmlates\pages\customer\customer-update.html:223
-msgid "Contact"
-msgstr "Kontak"
-
-#: .\tepmlates\pages\customer\customer-update.html:250
-msgid "No contacts added. Click \"Add Contact\" to create one."
-msgstr "Kontak Kişi Eklenmedi."
-
-#: .\tepmlates\pages\customer\customer-update.html:313
-msgid "Zip Code"
-msgstr "Posta Kodu"
-
-#: .\tepmlates\pages\customer\customer-update.html:325
-msgid "No addresses added. Click \"Add Address\" to create one."
-msgstr "Adres Eklenmedi."
-
-#: .\tepmlates\pages\customer\customer-update.html:411
-msgid "You can modify these settings anytime as business requirements change."
-msgstr "Bu kurulumları istediğiniz zaman güncelleyebilirsiniz."
-
-#: .\tepmlates\pages\inventory\inventory-item-create.html:5 .\tepmlates\pages\inventory\inventory-item-create.html:12
-msgid "Create New Inventory Item"
-msgstr "Yeni Stok Ürün Ekle"
-
-#: .\tepmlates\pages\inventory\inventory-item-create.html:8
-msgid "Attribute Value"
-msgstr "Değer"
-
-#: .\tepmlates\pages\inventory\inventory-item-create.html:8
-msgid "Attribute Unit"
-msgstr "Birim"
-
-#: .\tepmlates\pages\inventory\inventory-item-create.html:13
-msgid "Add a new inventory item"
-msgstr "Yeni stok ürün ekle"
-
-#: .\tepmlates\pages\inventory\inventory-item-create.html:112 .\tepmlates\pages\inventory\inventory-item-update.html:168
-#: .\tepmlates\pages\itemmaster\item-master-create.html:180
-msgid "Basic Info"
-msgstr "Genel Bilgiler"
-
-#: .\tepmlates\pages\inventory\inventory-item-create.html:117 .\tepmlates\pages\inventory\inventory-item-detail.html:162
-#: .\tepmlates\pages\inventory\inventory-item-list.html:167 .\tepmlates\pages\inventory\inventory-item-update.html:173
-msgid "Attributes"
-msgstr "Özellikler"
-
-#: .\tepmlates\pages\inventory\inventory-item-create.html:127 .\tepmlates\pages\inventory\inventory-item-update.html:183
-#: .\tepmlates\pages\itemmaster\item-master-create.html:215 .\tepmlates\pages\itemmaster\item-master-detail.html:40
-#: .\tepmlates\pages\itemmaster\item-master-update.html:247 .\tepmlates\pages\itemmaster\item-master-update.html:290
-#, fuzzy
-#| msgid "General Information"
-msgid "Basic Information"
-msgstr "Genel Bilgiler"
-
-#: .\tepmlates\pages\inventory\inventory-item-create.html:133 .\tepmlates\pages\inventory\inventory-item-update.html:189
-#: .\tepmlates\pages\itemmaster\item-master-list.html:19
-msgid "Item Master"
-msgstr "Ana Ürün"
-
-#: .\tepmlates\pages\inventory\inventory-item-create.html:140
-msgid "Select an item master"
-msgstr "Ana Ürün seç"
-
-#: .\tepmlates\pages\inventory\inventory-item-create.html:151
-msgid "No active item masters found"
-msgstr "Aktif ürün bulunamadı"
-
-#: .\tepmlates\pages\inventory\inventory-item-create.html:156
-msgid "Available items"
-msgstr "Uygun ürünler"
-
-#: .\tepmlates\pages\inventory\inventory-item-create.html:162
-#, fuzzy
-#| msgid "Item Master"
-msgid "Selected Item Master"
-msgstr "Ana Ürün"
-
-#: .\tepmlates\pages\inventory\inventory-item-create.html:165 .\tepmlates\pages\inventory\inventory-item-detail.html:117
-#: .\tepmlates\pages\inventory\inventory-item-update.html:216 .\tepmlates\pages\itemmaster\item-master-create.html:220
-#: .\tepmlates\pages\itemmaster\item-master-detail.html:43 .\tepmlates\pages\itemmaster\item-master-update.html:295
-msgid "Shortcode"
-msgstr "Kısa Kod"
-
-#: .\tepmlates\pages\inventory\inventory-item-create.html:173 .\tepmlates\pages\inventory\inventory-item-detail.html:125
-#: .\tepmlates\pages\inventory\inventory-item-detail.html:196 .\tepmlates\pages\inventory\inventory-item-update.html:220
-#: .\tepmlates\pages\itemmaster\item-master-create.html:251 .\tepmlates\pages\itemmaster\item-master-detail.html:51
-#: .\tepmlates\pages\itemmaster\item-master-detail.html:95 .\tepmlates\pages\itemmaster\item-master-detail.html:179
-#: .\tepmlates\pages\itemmaster\item-master-list.html:71 .\tepmlates\pages\itemmaster\item-master-update.html:326
-msgid "Category"
-msgstr "Kategori"
-
-#: .\tepmlates\pages\inventory\inventory-item-create.html:177 .\tepmlates\pages\inventory\inventory-item-detail.html:131
-#: .\tepmlates\pages\inventory\inventory-item-detail.html:197 .\tepmlates\pages\inventory\inventory-item-update.html:224
-#: .\tepmlates\pages\itemmaster\item-master-create.html:269 .\tepmlates\pages\itemmaster\item-master-detail.html:57
-#: .\tepmlates\pages\itemmaster\item-master-detail.html:96 .\tepmlates\pages\itemmaster\item-master-detail.html:180
-#: .\tepmlates\pages\itemmaster\item-master-list.html:72 .\tepmlates\pages\itemmaster\item-master-update.html:344
-msgid "Brand"
-msgstr "Marka"
-
-#: .\tepmlates\pages\inventory\inventory-item-create.html:188 .\tepmlates\pages\inventory\inventory-item-detail.html:58
-#: .\tepmlates\pages\inventory\inventory-item-list.html:165 .\tepmlates\pages\inventory\inventory-item-update.html:251
-msgid "Serial Number"
-msgstr "Seri Numarası"
-
-#: .\tepmlates\pages\inventory\inventory-item-create.html:195
-msgid "Enter serial number"
-msgstr "seri numarası numarası girin."
-
-#: .\tepmlates\pages\inventory\inventory-item-create.html:207
-msgid "Currently in use"
-msgstr "Kullanımda"
-
-#: .\tepmlates\pages\inventory\inventory-item-create.html:216 .\tepmlates\pages\inventory\inventory-item-update.html:277
-msgid "Item Attributes"
-msgstr "Ürün Özellikleri"
-
-#: .\tepmlates\pages\inventory\inventory-item-create.html:223 .\tepmlates\pages\inventory\inventory-item-update.html:284
-msgid "Add Attribute"
-msgstr "Özellik Ekle"
-
-#: .\tepmlates\pages\inventory\inventory-item-create.html:231
-msgid "No attributes added yet. Click 'Add Attribute' to add item-specific attributes."
-msgstr "Henüz yeni bir özellik eklenmedi, özellik eklemek için \"Özellik Ekle\" butonuna tıklayınız."
-
-#: .\tepmlates\pages\inventory\inventory-item-create.html:239 .\tepmlates\pages\inventory\inventory-item-update.html:296
-msgid "Attribute Type"
-msgstr "Özellik Türü"
-
-#: .\tepmlates\pages\inventory\inventory-item-create.html:253 .\tepmlates\pages\inventory\inventory-item-update.html:310
-msgid "Value"
-msgstr "Değer"
-
-#: .\tepmlates\pages\inventory\inventory-item-create.html:258
-msgid "Enter value"
-msgstr "Değer Girin."
-
-#: .\tepmlates\pages\inventory\inventory-item-create.html:263 .\tepmlates\pages\inventory\inventory-item-update.html:319
-msgid "Unit"
-msgstr "Birim"
-
-#: .\tepmlates\pages\inventory\inventory-item-create.html:268
-msgid "Select unit"
-msgstr "Birim seçin"
-
-#: .\tepmlates\pages\inventory\inventory-item-create.html:311
-msgid "Create Inventory Item"
-msgstr "Stok Ürün Ekle"
-
-#: .\tepmlates\pages\inventory\inventory-item-detail.html:6 .\tepmlates\pages\inventory\inventory-item-detail.html:14
-msgid "Inventory Item Detail"
-msgstr "Stok Ürün Detayı"
-
-#: .\tepmlates\pages\inventory\inventory-item-detail.html:22
-#, fuzzy
-#| msgid "Stock Item List"
-msgid "Back to Inventory"
-msgstr "Stok Ürün Listesi"
-
-#: .\tepmlates\pages\inventory\inventory-item-detail.html:29 .\tepmlates\pages\inventory\inventory-item-list.html:248
-msgid "View Item Master"
-msgstr "Ana Ürün Detayı"
-
-#: .\tepmlates\pages\inventory\inventory-item-detail.html:35 .\tepmlates\pages\inventory\inventory-item-list.html:252
-msgid "Edit Item Master"
-msgstr "Ana Ürünü Güncelle"
-
-#: .\tepmlates\pages\inventory\inventory-item-detail.html:42 .\tepmlates\pages\inventory\inventory-item-list.html:257
-msgid "Edit Inventory Item"
-msgstr "Stok Ürünü Güncelle"
-
-#: .\tepmlates\pages\inventory\inventory-item-detail.html:55
-#, fuzzy
-#| msgid "General Information"
-msgid "Inventory Item Information"
-msgstr "Genel Bilgiler"
-
-#: .\tepmlates\pages\inventory\inventory-item-detail.html:62 .\tepmlates\pages\inventory\inventory-item-detail.html:360
-#: .\tepmlates\pages\inventory\inventory-item-list.html:166 .\tepmlates\pages\inventory\inventory-item-update.html:238
-msgid "Quantity"
-msgstr "Miktar"
-
-#: .\tepmlates\pages\inventory\inventory-item-detail.html:68 .\tepmlates\pages\inventory\inventory-item-detail.html:143
-#: .\tepmlates\pages\inventory\inventory-item-list.html:168 .\tepmlates\pages\itemmaster\item-master-create.html:304
-#: .\tepmlates\pages\itemmaster\item-master-detail.html:69 .\tepmlates\pages\itemmaster\item-master-list.html:74
-#: .\tepmlates\pages\itemmaster\item-master-update.html:379
-msgid "Status"
-msgstr "Durum"
-
-#: .\tepmlates\pages\inventory\inventory-item-detail.html:74 .\tepmlates\pages\inventory\inventory-item-detail.html:366
-#: .\tepmlates\pages\inventory\inventory-item-list.html:87 .\tepmlates\pages\inventory\inventory-item-list.html:147
-#: .\tepmlates\pages\inventory\inventory-item-list.html:237
-msgid "In Use"
-msgstr "Kullanımda"
-
-#: .\tepmlates\pages\inventory\inventory-item-detail.html:81 .\tepmlates\pages\inventory\inventory-item-detail.html:368
-#: .\tepmlates\pages\inventory\inventory-item-list.html:73 .\tepmlates\pages\inventory\inventory-item-list.html:146
-#: .\tepmlates\pages\inventory\inventory-item-list.html:239
-msgid "Available"
-msgstr "Kuruluma Uygun"
-
-#: .\tepmlates\pages\inventory\inventory-item-detail.html:86 .\tepmlates\pages\inventory\inventory-item-detail.html:491
-msgid "Production Date"
-msgstr "ÜretimTarihi"
-
-#: .\tepmlates\pages\inventory\inventory-item-detail.html:91
-msgid "Not specified"
-msgstr "Not specified"
-
-#: .\tepmlates\pages\inventory\inventory-item-detail.html:96
-msgid "Created By"
-msgstr "Oluşturan"
-
-#: .\tepmlates\pages\inventory\inventory-item-detail.html:101
-msgid "System"
-msgstr "Sistem"
-
-#: .\tepmlates\pages\inventory\inventory-item-detail.html:106
-msgid "Created Date"
-msgstr "Oluşturma Tarihi"
-
-#: .\tepmlates\pages\inventory\inventory-item-detail.html:114
-#, fuzzy
-#| msgid "General Information"
-msgid "Item Master Information"
-msgstr "Genel Bilgiler"
-
-#: .\tepmlates\pages\inventory\inventory-item-detail.html:137 .\tepmlates\pages\itemmaster\item-master-create.html:286
-#: .\tepmlates\pages\itemmaster\item-master-detail.html:63 .\tepmlates\pages\itemmaster\item-master-list.html:73
-#: .\tepmlates\pages\itemmaster\item-master-update.html:361
-msgid "Stock Type"
-msgstr "Stok Türü"
-
-#: .\tepmlates\pages\inventory\inventory-item-detail.html:153 .\tepmlates\pages\inventory\inventory-item-detail.html:303
-#: .\tepmlates\pages\itemmaster\item-master-create.html:323 .\tepmlates\pages\itemmaster\item-master-detail.html:79
-#: .\tepmlates\pages\itemmaster\item-master-detail.html:329 .\tepmlates\pages\itemmaster\item-master-update.html:398
-msgid "Description"
-msgstr "Açıklama"
-
-#: .\tepmlates\pages\inventory\inventory-item-detail.html:189 .\tepmlates\pages\itemmaster\item-master-create.html:185
-#: .\tepmlates\pages\itemmaster\item-master-create.html:336 .\tepmlates\pages\itemmaster\item-master-detail.html:88
-#: .\tepmlates\pages\itemmaster\item-master-update.html:252 .\tepmlates\pages\itemmaster\item-master-update.html:411
-msgid "Spare Parts"
-msgstr "Yedek Parçalar"
-
-#: .\tepmlates\pages\inventory\inventory-item-detail.html:194 .\tepmlates\pages\itemmaster\item-master-detail.html:93
-#: .\tepmlates\pages\itemmaster\item-master-detail.html:177
-msgid "Code"
-msgstr "Kod"
-
-#: .\tepmlates\pages\inventory\inventory-item-detail.html:234 .\tepmlates\pages\itemmaster\item-master-create.html:677
-#: .\tepmlates\pages\itemmaster\item-master-detail.html:260 .\tepmlates\pages\itemmaster\item-master-update.html:802
-msgid "Maintenance Schedules"
-msgstr "Bakım Tarihleri"
-
-#: .\tepmlates\pages\inventory\inventory-item-detail.html:248 .\tepmlates\pages\itemmaster\item-master-create.html:737
-#: .\tepmlates\pages\itemmaster\item-master-detail.html:274 .\tepmlates\pages\itemmaster\item-master-update.html:862
-msgid "Critical"
-msgstr "Kritik"
-
-#: .\tepmlates\pages\inventory\inventory-item-detail.html:253 .\tepmlates\pages\itemmaster\item-master-detail.html:279
-msgid "Standard"
-msgstr "Standart"
-
-#: .\tepmlates\pages\inventory\inventory-item-detail.html:263 .\tepmlates\pages\itemmaster\item-master-detail.html:289
-msgid "Interval"
-msgstr "Interval"
-
-#: .\tepmlates\pages\inventory\inventory-item-detail.html:285 .\tepmlates\pages\itemmaster\item-master-detail.html:311
-msgid "Usage Based"
-msgstr "Kullanıma Göre"
-
-#: .\tepmlates\pages\inventory\inventory-item-detail.html:290 .\tepmlates\pages\itemmaster\item-master-detail.html:316
-msgid "Distance Based"
-msgstr "Uzaklığa Göre"
-
-#: .\tepmlates\pages\inventory\inventory-item-detail.html:295 .\tepmlates\pages\itemmaster\item-master-detail.html:321
-msgid "Time Based"
-msgstr "Zamana Göre"
-
-#: .\tepmlates\pages\inventory\inventory-item-detail.html:323 .\tepmlates\pages\itemmaster\item-master-detail.html:349
-msgid "Added"
-msgstr "Eklendi"
-
-#: .\tepmlates\pages\inventory\inventory-item-detail.html:325 .\tepmlates\pages\itemmaster\item-master-detail.html:351
-msgid "Updated"
-msgstr "Güncellendi"
-
-#: .\tepmlates\pages\inventory\inventory-item-detail.html:339 .\tepmlates\pages\itemmaster\item-master-detail.html:365
-msgid "Maintenance Info"
-msgstr "Bakım Bilgileri"
-
-#: .\tepmlates\pages\inventory\inventory-item-detail.html:341 .\tepmlates\pages\itemmaster\item-master-detail.html:367
-msgid "These schedules define when maintenance should be performed based on time, usage hours, or distance."
-msgstr ""
-
-#: .\tepmlates\pages\inventory\inventory-item-detail.html:342 .\tepmlates\pages\itemmaster\item-master-detail.html:368
-msgid "Critical maintenances are marked with priority indicators."
-msgstr ""
-
-#: .\tepmlates\pages\inventory\inventory-item-detail.html:353
-msgid "Other Inventory Items"
-msgstr "Diğer Stok Ürünleri"
-
-#: .\tepmlates\pages\inventory\inventory-item-detail.html:361 .\tepmlates\pages\inventory\inventory-item-detail.html:482
-#: .\tepmlates\pages\itemmaster\item-master-detail.html:464
-msgid "Created"
-msgstr "Oluşturuldu"
-
-#: .\tepmlates\pages\inventory\inventory-item-detail.html:370 .\tepmlates\pages\itemmaster\item-master-list.html:142
-msgid "View"
-msgstr "Gör"
-
-#: .\tepmlates\pages\inventory\inventory-item-detail.html:381 .\tepmlates\pages\itemmaster\item-master-detail.html:379
-msgid "Specification Files"
-msgstr "Özellik Dosyası"
-
-#: .\tepmlates\pages\inventory\inventory-item-detail.html:390 .\tepmlates\pages\itemmaster\item-master-detail.html:388
-msgid "Specification File"
-msgstr "Özellik Dosyaları"
-
-#: .\tepmlates\pages\inventory\inventory-item-detail.html:409
-msgid "QR Code"
-msgstr "QR"
-
-#: .\tepmlates\pages\inventory\inventory-item-detail.html:414
-msgid "QR Code for"
-msgstr "için QR"
-
-#: .\tepmlates\pages\inventory\inventory-item-detail.html:416
-msgid "Download QR Code"
-msgstr "QR İndir"
-
-#: .\tepmlates\pages\inventory\inventory-item-detail.html:424 .\tepmlates\pages\itemmaster\item-master-create.html:403
-#: .\tepmlates\pages\itemmaster\item-master-detail.html:406 .\tepmlates\pages\itemmaster\item-master-update.html:478
-#: .\warranty_and_services\admin.py:97
-msgid "Images"
-msgstr "Resimler"
-
-#: .\tepmlates\pages\inventory\inventory-item-detail.html:434 .\tepmlates\pages\itemmaster\item-master-detail.html:416
-msgid "Click to view full size"
-msgstr "Büyütmek için Tıklayınız"
-
-#: .\tepmlates\pages\inventory\inventory-item-detail.html:441 .\tepmlates\pages\itemmaster\item-master-detail.html:423
-msgid "No images available"
-msgstr "Resim Yok"
-
-#: .\tepmlates\pages\inventory\inventory-item-detail.html:448 .\tepmlates\pages\itemmaster\item-master-create.html:195
-#: .\tepmlates\pages\itemmaster\item-master-create.html:497 .\tepmlates\pages\itemmaster\item-master-detail.html:430
-#: .\tepmlates\pages\itemmaster\item-master-update.html:262 .\tepmlates\pages\itemmaster\item-master-update.html:618
-msgid "Warranties"
-msgstr "Garantiler"
-
-#: .\tepmlates\pages\inventory\inventory-item-detail.html:463 .\tepmlates\pages\itemmaster\item-master-detail.html:445
-msgid "Service Forms"
-msgstr "Servis Formları"
-
-#: .\tepmlates\pages\inventory\inventory-item-detail.html:479 .\tepmlates\pages\itemmaster\item-master-detail.html:461
-msgid "Metadata"
-msgstr "Ana Veri"
-
-#: .\tepmlates\pages\inventory\inventory-item-detail.html:486 .\tepmlates\pages\itemmaster\item-master-detail.html:468
-msgid "Last Updated"
-msgstr "Son Güncelleme"
-
-#: .\tepmlates\pages\inventory\inventory-item-list.html:27
-msgid "Showing inventory items for"
-msgstr "Bu stok ürün için ayrıtlar gösteriliyor"
-
-#: .\tepmlates\pages\inventory\inventory-item-list.html:29
-#, fuzzy
-#| msgid "Item Master Management"
-msgid "Inventory Items Management"
-msgstr "Ana Ürün Yönetimi"
-
-#: .\tepmlates\pages\inventory\inventory-item-list.html:39
-msgid "Show All Inventory Items"
-msgstr "Tüm Stok Ürünleri Göster"
-
-#: .\tepmlates\pages\inventory\inventory-item-list.html:48
-#, fuzzy
-#| msgid "Add Main Item"
-msgid "Add New Inventory Item"
-msgstr "Yeni Ürün Ekle"
-
-#: .\tepmlates\pages\inventory\inventory-item-list.html:59
-msgid "Total Items"
-msgstr "Toplam ürün"
-
-#: .\tepmlates\pages\inventory\inventory-item-list.html:101
-msgid "Usage Rate"
-msgstr "Kullanım Oranı"
-
-#: .\tepmlates\pages\inventory\inventory-item-list.html:125
-msgid "Search by name, serial number..."
-msgstr "İsim, veya seri numarasına göre.."
-
-#: .\tepmlates\pages\inventory\inventory-item-list.html:129 .\tepmlates\pages\itemmaster\item-master-list.html:42
-msgid "All Categories"
-msgstr "TümKategoriler"
-
-#: .\tepmlates\pages\inventory\inventory-item-list.html:137 .\tepmlates\pages\itemmaster\item-master-list.html:50
-msgid "All Brands"
-msgstr "Tüm Markalar"
-
-#: .\tepmlates\pages\inventory\inventory-item-list.html:145
-msgid "All Status"
-msgstr "Tüm Durumlar"
-
-#: .\tepmlates\pages\inventory\inventory-item-list.html:164
-msgid "Item Details"
-msgstr "Ürün Detayı"
-
-#: .\tepmlates\pages\inventory\inventory-item-list.html:232
-msgid "No attributes"
-msgstr "Özellik yok"
-
-#: .\tepmlates\pages\inventory\inventory-item-list.html:245 .\tepmlates\pages\inventory\inventory-item-update.html:28
+#: .\templates\components\sidebar.html:103
+msgid "Warranty & Services"
+msgstr "Garanti ve Servisler"
+
+#: .\templates\components\sidebar.html:114 .\templates\dashboard\home.html:215
+#: .\templates\warranty_and_services\installation_list.html:5
+#: .\templates\warranty_and_services\installation_list.html:23
+msgid "Installation List"
+msgstr "Kurulum Listesi"
+
+#: .\templates\components\sidebar.html:122
+#: .\templates\warranty_and_services\warranty_tracking_list.html:15
+msgid "Warranty Tracking"
+msgstr "Garanti Takip"
+
+#: .\templates\components\sidebar.html:131 .\templates\dashboard\home.html:189
+#: .\templates\warranty_and_services\service_tracking_list.html:16
+msgid "Service Tracking"
+msgstr "Servis Takip"
+
+#: .\templates\components\sidebar.html:139
+msgid "Installation & Maintenance"
+msgstr "Kurulum ve Bakım"
+
+#: .\templates\dashboard\home.html:15
+msgid "Warranty and Service Management System"
+msgstr "Garanti ve Bakım Takip Sistemi"
+
+#: .\templates\dashboard\home.html:16
+msgid ""
+"A centralized platform for customer installations, warranty tracking, and "
+"service management"
+msgstr "Ürün kurulumu yapılmış müşterilere ait malzeme, garanti ve servis yönetiminin yapıldığı platform"
+
+#: .\templates\dashboard\home.html:20
+msgid "View Installation List"
+msgstr "Kurulum listesi"
+
+#: .\templates\dashboard\home.html:38
+msgid "Total Installations"
+msgstr "Kurulumlar"
+
+#: .\templates\dashboard\home.html:47 .\templates\dashboard\home.html:75
+#: .\templates\dashboard\home.html:103 .\templates\dashboard\home.html:131
+#: .\templates\pages\inventory\inventory-item-list.html:245
+#: .\templates\pages\inventory\inventory-item-update.html:28
 msgid "View Details"
 msgstr "Detayı Gör"
 
-#: .\tepmlates\pages\inventory\inventory-item-list.html:272
+#: .\templates\dashboard\home.html:66
+msgid "Active Warranty Items"
+msgstr "Aktif Garantiler"
+
+#: .\templates\dashboard\home.html:94
+#: .\templates\warranty_and_services\emails\installation_notification.html:413
+#: .\templates\warranty_and_services\warranty_detail.html:56
+msgid "Expiring Soon"
+msgstr "Yakın Zamanda Süresi Dolacak Garantiler"
+
+#: .\templates\dashboard\home.html:122
+#: .\templates\warranty_and_services\service_tracking_list.html:144
+msgid "Overdue Services"
+msgstr "Süresi Dolan Servisler"
+
+#: .\templates\dashboard\home.html:146
+msgid "Quick Access"
+msgstr ""
+
+#: .\templates\dashboard\home.html:166
+msgid "View and manage active, upcoming, and expired warranties."
+msgstr "Aktif, yaklaşan ve süresi dolan garantileri buradan takip edebilirsiniz."
+
+#: .\templates\dashboard\home.html:192
+msgid "Monitor and manage scheduled, overdue, and completed services."
+msgstr "Tamamlanan, süresi geçen ve yaklaşan servisleri buradan yönetebilirsiniz."
+
+#: .\templates\dashboard\home.html:218
+msgid "View all installations and check their warranty/service statuses."
+msgstr "Tüm Kurulum, servis ve garantilerin durumunu yönetebilirsiniz."
+
+#: .\templates\dashboard\home.html:239
+msgid "Customer Actions"
+msgstr "Müşteri Listesi"
+
+#: .\templates\dashboard\home.html:256
+#: .\templates\pages\customer\customer-create.html:4
+#: .\templates\pages\customer\customer-create.html:21
+#: .\templates\pages\customer\customer-create.html:343
+msgid "Create Customer"
+msgstr "Müşteri Ekle"
+
+#: .\templates\dashboard\home.html:268
+msgid "Product Operations"
+msgstr "Ürün Menüsü"
+
+#: .\templates\dashboard\home.html:278
+msgid "Inventory List"
+msgstr "Stok Ürün"
+
+#: .\templates\dashboard\home.html:285
+msgid "Product Master List"
+msgstr "Ana Ürün Listesi"
+
+#: .\templates\pages\customer\customer-create.html:22
+#: .\templates\pages\customer\customer-list.html:21
+#: .\templates\pages\customer\customer-update.html:55
+msgid "Customer Management"
+msgstr "Müşteri Yönetimi"
+
+#: .\templates\pages\customer\customer-create.html:70
+msgid "General Info"
+msgstr "Genel Bilgiler"
+
+#: .\templates\pages\customer\customer-create.html:71
+#: .\templates\pages\customer\customer-detail.html:59
+#: .\templates\pages\customer\customer-update.html:118
+msgid "Contacts"
+msgstr "Kontaklar"
+
+#: .\templates\pages\customer\customer-create.html:72
+#: .\templates\pages\customer\customer-detail.html:43
+#: .\templates\pages\customer\customer-update.html:123
+#: .\templates\pages\customer\customer-update.html:257
+msgid "Addresses"
+msgstr "Adresler"
+
+#: .\templates\pages\customer\customer-create.html:81
+#: .\templates\pages\customer\customer-list.html:55
+#: .\templates\pages\inventory\inventory-item-create.html:169
+#: .\templates\pages\inventory\inventory-item-detail.html:121
+#: .\templates\pages\inventory\inventory-item-detail.html:195
+#: .\templates\pages\inventory\inventory-item-update.html:228
+#: .\templates\pages\itemmaster\item-master-create.html:240
+#: .\templates\pages\itemmaster\item-master-detail.html:47
+#: .\templates\pages\itemmaster\item-master-detail.html:94
+#: .\templates\pages\itemmaster\item-master-detail.html:178
+#: .\templates\pages\itemmaster\item-master-update.html:311
+msgid "Name"
+msgstr "İsim"
+
+#: .\templates\pages\customer\customer-create.html:84
+msgid "Enter customer name"
+msgstr "Müşteri ismi girin"
+
+#: .\templates\pages\customer\customer-create.html:89
+#: .\templates\pages\customer\customer-update.html:143
+msgid "Company Type"
+msgstr "Firma Türü"
+
+#: .\templates\pages\customer\customer-create.html:93
+#: .\templates\pages\customer\customer-update.html:147
+#: .\templates\pages\inventory\inventory-item-create.html:244
+msgid "Select type"
+msgstr "Tür seçin"
+
+#: .\templates\pages\customer\customer-create.html:103
+#: .\templates\pages\customer\customer-detail.html:14
+#: .\templates\pages\customer\customer-list.html:58
+#: .\templates\pages\customer\customer-update.html:157
+msgid "Core Business"
+msgstr "Ana iş Kolu"
+
+#: .\templates\pages\customer\customer-create.html:105
+#: .\templates\pages\customer\customer-update.html:159
+msgid "Select Core Business"
+msgstr "Ana iş Kolu Seçin"
+
+#: .\templates\pages\customer\customer-create.html:112
+#: .\templates\pages\customer\customer-update.html:166
+msgid "Related Company"
+msgstr "Bağlı Olduğu Firma"
+
+#: .\templates\pages\customer\customer-create.html:116
+#: .\templates\pages\customer\customer-update.html:170
+msgid "Select Related Company"
+msgstr "Bağlı Olduğu Firmayı Seçin"
+
+#: .\templates\pages\customer\customer-create.html:126
+#: .\templates\pages\customer\customer-update.html:180
+msgid "Related Manager"
+msgstr "Bağlı Olduğu Yönetici"
+
+#: .\templates\pages\customer\customer-create.html:130
+#: .\templates\pages\customer\customer-update.html:184
+msgid "Select Manager"
+msgstr "Yönetici Seç"
+
+#: .\templates\pages\customer\customer-create.html:140
+#: .\templates\pages\customer\customer-create.html:168
+#: .\templates\pages\customer\customer-update.html:194
+#: .\templates\pages\customer\customer-update.html:238
+#: .\templates\warranty_and_services\emails\installation_notification.html:358
+#: .\templates\warranty_and_services\mobile\installation_form_new.html:168
+msgid "Email"
+msgstr ""
+
+#: .\templates\pages\customer\customer-create.html:141
+msgid "Enter email"
+msgstr "E_mail girin"
+
+#: .\templates\pages\customer\customer-create.html:144
+#: .\templates\pages\customer\customer-create.html:169
+#: .\templates\pages\customer\customer-update.html:198
+#: .\templates\pages\customer\customer-update.html:242
+msgid "Telephone"
+msgstr "Telefon"
+
+#: .\templates\pages\customer\customer-create.html:145
+msgid "Enter telephone"
+msgstr "Telefon girin"
+
+#: .\templates\pages\customer\customer-create.html:155
+#: .\templates\pages\customer\customer-detail.html:17
+#: .\templates\pages\customer\customer-detail.html:203
+#: .\templates\pages\customer\customer-list.html:59
+#: .\templates\pages\customer\customer-list.html:82
+#: .\templates\pages\customer\customer-update.html:206
+#: .\templates\pages\inventory\inventory-item-detail.html:145
+#: .\templates\pages\itemmaster\item-master-detail.html:71
+#: .\templates\pages\itemmaster\item-master-list.html:115
+#: .\templates\warranty_and_services\emails\installation_notification.html:415
+#: .\templates\warranty_and_services\warranty_detail.html:63
+#: .\warranty_and_services\admin.py:131
+#: .\warranty_and_services\admin_broken.py:146
+#: .\warranty_and_services\admin_clean.py:144
+msgid "Active"
+msgstr "Aktif"
+
+#: .\templates\pages\customer\customer-create.html:165
+#: .\templates\pages\customer\customer-update.html:230
+msgid "Full Name"
+msgstr "Ad Soyisim"
+
+#: .\templates\pages\customer\customer-create.html:167
+#: .\templates\pages\customer\customer-update.html:234
+msgid "Title"
+msgstr "Görevi"
+
+#: .\templates\pages\customer\customer-create.html:171
+#: .\templates\pages\customer\customer-create.html:241
+#: .\templates\pages\customer\customer-update.html:225
+#: .\templates\pages\customer\customer-update.html:268
+#: .\templates\pages\inventory\inventory-item-create.html:280
+msgid "Remove"
+msgstr "Sil"
+
+#: .\templates\pages\customer\customer-create.html:177
+#: .\templates\pages\customer\customer-update.html:216
+msgid "Add Contact"
+msgstr "Ekle"
+
+#: .\templates\pages\customer\customer-create.html:188
+#: .\templates\pages\customer\customer-create.html:189
+#: .\templates\pages\customer\customer-update.html:273
+msgid "Address Name"
+msgstr "Adres İsmi"
+
+#: .\templates\pages\customer\customer-create.html:192
+#: .\templates\pages\customer\customer-update.html:277
+msgid "Country"
+msgstr "Ülke"
+
+#: .\templates\pages\customer\customer-create.html:194
+#: .\templates\pages\customer\customer-update.html:279
+msgid "Select Country"
+msgstr "Ülke Seçin"
+
+#: .\templates\pages\customer\customer-create.html:201
+#: .\templates\pages\customer\customer-list.html:57
+#: .\templates\pages\customer\customer-update.html:286
+#: .\templates\warranty_and_services\mobile\installation_form_new.html:163
+msgid "City"
+msgstr "Şehir"
+
+#: .\templates\pages\customer\customer-create.html:203
+#: .\templates\pages\customer\customer-update.html:288
+msgid "Select City"
+msgstr "Şehir Seçin"
+
+#: .\templates\pages\customer\customer-create.html:213
+#: .\templates\pages\customer\customer-update.html:295
+msgid "County"
+msgstr "İlçe"
+
+#: .\templates\pages\customer\customer-create.html:215
+#: .\templates\pages\customer\customer-update.html:297
+msgid "Select County"
+msgstr "İlçe Seçin"
+
+#: .\templates\pages\customer\customer-create.html:222
+#: .\templates\pages\customer\customer-update.html:304
+msgid "District"
+msgstr "Mahalle"
+
+#: .\templates\pages\customer\customer-create.html:224
+#: .\templates\pages\customer\customer-update.html:306
+msgid "Select District"
+msgstr "Mahalle Seçin"
+
+#: .\templates\pages\customer\customer-create.html:231
+#: .\templates\pages\customer\customer-create.html:232
+msgid "Zipcode"
+msgstr "Posta Kodu"
+
+#: .\templates\pages\customer\customer-create.html:237
+#: .\templates\pages\customer\customer-update.html:266
+#: .\templates\pages\customer\customer-update.html:318
+#: .\templates\warranty_and_services\emails\installation_notification.html:250
+#: .\templates\warranty_and_services\mobile\installation_form_new.html:173
+msgid "Address"
+msgstr "Adres"
+
+#: .\templates\pages\customer\customer-create.html:238
+msgid "Enter full address"
+msgstr "Adresi girin"
+
+#: .\templates\pages\customer\customer-create.html:247
+#: .\templates\pages\customer\customer-update.html:259
+msgid "Add Address"
+msgstr "Adres Ekle"
+
+#: .\templates\pages\customer\customer-create.html:258
+#: .\templates\pages\customer\customer-detail.html:78
+#: .\templates\pages\customer\customer-update.html:336
+#: .\templates\warranty_and_services\warranty_detail.html:181
+msgid "Working Hours Configuration"
+msgstr "Çalışma Saati Ayarları"
+
+#: .\templates\pages\customer\customer-create.html:273
+#: .\templates\pages\customer\customer-update.html:351
+#: .\templates\pages\itemmaster\item-master-create.html:516
+#: .\templates\pages\itemmaster\item-master-create.html:518
+#: .\templates\pages\itemmaster\item-master-update.html:633
+#: .\templates\pages\itemmaster\item-master-update.html:635
+msgid "hours"
+msgstr "saat"
+
+#: .\templates\pages\customer\customer-create.html:280
+#: .\templates\pages\customer\customer-update.html:358
+msgid "Saturday Work"
+msgstr "Cumartesi Çalışıyor Mu?"
+
+#: .\templates\pages\customer\customer-create.html:287
+#: .\templates\pages\customer\customer-create.html:301
+#: .\templates\pages\customer\customer-update.html:365
+#: .\templates\pages\customer\customer-update.html:379
+msgid "Working"
+msgstr "Çalışıyor"
+
+#: .\templates\pages\customer\customer-create.html:287
+#: .\templates\pages\customer\customer-create.html:301
+#: .\templates\pages\customer\customer-update.html:365
+#: .\templates\pages\customer\customer-update.html:379
+msgid "Not Working"
+msgstr "Çalışmıyor"
+
+#: .\templates\pages\customer\customer-create.html:294
+#: .\templates\pages\customer\customer-update.html:372
+msgid "Sunday Work"
+msgstr "Pazar Çalışıyor Mu?"
+
+#: .\templates\pages\customer\customer-create.html:314
+#: .\templates\pages\customer\customer-update.html:392
+msgid "Weekly Summary"
+msgstr "Haftalık Özet"
+
+#: .\templates\pages\customer\customer-create.html:316
+#: .\templates\pages\customer\customer-update.html:394
+msgid "hours per week"
+msgstr "saatlik haftalık çalışma"
+
+#: .\templates\pages\customer\customer-create.html:317
+#: .\templates\pages\customer\customer-update.html:395
+msgid "working days per week"
+msgstr "günlük haftalık çalışma"
+
+#: .\templates\pages\customer\customer-create.html:330
+#: .\templates\pages\customer\customer-update.html:408
+msgid "Information"
+msgstr "Bilgi"
+
+#: .\templates\pages\customer\customer-create.html:332
+#: .\templates\pages\customer\customer-update.html:410
+msgid ""
+"These working hours will be used to calculate service and warranty periods "
+"based on actual usage time."
+msgstr ""
+"Çalışma saatleri garanti ve servis sürelerinin hesaplanmasında "
+"kullanılacaktır."
+
+#: .\templates\pages\customer\customer-create.html:333
+msgid "You can modify these settings later if needed."
+msgstr "İhtiyaç halinde bu ayarları sonra da değiştirebilirsiniz."
+
+#: .\templates\pages\customer\customer-create.html:342
+#: .\templates\pages\customer\customer-update.html:59
+#: .\templates\pages\customer\customer-update.html:422
+#: .\templates\pages\inventory\inventory-item-create.html:307
+#: .\templates\pages\inventory\inventory-item-update.html:363
+#: .\templates\pages\itemmaster\item-master-create.html:795
+#: .\templates\pages\itemmaster\item-master-update.html:901
+#: .\templates\warranty_and_services\mobile\installation_form_new.html:198
+msgid "Cancel"
+msgstr "İptal"
+
+#: .\templates\pages\customer\customer-create.html:456
+#: .\templates\pages\customer\customer-update.html:636
+msgid "Are you sure you want to remove this contact?"
+msgstr "Silmek istediğinizden emin misiniz?"
+
+#: .\templates\pages\customer\customer-create.html:465
+#: .\templates\pages\customer\customer-update.html:656
+msgid "Are you sure you want to remove this address?"
+msgstr "Silmek istediğinizden emin misiniz?"
+
+#: .\templates\pages\customer\customer-detail.html:19
+#: .\templates\pages\customer\customer-list.html:84
+msgid "Inactive"
+msgstr "Pasif"
+
+#: .\templates\pages\customer\customer-detail.html:28
+#: .\templates\pages\customer\customer-list.html:91
+#: .\templates\pages\itemmaster\item-master-list.html:146
+msgid "Edit"
+msgstr "Güncelle"
+
+#: .\templates\pages\customer\customer-detail.html:32
+#: .\templates\pages\inventory\inventory-item-create.html:21
+#: .\templates\pages\inventory\inventory-item-update.html:21
+#: .\templates\pages\itemmaster\item-master-create.html:25
+#: .\templates\pages\itemmaster\item-master-detail.html:22
+#: .\templates\warranty_and_services\warranty_detail.html:36
+msgid "Back to List"
+msgstr "Listeye Dön"
+
+#: .\templates\pages\customer\customer-detail.html:54
+msgid "No addresses found."
+msgstr "Adres bulunamadı."
+
+#: .\templates\pages\customer\customer-detail.html:70
+msgid "No contacts found."
+msgstr "Kontak kişi bulunamadı."
+
+#: .\templates\pages\customer\customer-detail.html:86
+#: .\templates\warranty_and_services\warranty_detail.html:185
+msgid "Hours per Day"
+msgstr "Günlük Çalışma Saati"
+
+#: .\templates\pages\customer\customer-detail.html:92
+#: .\templates\warranty_and_services\warranty_detail.html:189
+msgid "Days per Week"
+msgstr "Haftalık Çalışma Günü"
+
+#: .\templates\pages\customer\customer-detail.html:98
+#: .\templates\warranty_and_services\warranty_detail.html:193
+msgid "Hours per Week"
+msgstr "Haftalık Çalıma Saati"
+
+#: .\templates\pages\customer\customer-detail.html:110
+msgid "Not working on Saturday"
+msgstr "Cumartesi Çalışmıyor"
+
+#: .\templates\pages\customer\customer-detail.html:119
+msgid "Not working on Sunday"
+msgstr "Pazar Çalışmıyor"
+
+#: .\templates\pages\customer\customer-detail.html:129
+msgid "Usage:"
+msgstr "Kullanım:"
+
+#: .\templates\pages\customer\customer-detail.html:129
+msgid ""
+"These working hours are used to calculate service and warranty periods based "
+"on actual equipment usage time."
+msgstr ""
+"Çalışma saatleri garanti ve servis zamanı hesaplamasında kullanılacaktır."
+
+#: .\templates\pages\customer\customer-detail.html:137
+msgid "Working hours not configured for this customer."
+msgstr "Bu müşteri için çalışma saati ayarları yapılmamıştır."
+
+#: .\templates\pages\customer\customer-detail.html:139
+msgid "Configure Working Hours"
+msgstr "Çalışma Saatlerini Ayarla"
+
+#: .\templates\pages\customer\customer-detail.html:150
+msgid "Installations (Company & Related End Users)"
+msgstr "Kurulum"
+
+#: .\templates\pages\customer\customer-detail.html:152
+#: .\templates\warranty_and_services\installation_list.html:109
+#: .\warranty_and_services\models.py:123
+msgid "Installations"
+msgstr "Kurulumlar"
+
+#: .\templates\pages\customer\customer-detail.html:162
+#: .\templates\warranty_and_services\emails\installation_notification.html:288
+#: .\templates\warranty_and_services\installation_list.html:118
+#: .\templates\warranty_and_services\service_tracking_list.html:181
+#: .\templates\warranty_and_services\warranty_tracking_list.html:170
+msgid "Product"
+msgstr "Ürün"
+
+#: .\templates\pages\customer\customer-detail.html:163
+#: .\templates\warranty_and_services\emails\installation_notification.html:307
+#: .\templates\warranty_and_services\installation_list.html:119
+#: .\templates\warranty_and_services\mobile\maintenance_form.html:132
+#: .\templates\warranty_and_services\service_tracking_list.html:182
+#: .\templates\warranty_and_services\warranty_tracking_list.html:171
+msgid "Serial No"
+msgstr "Seri No"
+
+#: .\templates\pages\customer\customer-detail.html:164
+#: .\warranty_and_services\models.py:76
+msgid "Setup Date"
+msgstr "Kurulum Tarihi"
+
+#: .\templates\pages\customer\customer-detail.html:165
+msgid "Next Warranty End"
+msgstr "Ganati Süresi Sonu"
+
+#: .\templates\pages\customer\customer-detail.html:166
+#: .\warranty_and_services\models.py:863
+msgid "Next Service Date"
+msgstr "Sonraki Servis Zamanı"
+
+#: .\templates\pages\customer\customer-detail.html:167
+#: .\templates\warranty_and_services\installation_list.html:123
+#: .\templates\warranty_and_services\service_tracking_list.html:188
+#: .\templates\warranty_and_services\warranty_tracking_list.html:178
+msgid "Actions"
+msgstr "Hareketler"
+
+#: .\templates\pages\customer\customer-detail.html:207
+#: .\templates\warranty_and_services\emails\installation_notification.html:411
+#: .\templates\warranty_and_services\warranty_detail.html:71
+#: .\templates\warranty_and_services\warranty_tracking_list.html:104
+#: .\templates\warranty_and_services\warranty_tracking_list.html:134
+#: .\templates\warranty_and_services\warranty_tracking_list.html:218
+msgid "Expired"
+msgstr "Süresi Dolmuş"
+
+#: .\templates\pages\customer\customer-detail.html:211
+msgid "No warranty"
+msgstr "Garanti yok."
+
+#: .\templates\pages\customer\customer-detail.html:220
+msgid "Overdue"
+msgstr "Süresi geçmiş"
+
+#: .\templates\pages\customer\customer-detail.html:224
+msgid "This Week"
+msgstr "Bu Hafta"
+
+#: .\templates\pages\customer\customer-detail.html:228
+msgid "Scheduled"
+msgstr "Planlandı"
+
+#: .\templates\pages\customer\customer-detail.html:232
+msgid "No service"
+msgstr "Servis Yok"
+
+#: .\templates\pages\customer\customer-detail.html:254
+#: .\templates\pages\customer\customer-detail.html:280
+#: .\templates\pages\inventory\inventory-item-create.html:295
+#: .\templates\pages\itemmaster\item-master-create.html:783
+#: .\templates\pages\itemmaster\item-master-detail.html:128
+#: .\templates\pages\itemmaster\item-master-detail.html:144
+#: .\templates\pages\itemmaster\item-master-detail.html:212
+#: .\templates\pages\itemmaster\item-master-detail.html:228
+msgid "Previous"
+msgstr "Önceki"
+
+#: .\templates\pages\customer\customer-detail.html:260
+#: .\templates\pages\customer\customer-detail.html:303
+#: .\templates\pages\inventory\inventory-item-create.html:301
+#: .\templates\pages\itemmaster\item-master-create.html:789
+#: .\templates\pages\itemmaster\item-master-detail.html:131
+#: .\templates\pages\itemmaster\item-master-detail.html:157
+#: .\templates\pages\itemmaster\item-master-detail.html:215
+#: .\templates\pages\itemmaster\item-master-detail.html:241
+msgid "Next"
+msgstr "Sonraki"
+
+#: .\templates\pages\customer\customer-detail.html:270
+#: .\templates\pages\itemmaster\item-master-detail.html:137
+#: .\templates\pages\itemmaster\item-master-detail.html:221
+msgid "of"
+msgstr ""
+
+#: .\templates\pages\customer\customer-detail.html:272
+msgid "installations"
+msgstr "kurulumlar"
+
+#: .\templates\pages\customer\customer-detail.html:318
+msgid "No installations found for this customer."
+msgstr "Bu müşteri için bir kurulum bulunamadı."
+
+#: .\templates\pages\customer\customer-detail.html:320
+msgid "View All Installations"
+msgstr "Tüm Kurulumları Gör"
+
+#: .\templates\pages\customer\customer-list.html:39
+msgid "Search by name, city, or core business..."
+msgstr "isim, şehir veya ana iş koluna göre arama yapabilirsiniz.."
+
+#: .\templates\pages\customer\customer-list.html:42
+#: .\templates\pages\inventory\inventory-item-list.html:151
+#: .\templates\pages\itemmaster\item-master-list.html:57
+#: .\templates\warranty_and_services\installation_list.html:75
+#: .\templates\warranty_and_services\installation_list.html:88
+#: .\templates\warranty_and_services\service_tracking_list.html:132
+#: .\templates\warranty_and_services\warranty_tracking_list.html:122
+msgid "Search"
+msgstr "Ara"
+
+#: .\templates\pages\customer\customer-list.html:44
+#: .\templates\pages\inventory\inventory-item-list.html:153
+#: .\templates\pages\itemmaster\item-master-list.html:59
+#: .\templates\warranty_and_services\installation_list.html:95
+#: .\venv\Lib\site-packages\django\forms\widgets.py:527
+msgid "Clear"
+msgstr "Temizle"
+
+#: .\templates\pages\customer\customer-list.html:56
+#: .\templates\pages\inventory\inventory-item-detail.html:279
+#: .\templates\pages\itemmaster\item-master-detail.html:305
+#: .\templates\warranty_and_services\emails\installation_notification.html:345
+#: .\templates\warranty_and_services\warranty_detail.html:96
+msgid "Type"
+msgstr "Tür"
+
+#: .\templates\pages\customer\customer-list.html:98
+#: .\templates\pages\itemmaster\item-master-list.html:155
+msgid "no_data"
+msgstr "veri_yok"
+
+#: .\templates\pages\customer\customer-update.html:6
+#: .\templates\pages\customer\customer-update.html:54
+#: .\templates\pages\customer\customer-update.html:425
+msgid "Update Customer"
+msgstr "Müşteri Güncelle"
+
+#: .\templates\pages\customer\customer-update.html:113
+msgid "General Information"
+msgstr "Genel Bilgiler"
+
+#: .\templates\pages\customer\customer-update.html:138
+#: .\templates\warranty_and_services\emails\installation_notification.html:341
+#: .\templates\warranty_and_services\mobile\installation_form_new.html:153
+msgid "Company Name"
+msgstr "Firma İsmi"
+
+#: .\templates\pages\customer\customer-update.html:139
+msgid "Enter company name"
+msgstr "Firma İsmi gir"
+
+#: .\templates\pages\customer\customer-update.html:195
+msgid "Enter email address"
+msgstr "E-mail gir"
+
+#: .\templates\pages\customer\customer-update.html:199
+msgid "Enter telephone number"
+msgstr "Telefon gir"
+
+#: .\templates\pages\customer\customer-update.html:214
+msgid "Contact Persons"
+msgstr "Kontak Kişiler"
+
+#: .\templates\pages\customer\customer-update.html:223
+msgid "Contact"
+msgstr "Kontak"
+
+#: .\templates\pages\customer\customer-update.html:250
+msgid "No contacts added. Click \"Add Contact\" to create one."
+msgstr "Kontak kişiler eklenmedi. Eklemek için  \"Kişi Ekle\" ye tıklayınız."
+
+#: .\templates\pages\customer\customer-update.html:313
+msgid "Zip Code"
+msgstr "Posta Kodu"
+
+#: .\templates\pages\customer\customer-update.html:325
+msgid "No addresses added. Click \"Add Address\" to create one."
+msgstr "Adres Eklenmedi. Eklemek için  \"Adres Ekle\" ye tıklayınız."
+
+#: .\templates\pages\customer\customer-update.html:411
+msgid "You can modify these settings anytime as business requirements change."
+msgstr "İhtiyaçlara göre bu ayarları istediğiniz zaman değiştirebilirsiniz."
+
+#: .\templates\pages\inventory\inventory-item-create.html:5
+#: .\templates\pages\inventory\inventory-item-create.html:12
+msgid "Create New Inventory Item"
+msgstr "Yeni Stok Ürün"
+
+#: .\templates\pages\inventory\inventory-item-create.html:8
+msgid "Attribute Value"
+msgstr "Özellik Değeri"
+
+#: .\templates\pages\inventory\inventory-item-create.html:8
+msgid "Attribute Unit"
+msgstr "Özellik Birimi"
+
+#: .\templates\pages\inventory\inventory-item-create.html:13
+msgid "Add a new inventory item"
+msgstr "Yeni stok ürün ekleyin"
+
+#: .\templates\pages\inventory\inventory-item-create.html:112
+#: .\templates\pages\inventory\inventory-item-update.html:168
+#: .\templates\pages\itemmaster\item-master-create.html:184
+msgid "Basic Info"
+msgstr "Genel Bilgiler"
+
+#: .\templates\pages\inventory\inventory-item-create.html:117
+#: .\templates\pages\inventory\inventory-item-detail.html:162
+#: .\templates\pages\inventory\inventory-item-list.html:167
+#: .\templates\pages\inventory\inventory-item-update.html:173
+msgid "Attributes"
+msgstr "Özellikler"
+
+#: .\templates\pages\inventory\inventory-item-create.html:127
+#: .\templates\pages\inventory\inventory-item-update.html:183
+#: .\templates\pages\itemmaster\item-master-create.html:219
+#: .\templates\pages\itemmaster\item-master-detail.html:40
+#: .\templates\pages\itemmaster\item-master-update.html:247
+#: .\templates\pages\itemmaster\item-master-update.html:290
+msgid "Basic Information"
+msgstr "Genel Bilgiler"
+
+#: .\templates\pages\inventory\inventory-item-create.html:133
+#: .\templates\pages\inventory\inventory-item-update.html:189
+#: .\templates\pages\itemmaster\item-master-list.html:19
+msgid "Item Master"
+msgstr "Ana Ürün"
+
+#: .\templates\pages\inventory\inventory-item-create.html:140
+msgid "Select an item master"
+msgstr "Ana ürün seçin"
+
+#: .\templates\pages\inventory\inventory-item-create.html:151
+msgid "No active item masters found"
+msgstr "Ürün bulunamadı"
+
+#: .\templates\pages\inventory\inventory-item-create.html:156
+msgid "Available items"
+msgstr "Uygun ürünler"
+
+#: .\templates\pages\inventory\inventory-item-create.html:162
+msgid "Selected Item Master"
+msgstr "Seçilen Ürün"
+
+#: .\templates\pages\inventory\inventory-item-create.html:165
+#: .\templates\pages\inventory\inventory-item-detail.html:117
+#: .\templates\pages\inventory\inventory-item-update.html:216
+#: .\templates\pages\itemmaster\item-master-create.html:224
+#: .\templates\pages\itemmaster\item-master-detail.html:43
+#: .\templates\pages\itemmaster\item-master-update.html:295
+msgid "Shortcode"
+msgstr "Kısa Kod"
+
+#: .\templates\pages\inventory\inventory-item-create.html:173
+#: .\templates\pages\inventory\inventory-item-detail.html:125
+#: .\templates\pages\inventory\inventory-item-detail.html:196
+#: .\templates\pages\inventory\inventory-item-update.html:220
+#: .\templates\pages\itemmaster\item-master-create.html:255
+#: .\templates\pages\itemmaster\item-master-detail.html:51
+#: .\templates\pages\itemmaster\item-master-detail.html:95
+#: .\templates\pages\itemmaster\item-master-detail.html:179
+#: .\templates\pages\itemmaster\item-master-list.html:71
+#: .\templates\pages\itemmaster\item-master-update.html:326
+#: .\templates\warranty_and_services\emails\installation_notification.html:299
+msgid "Category"
+msgstr "Kategori"
+
+#: .\templates\pages\inventory\inventory-item-create.html:177
+#: .\templates\pages\inventory\inventory-item-detail.html:131
+#: .\templates\pages\inventory\inventory-item-detail.html:197
+#: .\templates\pages\inventory\inventory-item-update.html:224
+#: .\templates\pages\itemmaster\item-master-create.html:273
+#: .\templates\pages\itemmaster\item-master-detail.html:57
+#: .\templates\pages\itemmaster\item-master-detail.html:96
+#: .\templates\pages\itemmaster\item-master-detail.html:180
+#: .\templates\pages\itemmaster\item-master-list.html:72
+#: .\templates\pages\itemmaster\item-master-update.html:344
+#: .\templates\warranty_and_services\emails\installation_notification.html:293
+msgid "Brand"
+msgstr "Marka"
+
+#: .\templates\pages\inventory\inventory-item-create.html:188
+#: .\templates\pages\inventory\inventory-item-detail.html:58
+#: .\templates\pages\inventory\inventory-item-list.html:165
+#: .\templates\pages\inventory\inventory-item-update.html:251
+#: .\templates\warranty_and_services\mobile\mobile_installation_scanner.html:89
+msgid "Serial Number"
+msgstr "Seri No"
+
+#: .\templates\pages\inventory\inventory-item-create.html:195
+msgid "Enter serial number"
+msgstr "Seri No gir"
+
+#: .\templates\pages\inventory\inventory-item-create.html:207
+msgid "Currently in use"
+msgstr "Kullanımda"
+
+#: .\templates\pages\inventory\inventory-item-create.html:216
+#: .\templates\pages\inventory\inventory-item-update.html:277
+msgid "Item Attributes"
+msgstr "Ürün Özellikleri"
+
+#: .\templates\pages\inventory\inventory-item-create.html:223
+#: .\templates\pages\inventory\inventory-item-update.html:284
+msgid "Add Attribute"
+msgstr "Özellik Ekle"
+
+#: .\templates\pages\inventory\inventory-item-create.html:231
+msgid ""
+"No attributes added yet. Click 'Add Attribute' to add item-specific "
+"attributes."
+msgstr "Henüz özellik eklenmemiş. 'özellik Ekle' e tıklayabilirsiniz."
+
+#: .\templates\pages\inventory\inventory-item-create.html:239
+#: .\templates\pages\inventory\inventory-item-update.html:296
+msgid "Attribute Type"
+msgstr "Özellik Türü"
+
+#: .\templates\pages\inventory\inventory-item-create.html:253
+#: .\templates\pages\inventory\inventory-item-update.html:310
+msgid "Value"
+msgstr "Değer"
+
+#: .\templates\pages\inventory\inventory-item-create.html:258
+msgid "Enter value"
+msgstr "Değer girin"
+
+#: .\templates\pages\inventory\inventory-item-create.html:263
+#: .\templates\pages\inventory\inventory-item-update.html:319
+msgid "Unit"
+msgstr "Birim"
+
+#: .\templates\pages\inventory\inventory-item-create.html:268
+msgid "Select unit"
+msgstr "Birim Seçin"
+
+#: .\templates\pages\inventory\inventory-item-create.html:311
+msgid "Create Inventory Item"
+msgstr "Stok ürün Ekle"
+
+#: .\templates\pages\inventory\inventory-item-detail.html:6
+#: .\templates\pages\inventory\inventory-item-detail.html:14
+msgid "Inventory Item Detail"
+msgstr "Stok Ürün Detayı"
+
+#: .\templates\pages\inventory\inventory-item-detail.html:22
+msgid "Back to Inventory"
+msgstr "Stok Ürüne Dön"
+
+#: .\templates\pages\inventory\inventory-item-detail.html:29
+#: .\templates\pages\inventory\inventory-item-list.html:248
+msgid "View Item Master"
+msgstr "Ana Ürünü Gör"
+
+#: .\templates\pages\inventory\inventory-item-detail.html:35
+#: .\templates\pages\inventory\inventory-item-list.html:252
+msgid "Edit Item Master"
+msgstr "Ana Ürünü Güncelle"
+
+#: .\templates\pages\inventory\inventory-item-detail.html:42
+#: .\templates\pages\inventory\inventory-item-list.html:257
+msgid "Edit Inventory Item"
+msgstr ""
+
+#: .\templates\pages\inventory\inventory-item-detail.html:55
+msgid "Inventory Item Information"
+msgstr "Stok Ürün Bilgileri"
+
+#: .\templates\pages\inventory\inventory-item-detail.html:62
+#: .\templates\pages\inventory\inventory-item-detail.html:360
+#: .\templates\pages\inventory\inventory-item-list.html:166
+#: .\templates\pages\inventory\inventory-item-update.html:238
+msgid "Quantity"
+msgstr "Miktar"
+
+#: .\templates\pages\inventory\inventory-item-detail.html:68
+#: .\templates\pages\inventory\inventory-item-detail.html:143
+#: .\templates\pages\inventory\inventory-item-list.html:168
+#: .\templates\pages\itemmaster\item-master-create.html:308
+#: .\templates\pages\itemmaster\item-master-detail.html:69
+#: .\templates\pages\itemmaster\item-master-list.html:74
+#: .\templates\pages\itemmaster\item-master-update.html:379
+#: .\templates\warranty_and_services\emails\installation_notification.html:264
+#: .\templates\warranty_and_services\emails\installation_notification.html:318
+#: .\templates\warranty_and_services\emails\installation_notification.html:393
+#: .\templates\warranty_and_services\emails\installation_notification.html:439
+#: .\templates\warranty_and_services\service_tracking_list.html:139
+#: .\templates\warranty_and_services\service_tracking_list.html:187
+#: .\templates\warranty_and_services\warranty_tracking_list.html:129
+#: .\templates\warranty_and_services\warranty_tracking_list.html:177
+msgid "Status"
+msgstr "Statü"
+
+#: .\templates\pages\inventory\inventory-item-detail.html:74
+#: .\templates\pages\inventory\inventory-item-detail.html:366
+#: .\templates\pages\inventory\inventory-item-list.html:87
+#: .\templates\pages\inventory\inventory-item-list.html:147
+#: .\templates\pages\inventory\inventory-item-list.html:237
+#: .\templates\warranty_and_services\emails\installation_notification.html:319
+msgid "In Use"
+msgstr "Kullanımda"
+
+#: .\templates\pages\inventory\inventory-item-detail.html:81
+#: .\templates\pages\inventory\inventory-item-detail.html:368
+#: .\templates\pages\inventory\inventory-item-list.html:73
+#: .\templates\pages\inventory\inventory-item-list.html:146
+#: .\templates\pages\inventory\inventory-item-list.html:239
+msgid "Available"
+msgstr "Uygun"
+
+#: .\templates\pages\inventory\inventory-item-detail.html:86
+#: .\templates\pages\inventory\inventory-item-detail.html:491
+msgid "Production Date"
+msgstr "Üretim tarihi"
+
+#: .\templates\pages\inventory\inventory-item-detail.html:91
+msgid "Not specified"
+msgstr "Tanımlanmamış"
+
+#: .\templates\pages\inventory\inventory-item-detail.html:96
+msgid "Created By"
+msgstr "Kaydı Yapan"
+
+#: .\templates\pages\inventory\inventory-item-detail.html:101
+msgid "System"
+msgstr "Sistem"
+
+#: .\templates\pages\inventory\inventory-item-detail.html:106
+msgid "Created Date"
+msgstr "Kayıt Tarihi"
+
+#: .\templates\pages\inventory\inventory-item-detail.html:114
+msgid "Item Master Information"
+msgstr "Ana Ürün Bilgisi"
+
+#: .\templates\pages\inventory\inventory-item-detail.html:137
+#: .\templates\pages\itemmaster\item-master-create.html:290
+#: .\templates\pages\itemmaster\item-master-detail.html:63
+#: .\templates\pages\itemmaster\item-master-list.html:73
+#: .\templates\pages\itemmaster\item-master-update.html:361
+msgid "Stock Type"
+msgstr "Stok Türü"
+
+#: .\templates\pages\inventory\inventory-item-detail.html:153
+#: .\templates\pages\inventory\inventory-item-detail.html:303
+#: .\templates\pages\itemmaster\item-master-create.html:327
+#: .\templates\pages\itemmaster\item-master-detail.html:79
+#: .\templates\pages\itemmaster\item-master-detail.html:329
+#: .\templates\pages\itemmaster\item-master-update.html:398
+msgid "Description"
+msgstr "Açıklama"
+
+#: .\templates\pages\inventory\inventory-item-detail.html:189
+#: .\templates\pages\itemmaster\item-master-create.html:189
+#: .\templates\pages\itemmaster\item-master-create.html:340
+#: .\templates\pages\itemmaster\item-master-detail.html:88
+#: .\templates\pages\itemmaster\item-master-update.html:252
+#: .\templates\pages\itemmaster\item-master-update.html:411
+#: .\templates\warranty_and_services\mobile\maintenance_form.html:325
+msgid "Spare Parts"
+msgstr "Yedek Parça"
+
+#: .\templates\pages\inventory\inventory-item-detail.html:194
+#: .\templates\pages\itemmaster\item-master-detail.html:93
+#: .\templates\pages\itemmaster\item-master-detail.html:177
+msgid "Code"
+msgstr "Kod"
+
+#: .\templates\pages\inventory\inventory-item-detail.html:234
+#: .\templates\pages\itemmaster\item-master-create.html:681
+#: .\templates\pages\itemmaster\item-master-detail.html:260
+#: .\templates\pages\itemmaster\item-master-update.html:802
+msgid "Maintenance Schedules"
+msgstr "Bakım Takvimi"
+
+#: .\templates\pages\inventory\inventory-item-detail.html:248
+#: .\templates\pages\itemmaster\item-master-create.html:741
+#: .\templates\pages\itemmaster\item-master-detail.html:274
+#: .\templates\pages\itemmaster\item-master-update.html:862
+msgid "Critical"
+msgstr "Kritik"
+
+#: .\templates\pages\inventory\inventory-item-detail.html:253
+#: .\templates\pages\itemmaster\item-master-detail.html:279
+msgid "Standard"
+msgstr "Standart"
+
+#: .\templates\pages\inventory\inventory-item-detail.html:263
+#: .\templates\pages\itemmaster\item-master-detail.html:289
+#: .\templates\warranty_and_services\emails\installation_notification.html:437
+msgid "Interval"
+msgstr ""
+
+#: .\templates\pages\inventory\inventory-item-detail.html:285
+#: .\templates\pages\itemmaster\item-master-detail.html:311
+msgid "Usage Based"
+msgstr "Kullanım Bazlı"
+
+#: .\templates\pages\inventory\inventory-item-detail.html:290
+#: .\templates\pages\itemmaster\item-master-detail.html:316
+msgid "Distance Based"
+msgstr "Mesafe Bazlı"
+
+#: .\templates\pages\inventory\inventory-item-detail.html:295
+#: .\templates\pages\itemmaster\item-master-detail.html:321
+msgid "Time Based"
+msgstr "Zaman Bazlı"
+
+#: .\templates\pages\inventory\inventory-item-detail.html:323
+#: .\templates\pages\itemmaster\item-master-detail.html:349
+msgid "Added"
+msgstr "Eklendi"
+
+#: .\templates\pages\inventory\inventory-item-detail.html:325
+#: .\templates\pages\itemmaster\item-master-detail.html:351
+msgid "Updated"
+msgstr "Güncellendi"
+
+#: .\templates\pages\inventory\inventory-item-detail.html:339
+#: .\templates\pages\itemmaster\item-master-detail.html:365
+msgid "Maintenance Info"
+msgstr "Bakım Bilgisi"
+
+#: .\templates\pages\inventory\inventory-item-detail.html:341
+#: .\templates\pages\itemmaster\item-master-detail.html:367
+msgid ""
+"These schedules define when maintenance should be performed based on time, "
+"usage hours, or distance."
+msgstr ""
+"Takvimlendirme bakım tamamlandığında zaman ve çalışma saaitine göre "
+"hesaplanacaktır."
+
+#: .\templates\pages\inventory\inventory-item-detail.html:342
+#: .\templates\pages\itemmaster\item-master-detail.html:368
+msgid "Critical maintenances are marked with priority indicators."
+msgstr ""
+
+#: .\templates\pages\inventory\inventory-item-detail.html:353
+msgid "Other Inventory Items"
+msgstr "Diğer Stok ürünler"
+
+#: .\templates\pages\inventory\inventory-item-detail.html:361
+#: .\templates\pages\inventory\inventory-item-detail.html:482
+#: .\templates\pages\itemmaster\item-master-detail.html:464
+msgid "Created"
+msgstr "Kaydedildi"
+
+#: .\templates\pages\inventory\inventory-item-detail.html:370
+#: .\templates\pages\itemmaster\item-master-list.html:142
+msgid "View"
+msgstr "Gör"
+
+#: .\templates\pages\inventory\inventory-item-detail.html:381
+#: .\templates\pages\itemmaster\item-master-detail.html:379
+msgid "Specification Files"
+msgstr "Özellik Dosyası"
+
+#: .\templates\pages\inventory\inventory-item-detail.html:390
+#: .\templates\pages\itemmaster\item-master-detail.html:388
+msgid "Specification File"
+msgstr "Özellik Dosyası"
+
+#: .\templates\pages\inventory\inventory-item-detail.html:409
+msgid "QR Code"
+msgstr ""
+
+#: .\templates\pages\inventory\inventory-item-detail.html:414
+msgid "QR Code for"
+msgstr ""
+
+#: .\templates\pages\inventory\inventory-item-detail.html:416
+msgid "Download QR Code"
+msgstr ""
+
+#: .\templates\pages\inventory\inventory-item-detail.html:424
+#: .\templates\pages\itemmaster\item-master-create.html:407
+#: .\templates\pages\itemmaster\item-master-detail.html:406
+#: .\templates\pages\itemmaster\item-master-update.html:478
+#: .\warranty_and_services\admin.py:97
+#: .\warranty_and_services\admin_broken.py:112
+#: .\warranty_and_services\admin_clean.py:110
+msgid "Images"
+msgstr "Resimler"
+
+#: .\templates\pages\inventory\inventory-item-detail.html:434
+#: .\templates\pages\itemmaster\item-master-detail.html:416
+msgid "Click to view full size"
+msgstr "Tüm ekran görmek için tıklayınız"
+
+#: .\templates\pages\inventory\inventory-item-detail.html:441
+#: .\templates\pages\itemmaster\item-master-detail.html:423
+msgid "No images available"
+msgstr "Resim yok"
+
+#: .\templates\pages\inventory\inventory-item-detail.html:448
+#: .\templates\pages\itemmaster\item-master-create.html:199
+#: .\templates\pages\itemmaster\item-master-create.html:501
+#: .\templates\pages\itemmaster\item-master-detail.html:430
+#: .\templates\pages\itemmaster\item-master-update.html:262
+#: .\templates\pages\itemmaster\item-master-update.html:618
+#: .\templates\warranty_and_services\installation_list.html:41
+msgid "Warranties"
+msgstr "Garantiler"
+
+#: .\templates\pages\inventory\inventory-item-detail.html:463
+#: .\templates\pages\itemmaster\item-master-detail.html:445
+msgid "Service Forms"
+msgstr ""
+
+#: .\templates\pages\inventory\inventory-item-detail.html:479
+#: .\templates\pages\itemmaster\item-master-detail.html:461
+msgid "Metadata"
+msgstr "Ana Data"
+
+#: .\templates\pages\inventory\inventory-item-detail.html:486
+#: .\templates\pages\itemmaster\item-master-detail.html:468
+msgid "Last Updated"
+msgstr "Son Güncellenme"
+
+#: .\templates\pages\inventory\inventory-item-list.html:27
+msgid "Showing inventory items for"
+msgstr "Stok ürünler gösteriliyor"
+
+#: .\templates\pages\inventory\inventory-item-list.html:29
+msgid "Inventory Items Management"
+msgstr "Stok ürün Yönetimi"
+
+#: .\templates\pages\inventory\inventory-item-list.html:39
+msgid "Show All Inventory Items"
+msgstr "Tüm Stok Ürünleri Göster"
+
+#: .\templates\pages\inventory\inventory-item-list.html:48
+msgid "Add New Inventory Item"
+msgstr "Yeni Stok ürün Ekle"
+
+#: .\templates\pages\inventory\inventory-item-list.html:59
+#: .\templates\warranty_and_services\service_tracking_list.html:51
+#: .\templates\warranty_and_services\warranty_tracking_list.html:41
+msgid "Total Items"
+msgstr "Toplam Ürün"
+
+#: .\templates\pages\inventory\inventory-item-list.html:101
+msgid "Usage Rate"
+msgstr "Kullanım Oranı"
+
+#: .\templates\pages\inventory\inventory-item-list.html:125
+msgid "Search by name, serial number..."
+msgstr ""
+
+#: .\templates\pages\inventory\inventory-item-list.html:129
+#: .\templates\pages\itemmaster\item-master-list.html:42
+msgid "All Categories"
+msgstr "Tüm Kategoriler"
+
+#: .\templates\pages\inventory\inventory-item-list.html:137
+#: .\templates\pages\itemmaster\item-master-list.html:50
+msgid "All Brands"
+msgstr "Tüm Markalar"
+
+#: .\templates\pages\inventory\inventory-item-list.html:145
+msgid "All Status"
+msgstr "Tüm Statüler"
+
+#: .\templates\pages\inventory\inventory-item-list.html:164
+msgid "Item Details"
+msgstr "Ürün Detayı"
+
+#: .\templates\pages\inventory\inventory-item-list.html:232
+msgid "No attributes"
+msgstr "Özellik yok"
+
+#: .\templates\pages\inventory\inventory-item-list.html:272
 msgid "No inventory items found"
 msgstr "Stok ürün bulunamadı"
 
-#: .\tepmlates\pages\inventory\inventory-item-list.html:273
+#: .\templates\pages\inventory\inventory-item-list.html:273
 msgid "Add first inventory item"
 msgstr "İlk stok ürününüzü ekleyiniz"
 
-#: .\tepmlates\pages\inventory\inventory-item-update.html:5 .\tepmlates\pages\inventory\inventory-item-update.html:12
-#: .\tepmlates\pages\inventory\inventory-item-update.html:370
+#: .\templates\pages\inventory\inventory-item-update.html:5
+#: .\templates\pages\inventory\inventory-item-update.html:12
+#: .\templates\pages\inventory\inventory-item-update.html:370
 msgid "Update Inventory Item"
-msgstr "Stok Ürününü Güncelleyin"
+msgstr "Stok Ürün Güncelle"
 
-#: .\tepmlates\pages\inventory\inventory-item-update.html:13
+#: .\templates\pages\inventory\inventory-item-update.html:13
 msgid "Edit inventory item details"
-msgstr "Stok ürün detaylarını güncelleyin"
+msgstr "Stok Ürün Detayı"
 
-#: .\tepmlates\pages\inventory\inventory-item-update.html:196
+#: .\templates\pages\inventory\inventory-item-update.html:196
 msgid "Choose an item master..."
-msgstr "Ana Ürün Seç.."
+msgstr "Stok ürün seçin..."
 
-#: .\tepmlates\pages\inventory\inventory-item-update.html:213
+#: .\templates\pages\inventory\inventory-item-update.html:213
 msgid "Selected Item Master Details"
-msgstr "Seçilen Ana ürün"
+msgstr "Seçilen Stok Ürün Detayı"
 
-#: .\tepmlates\pages\inventory\inventory-item-update.html:269
+#: .\templates\pages\inventory\inventory-item-update.html:269
 msgid "Item is currently in use"
-msgstr "Kullanımda"
+msgstr "Ürün halihazırda kullanımda"
 
-#: .\tepmlates\pages\inventory\inventory-item-update.html:288
+#: .\templates\pages\inventory\inventory-item-update.html:288
 msgid "Add specific attributes for this inventory item."
-msgstr ""
+msgstr "Bu ürün için özellik ekleyin"
 
-#: .\tepmlates\pages\inventory\inventory-item-update.html:301
+#: .\templates\pages\inventory\inventory-item-update.html:301
 msgid "Select type..."
-msgstr "Tür seçin..."
+msgstr "Tür Seçin.."
 
-#: .\tepmlates\pages\inventory\inventory-item-update.html:324
+#: .\templates\pages\inventory\inventory-item-update.html:324
 msgid "No unit"
-msgstr ""
+msgstr "Birim yok"
 
-#: .\tepmlates\pages\inventory\inventory-item-update.html:351
+#: .\templates\pages\inventory\inventory-item-update.html:351
 msgid "No attributes added yet. Click 'Add Attribute' to get started."
-msgstr ""
+msgstr "Özellik eklenmemiş. 'özellik Ekle'ye tıklayınız."
 
-#: .\tepmlates\pages\itemmaster\item-master-create.html:5 .\tepmlates\pages\itemmaster\item-master-create.html:12
-#, fuzzy
-#| msgid "Add Main Item"
+#: .\templates\pages\itemmaster\item-master-create.html:5
+msgid "hour"
+msgstr "saat"
+
+#: .\templates\pages\itemmaster\item-master-create.html:6
+msgid "month"
+msgstr "ay"
+
+#: .\templates\pages\itemmaster\item-master-create.html:7
+msgid "year"
+msgstr "yıl"
+
+#: .\templates\pages\itemmaster\item-master-create.html:9
+#: .\templates\pages\itemmaster\item-master-create.html:16
 msgid "Create New Item"
 msgstr "Yeni Ürün Ekle"
 
-#: .\tepmlates\pages\itemmaster\item-master-create.html:13
+#: .\templates\pages\itemmaster\item-master-create.html:17
 msgid "Add a new item to the master list"
-msgstr "Ana Ürün Listesine yeni Ürün ekleyin"
+msgstr "Ana Ürün listesine yeni ürün ekle"
 
-#: .\tepmlates\pages\itemmaster\item-master-create.html:190 .\tepmlates\pages\itemmaster\item-master-update.html:257
+#: .\templates\pages\itemmaster\item-master-create.html:194
+#: .\templates\pages\itemmaster\item-master-update.html:257
 msgid "Images & Specs"
 msgstr "Resim ve Dosyalar"
 
-#: .\tepmlates\pages\itemmaster\item-master-create.html:200 .\tepmlates\pages\itemmaster\item-master-create.html:619
-#: .\tepmlates\pages\itemmaster\item-master-update.html:267 .\tepmlates\pages\itemmaster\item-master-update.html:740
+#: .\templates\pages\itemmaster\item-master-create.html:204
+#: .\templates\pages\itemmaster\item-master-create.html:623
+#: .\templates\pages\itemmaster\item-master-update.html:267
+#: .\templates\pages\itemmaster\item-master-update.html:740
+#: .\templates\warranty_and_services\installation_list.html:49
 msgid "Services"
-msgstr "Servis"
+msgstr "Servisler"
 
-#: .\tepmlates\pages\itemmaster\item-master-create.html:205 .\tepmlates\pages\itemmaster\item-master-update.html:272
+#: .\templates\pages\itemmaster\item-master-create.html:209
+#: .\templates\pages\itemmaster\item-master-update.html:272
 msgid "Maintenance"
-msgstr "Bakım Onarım"
+msgstr "Bakım"
 
-#: .\tepmlates\pages\itemmaster\item-master-create.html:227 .\tepmlates\pages\itemmaster\item-master-update.html:302
+#: .\templates\pages\itemmaster\item-master-create.html:231
+#: .\templates\pages\itemmaster\item-master-update.html:302
 msgid "Enter unique shortcode"
-msgstr "Benzersiz Kısa Kod Girin"
+msgstr "Kısa Kod Gir"
 
-#: .\tepmlates\pages\itemmaster\item-master-create.html:230 .\tepmlates\pages\itemmaster\item-master-update.html:305
+#: .\templates\pages\itemmaster\item-master-create.html:234
+#: .\templates\pages\itemmaster\item-master-update.html:305
 msgid "Maximum 10 characters"
-msgstr "Maksimum 10 karakter"
+msgstr "Maksimum 10 karekter"
 
-#: .\tepmlates\pages\itemmaster\item-master-create.html:243 .\tepmlates\pages\itemmaster\item-master-update.html:318
+#: .\templates\pages\itemmaster\item-master-create.html:247
+#: .\templates\pages\itemmaster\item-master-update.html:318
 msgid "Enter item name"
 msgstr "Ürün adı girin"
 
-#: .\tepmlates\pages\itemmaster\item-master-create.html:257 .\tepmlates\pages\itemmaster\item-master-update.html:332
+#: .\templates\pages\itemmaster\item-master-create.html:261
+#: .\templates\pages\itemmaster\item-master-update.html:332
 msgid "Select a category"
-msgstr "Kategori Seç"
+msgstr "Kategori seçin"
 
-#: .\tepmlates\pages\itemmaster\item-master-create.html:274 .\tepmlates\pages\itemmaster\item-master-update.html:349
+#: .\templates\pages\itemmaster\item-master-create.html:278
+#: .\templates\pages\itemmaster\item-master-update.html:349
 msgid "Select a brand"
-msgstr "Marka Seç"
+msgstr "Marka seçin"
 
-#: .\tepmlates\pages\itemmaster\item-master-create.html:292 .\tepmlates\pages\itemmaster\item-master-update.html:367
-#, fuzzy
-#| msgid "Select type"
+#: .\templates\pages\itemmaster\item-master-create.html:296
+#: .\templates\pages\itemmaster\item-master-update.html:367
 msgid "Select stock type"
-msgstr "Tip seçin"
+msgstr "Stok türü seçin"
 
-#: .\tepmlates\pages\itemmaster\item-master-create.html:310 .\tepmlates\pages\itemmaster\item-master-update.html:385
+#: .\templates\pages\itemmaster\item-master-create.html:314
+#: .\templates\pages\itemmaster\item-master-update.html:385
 msgid "Select status"
-msgstr "Durum Seçin"
+msgstr "Statü seçin"
 
-#: .\tepmlates\pages\itemmaster\item-master-create.html:329
+#: .\templates\pages\itemmaster\item-master-create.html:333
 msgid "Enter item description (optional)"
-msgstr "Ürün açıklaması girin(Opsiyonel)"
+msgstr "Ürün açıklaması girin(opsiyonel)"
 
-#: .\tepmlates\pages\itemmaster\item-master-create.html:343 .\tepmlates\pages\itemmaster\item-master-update.html:418
+#: .\templates\pages\itemmaster\item-master-create.html:347
+#: .\templates\pages\itemmaster\item-master-update.html:418
 msgid "Select Spare Part"
-msgstr "Yedek Parça Seçin"
+msgstr "Yedek Parça Seç"
 
-#: .\tepmlates\pages\itemmaster\item-master-create.html:345 .\tepmlates\pages\itemmaster\item-master-update.html:420
+#: .\templates\pages\itemmaster\item-master-create.html:349
+#: .\templates\pages\itemmaster\item-master-update.html:420
 msgid "Select spare part"
-msgstr "Yedek Parça Seçin"
+msgstr "Yedek parça seçin"
 
-#: .\tepmlates\pages\itemmaster\item-master-create.html:351 .\tepmlates\pages\itemmaster\item-master-update.html:426
-msgid "No spare parts available (looking for stock type 'Yedek Parça')"
-msgstr ""
+#: .\templates\pages\itemmaster\item-master-create.html:355
+#: .\templates\pages\itemmaster\item-master-update.html:426
+msgid "No spare parts available (looking for stock type 'Spare Part')"
+msgstr "Uygun tedek parça bulunamadı"
 
-#: .\tepmlates\pages\itemmaster\item-master-create.html:355 .\tepmlates\pages\itemmaster\item-master-update.html:430
-msgid "No items found with stock type 'Yedek Parça'"
-msgstr ""
+#: .\templates\pages\itemmaster\item-master-create.html:359
+#: .\templates\pages\itemmaster\item-master-update.html:430
+msgid "No items found with stock type 'Spare Part'"
+msgstr "Yedek Parça türünde ürün bulunamadı"
 
-#: .\tepmlates\pages\itemmaster\item-master-create.html:362 .\tepmlates\pages\itemmaster\item-master-create.html:545
-#: .\tepmlates\pages\itemmaster\item-master-create.html:638 .\tepmlates\pages\itemmaster\item-master-create.html:704
-#: .\tepmlates\pages\itemmaster\item-master-update.html:437 .\tepmlates\pages\itemmaster\item-master-update.html:666
-#: .\tepmlates\pages\itemmaster\item-master-update.html:763 .\tepmlates\pages\itemmaster\item-master-update.html:829
+#: .\templates\pages\itemmaster\item-master-create.html:366
+#: .\templates\pages\itemmaster\item-master-create.html:549
+#: .\templates\pages\itemmaster\item-master-create.html:642
+#: .\templates\pages\itemmaster\item-master-create.html:708
+#: .\templates\pages\itemmaster\item-master-update.html:437
+#: .\templates\pages\itemmaster\item-master-update.html:666
+#: .\templates\pages\itemmaster\item-master-update.html:763
+#: .\templates\pages\itemmaster\item-master-update.html:829
 msgid "Add"
 msgstr "Ekle"
 
-#: .\tepmlates\pages\itemmaster\item-master-create.html:372 .\tepmlates\pages\itemmaster\item-master-update.html:447
+#: .\templates\pages\itemmaster\item-master-create.html:376
+#: .\templates\pages\itemmaster\item-master-update.html:447
 msgid "No spare parts selected yet"
-msgstr ""
+msgstr "Henüz yedek parça seçilmedi"
 
-#: .\tepmlates\pages\itemmaster\item-master-create.html:417 .\tepmlates\pages\itemmaster\item-master-update.html:509
+#: .\templates\pages\itemmaster\item-master-create.html:421
+#: .\templates\pages\itemmaster\item-master-update.html:509
 msgid "Drop images here or click to upload"
 msgstr ""
 
-#: .\tepmlates\pages\itemmaster\item-master-create.html:445 .\tepmlates\pages\itemmaster\item-master-update.html:538
-msgid "Specifications"
-msgstr ""
-
-#: .\tepmlates\pages\itemmaster\item-master-create.html:459 .\tepmlates\pages\itemmaster\item-master-update.html:578
-msgid "Drop specification files here or click to upload"
-msgstr ""
-
-#: .\tepmlates\pages\itemmaster\item-master-create.html:504 .\tepmlates\pages\itemmaster\item-master-update.html:625
-msgid "Select Warranty"
-msgstr "Garanti Seçin"
-
-#: .\tepmlates\pages\itemmaster\item-master-create.html:506 .\tepmlates\pages\itemmaster\item-master-update.html:627
-msgid "Select warranty"
-msgstr "Garanti Seçin"
-
-#: .\tepmlates\pages\itemmaster\item-master-create.html:518 .\tepmlates\pages\itemmaster\item-master-create.html:520
-#: .\tepmlates\pages\itemmaster\item-master-update.html:639 .\tepmlates\pages\itemmaster\item-master-update.html:641
-msgid "months"
-msgstr ""
-
-#: .\tepmlates\pages\itemmaster\item-master-create.html:524 .\tepmlates\pages\itemmaster\item-master-create.html:526
-#: .\tepmlates\pages\itemmaster\item-master-update.html:645 .\tepmlates\pages\itemmaster\item-master-update.html:647
-msgid "years"
-msgstr ""
-
-#: .\tepmlates\pages\itemmaster\item-master-create.html:537 .\tepmlates\pages\itemmaster\item-master-update.html:658
-msgid "No warranties available"
-msgstr ""
-
-#: .\tepmlates\pages\itemmaster\item-master-create.html:555 .\tepmlates\pages\itemmaster\item-master-update.html:676
-msgid "No warranties selected yet"
-msgstr ""
-
-#: .\tepmlates\pages\itemmaster\item-master-create.html:626 .\tepmlates\pages\itemmaster\item-master-update.html:747
-msgid "Select Service"
-msgstr "Servis Formu Seçin"
-
-#: .\tepmlates\pages\itemmaster\item-master-create.html:628 .\tepmlates\pages\itemmaster\item-master-update.html:749
-msgid "Select service"
-msgstr "Servis Formu Seçin"
-
-#: .\tepmlates\pages\itemmaster\item-master-create.html:648 .\tepmlates\pages\itemmaster\item-master-update.html:773
-msgid "No services selected yet"
-msgstr ""
-
-#: .\tepmlates\pages\itemmaster\item-master-create.html:684 .\tepmlates\pages\itemmaster\item-master-update.html:809
-msgid "Select Service Period"
-msgstr ""
-
-#: .\tepmlates\pages\itemmaster\item-master-create.html:686 .\tepmlates\pages\itemmaster\item-master-update.html:811
-msgid "Select maintenance period"
-msgstr "Servis periyodu seçin"
-
-#: .\tepmlates\pages\itemmaster\item-master-create.html:696 .\tepmlates\pages\itemmaster\item-master-update.html:821
-msgid "No service periods available"
-msgstr ""
-
-#: .\tepmlates\pages\itemmaster\item-master-create.html:714 .\tepmlates\pages\itemmaster\item-master-update.html:839
-msgid "No maintenance schedules selected yet"
-msgstr ""
-
-#: .\tepmlates\pages\itemmaster\item-master-create.html:752 .\tepmlates\pages\itemmaster\item-master-update.html:877
-msgid "Maintenance Description"
-msgstr "Bakım Açıklaması"
-
-#: .\tepmlates\pages\itemmaster\item-master-create.html:756 .\tepmlates\pages\itemmaster\item-master-update.html:881
-msgid "Enter maintenance description (optional)"
-msgstr ""
-
-#: .\tepmlates\pages\itemmaster\item-master-create.html:795
-msgid "Create Item"
-msgstr "Ürün Ekle"
-
-#: .\tepmlates\pages\itemmaster\item-master-detail.html:6 .\tepmlates\pages\itemmaster\item-master-detail.html:14
-msgid "Item Detail"
-msgstr "Ürün Detayı"
-
-#: .\tepmlates\pages\itemmaster\item-master-detail.html:28
-msgid "Edit Item"
-msgstr "Ürünü Güncelle"
-
-#: .\tepmlates\pages\itemmaster\item-master-detail.html:137 .\tepmlates\pages\itemmaster\item-master-detail.html:221
-msgid "Showing"
-msgstr "Gösteriliyor"
-
-#: .\tepmlates\pages\itemmaster\item-master-detail.html:137 .\tepmlates\pages\itemmaster\item-master-detail.html:221
-msgid "to"
-msgstr ""
-
-#: .\tepmlates\pages\itemmaster\item-master-detail.html:137
-msgid "spare parts"
-msgstr "yedek parça"
-
-#: .\tepmlates\pages\itemmaster\item-master-detail.html:172
-msgid "Used In Items"
-msgstr "Üründe Kullanılan Parçalar"
-
-#: .\tepmlates\pages\itemmaster\item-master-detail.html:221
-msgid "items"
-msgstr "ürünler"
-
-#: .\tepmlates\pages\itemmaster\item-master-detail.html:472
-msgid "Slug"
-msgstr ""
-
-#: .\tepmlates\pages\itemmaster\item-master-list.html:20
-msgid "Item Master Management"
-msgstr "Ana Ürün Yönetimi"
-
-#: .\tepmlates\pages\itemmaster\item-master-list.html:38
-msgid "Search by name, shortcode, description..."
-msgstr "İsim, kod veya açıklamaya göre arayın..."
-
-#: .\tepmlates\pages\itemmaster\item-master-list.html:70
-msgid "Item"
-msgstr ""
-
-#: .\tepmlates\pages\itemmaster\item-master-list.html:75
-msgid "Inventory"
-msgstr ""
-
-#: .\tepmlates\pages\itemmaster\item-master-list.html:124
-msgid "View Inventory Items"
-msgstr ""
-
-#: .\tepmlates\pages\itemmaster\item-master-update.html:5 .\tepmlates\pages\itemmaster\item-master-update.html:12
-#: .\tepmlates\pages\itemmaster\item-master-update.html:905
-msgid "Update Item"
-msgstr "Güncellen Ürün"
-
-#: .\tepmlates\pages\itemmaster\item-master-update.html:13
-msgid "Edit item details and relationships"
-msgstr ""
-
-#: .\tepmlates\pages\itemmaster\item-master-update.html:21
-msgid "Back to Detail"
-msgstr "Detay Sayfasına Dön"
-
-#: .\tepmlates\pages\itemmaster\item-master-update.html:404
-msgid "Enter item description"
-msgstr "Ürün açıklaması girin"
-
-#: .\tepmlates\pages\itemmaster\item-master-update.html:459
-msgid "Are you sure you want to remove this spare part?"
-msgstr "Bu yedek parçayı silmek istediğinizden emin misiniz?"
-
-#: .\tepmlates\pages\itemmaster\item-master-update.html:487
-msgid "Are you sure you want to delete this image?"
-msgstr "Bu resmi silmek istediğinizden emin misiniz?"
-
-#: .\tepmlates\pages\itemmaster\item-master-update.html:513
+#: .\templates\pages\itemmaster\item-master-create.html:425
+#: .\templates\pages\itemmaster\item-master-update.html:513
 msgid "PNG, JPG, GIF up to 10MB each"
 msgstr ""
 
-#: .\tepmlates\pages\itemmaster\item-master-update.html:551
-msgid "Existing specification file"
+#: .\templates\pages\itemmaster\item-master-create.html:449
+#: .\templates\pages\itemmaster\item-master-update.html:538
+msgid "Specifications"
+msgstr "Özellikler"
+
+#: .\templates\pages\itemmaster\item-master-create.html:463
+#: .\templates\pages\itemmaster\item-master-update.html:578
+msgid "Drop specification files here or click to upload"
 msgstr ""
 
-#: .\tepmlates\pages\itemmaster\item-master-update.html:555
+#: .\templates\pages\itemmaster\item-master-create.html:467
+msgid "PDF, DOC, DOCX, TXT up to 50MB each"
+msgstr ""
+
+#: .\templates\pages\itemmaster\item-master-create.html:508
+#: .\templates\pages\itemmaster\item-master-update.html:625
+msgid "Select Warranty"
+msgstr "Garanti Seçin"
+
+#: .\templates\pages\itemmaster\item-master-create.html:510
+#: .\templates\pages\itemmaster\item-master-update.html:627
+msgid "Select warranty"
+msgstr "Garanti seçin"
+
+#: .\templates\pages\itemmaster\item-master-create.html:522
+#: .\templates\pages\itemmaster\item-master-create.html:524
+#: .\templates\pages\itemmaster\item-master-update.html:639
+#: .\templates\pages\itemmaster\item-master-update.html:641
+msgid "months"
+msgstr "ay"
+
+#: .\templates\pages\itemmaster\item-master-create.html:528
+#: .\templates\pages\itemmaster\item-master-create.html:530
+#: .\templates\pages\itemmaster\item-master-update.html:645
+#: .\templates\pages\itemmaster\item-master-update.html:647
+msgid "years"
+msgstr "yıl"
+
+#: .\templates\pages\itemmaster\item-master-create.html:541
+#: .\templates\pages\itemmaster\item-master-update.html:658
+msgid "No warranties available"
+msgstr "Uygun garanti yok"
+
+#: .\templates\pages\itemmaster\item-master-create.html:559
+#: .\templates\pages\itemmaster\item-master-update.html:676
+msgid "No warranties selected yet"
+msgstr "Henüz garanti seçilmedi"
+
+#: .\templates\pages\itemmaster\item-master-create.html:630
+#: .\templates\pages\itemmaster\item-master-update.html:747
+msgid "Select Service"
+msgstr "Servis Seçin"
+
+#: .\templates\pages\itemmaster\item-master-create.html:632
+#: .\templates\pages\itemmaster\item-master-update.html:749
+msgid "Select service"
+msgstr "Servis seçin"
+
+#: .\templates\pages\itemmaster\item-master-create.html:652
+#: .\templates\pages\itemmaster\item-master-update.html:773
+msgid "No services selected yet"
+msgstr "Henüz servis seçilmedi"
+
+#: .\templates\pages\itemmaster\item-master-create.html:688
+#: .\templates\pages\itemmaster\item-master-update.html:809
+msgid "Select Service Period"
+msgstr "Servis Periyodu Seçin"
+
+#: .\templates\pages\itemmaster\item-master-create.html:690
+#: .\templates\pages\itemmaster\item-master-update.html:811
+msgid "Select maintenance period"
+msgstr "Bakım periyodu seçin"
+
+#: .\templates\pages\itemmaster\item-master-create.html:700
+#: .\templates\pages\itemmaster\item-master-update.html:821
+msgid "No service periods available"
+msgstr "Bakım periyodu yok"
+
+#: .\templates\pages\itemmaster\item-master-create.html:718
+#: .\templates\pages\itemmaster\item-master-update.html:839
+msgid "No maintenance schedules selected yet"
+msgstr "Bakım zamanı henüz seçilmedi"
+
+#: .\templates\pages\itemmaster\item-master-create.html:756
+#: .\templates\pages\itemmaster\item-master-update.html:877
+msgid "Maintenance Description"
+msgstr "Bakım Açıklaması"
+
+#: .\templates\pages\itemmaster\item-master-create.html:760
+#: .\templates\pages\itemmaster\item-master-update.html:881
+msgid "Enter maintenance description (optional)"
+msgstr "Bakım açıklaması girin(opsiyonel)"
+
+#: .\templates\pages\itemmaster\item-master-create.html:799
+msgid "Create Item"
+msgstr "Ürün Ekle"
+
+#: .\templates\pages\itemmaster\item-master-detail.html:6
+#: .\templates\pages\itemmaster\item-master-detail.html:14
+msgid "Item Detail"
+msgstr "Ürün detayı"
+
+#: .\templates\pages\itemmaster\item-master-detail.html:28
+msgid "Edit Item"
+msgstr "Ürünü Güncelle"
+
+#: .\templates\pages\itemmaster\item-master-detail.html:137
+#: .\templates\pages\itemmaster\item-master-detail.html:221
+msgid "Showing"
+msgstr "Gösteriyor"
+
+#: .\templates\pages\itemmaster\item-master-detail.html:137
+#: .\templates\pages\itemmaster\item-master-detail.html:221
+msgid "to"
+msgstr ""
+
+#: .\templates\pages\itemmaster\item-master-detail.html:137
+msgid "spare parts"
+msgstr "yedek parça"
+
+#: .\templates\pages\itemmaster\item-master-detail.html:172
+msgid "Used In Items"
+msgstr "Bu Parçanın Kullanıldığı Ürünler"
+
+#: .\templates\pages\itemmaster\item-master-detail.html:221
+msgid "items"
+msgstr "ürünler"
+
+#: .\templates\pages\itemmaster\item-master-detail.html:472
+msgid "Slug"
+msgstr ""
+
+#: .\templates\pages\itemmaster\item-master-list.html:20
+msgid "Item Master Management"
+msgstr "Ana Ürün Yönetimi"
+
+#: .\templates\pages\itemmaster\item-master-list.html:38
+msgid "Search by name, shortcode, description..."
+msgstr ""
+
+#: .\templates\pages\itemmaster\item-master-list.html:70
+msgid "Item"
+msgstr "Ürün"
+
+#: .\templates\pages\itemmaster\item-master-list.html:75
+msgid "Inventory"
+msgstr "Stok Ürün"
+
+#: .\templates\pages\itemmaster\item-master-list.html:124
+msgid "View Inventory Items"
+msgstr "Stok ürünlerini Görün"
+
+#: .\templates\pages\itemmaster\item-master-update.html:5
+#: .\templates\pages\itemmaster\item-master-update.html:12
+#: .\templates\pages\itemmaster\item-master-update.html:905
+msgid "Update Item"
+msgstr "Ürünü Güncelle"
+
+#: .\templates\pages\itemmaster\item-master-update.html:13
+msgid "Edit item details and relationships"
+msgstr "Ürün detayını güncelle"
+
+#: .\templates\pages\itemmaster\item-master-update.html:21
+msgid "Back to Detail"
+msgstr "Detaya Dön"
+
+#: .\templates\pages\itemmaster\item-master-update.html:404
+msgid "Enter item description"
+msgstr "Ürün açıklması girin"
+
+#: .\templates\pages\itemmaster\item-master-update.html:459
+msgid "Are you sure you want to remove this spare part?"
+msgstr "Bu yedek parçayı silmek istediğinizden emin misiniz?"
+
+#: .\templates\pages\itemmaster\item-master-update.html:487
+msgid "Are you sure you want to delete this image?"
+msgstr "Bu resmi silmek istediğinizden emin misiniz?"
+
+#: .\templates\pages\itemmaster\item-master-update.html:551
+msgid "Existing specification file"
+msgstr "Mevcut dosyalar"
+
+#: .\templates\pages\itemmaster\item-master-update.html:555
 msgid "Are you sure you want to delete this specification file?"
 msgstr "Bu dosyayı silmek istediğinizden emin misiniz?"
 
-#: .\tepmlates\pages\itemmaster\item-master-update.html:582
+#: .\templates\pages\itemmaster\item-master-update.html:582
 msgid "PDF, DOC, DOCX, TXT up to 10MB each"
 msgstr ""
 
-#: .\tepmlates\pages\itemmaster\item-master-update.html:722
+#: .\templates\pages\itemmaster\item-master-update.html:722
 msgid "Are you sure you want to remove this warranty?"
-msgstr "Bu garanti bilgilerini silmek istediğinizden emin misiniz?"
+msgstr "Bu garantiyi silmek istediğinizden emin misiniz?"
 
-#: .\tepmlates\pages\itemmaster\item-master-update.html:755
+#: .\templates\pages\itemmaster\item-master-update.html:755
 msgid "No services available"
-msgstr ""
+msgstr "Uygun servis yok"
 
-#: .\tepmlates\pages\itemmaster\item-master-update.html:784
+#: .\templates\pages\itemmaster\item-master-update.html:784
 msgid "Are you sure you want to remove this service?"
-msgstr "Bu servis formunu silmek istediğinizden emin misiniz?"
+msgstr "Bu servisi silmek istediğinizden emin misiniz"
 
-#: .\tepmlates\pages\profile.html:7
+#: .\templates\pages\profile.html:7
 msgid "User Profile"
 msgstr "Kullanıcı Profili"
 
-#: .\tepmlates\pages\profile.html:10 .\tepmlates\registration\login.html:13
+#: .\templates\pages\profile.html:10 .\templates\registration\login.html:40
 msgid "Username"
 msgstr "Kullanıcı Adı"
 
-#: .\tepmlates\pages\profile.html:13
+#: .\templates\pages\profile.html:13
 msgid "First Name"
 msgstr "İsim"
 
-#: .\tepmlates\pages\profile.html:16
+#: .\templates\pages\profile.html:16
 msgid "Last Name"
 msgstr "Soyisim"
 
-#: .\tepmlates\pages\profile.html:19
+#: .\templates\pages\profile.html:19
 msgid "Role"
 msgstr "Rol"
 
-#: .\tepmlates\pages\profile.html:22
+#: .\templates\pages\profile.html:22
 msgid "Default Language"
-msgstr "Kullanılan Dil"
+msgstr "Defaul Dil Seçeneği"
 
-#: .\tepmlates\pages\profile.html:33
-msgid "Logout"
-msgstr "Çıkış"
-
-#: .\tepmlates\registration\login.html:4 .\tepmlates\registration\login.html:20
+#: .\templates\registration\login.html:7 .\templates\registration\login.html:31
+#: .\templates\registration\login.html:60
 msgid "Login"
 msgstr "Giriş"
 
-#: .\tepmlates\registration\login.html:8
-msgid "Sign in to your account"
-msgstr "Hesabınıza giriniz"
+#: .\templates\registration\login.html:32
+msgid "Welcome to GVS"
+msgstr "Hoşgeldiniz"
 
-#: .\tepmlates\registration\login.html:17
+#: .\templates\registration\login.html:45
+msgid "Your username"
+msgstr "Kullanıcı adınız"
+
+#: .\templates\registration\login.html:50
 msgid "Password"
 msgstr "Şifre"
 
+#: .\templates\registration\login.html:55
+msgid "Your password"
+msgstr "Şifreniz"
+
+#: .\templates\warranty_and_services\emails\installation_notification.html:7
+#: .\templates\warranty_and_services\mobile\installation_form_new.html:207
+#: .\warranty_and_services\admin.py:64
+#: .\warranty_and_services\admin_broken.py:79
+#: .\warranty_and_services\admin_clean.py:77
+msgid "Installation Details"
+msgstr "Kurulum Detayı"
+
+#: .\templates\warranty_and_services\emails\installation_notification.html:227
+msgid "Installation Completed"
+msgstr "Kurulumu Tamamlanmışlar"
+
+#: .\templates\warranty_and_services\emails\installation_notification.html:235
+msgid "Installation Information"
+msgstr "Kurulum Bilgisi"
+
+#: .\templates\warranty_and_services\emails\installation_notification.html:241
+#: .\templates\warranty_and_services\installation_list.html:120
+#: .\templates\warranty_and_services\mobile\installation_form_new.html:212
+#: .\templates\warranty_and_services\mobile\maintenance_form.html:148
+#: .\templates\warranty_and_services\service_tracking_list.html:185
+#: .\templates\warranty_and_services\warranty_tracking_list.html:174
+msgid "Installation Date"
+msgstr "Kurulum Tarihi"
+
+#: .\templates\warranty_and_services\emails\installation_notification.html:245
+msgid "Installer"
+msgstr "Kurulumu Yapan Teknisyen"
+
+#: .\templates\warranty_and_services\emails\installation_notification.html:258
+msgid "GPS Coordinates"
+msgstr ""
+
+#: .\templates\warranty_and_services\emails\installation_notification.html:265
+#: .\templates\warranty_and_services\emails\installation_notification.html:456
+msgid "Completed"
+msgstr "Tamamlandı"
+
+#: .\templates\warranty_and_services\emails\installation_notification.html:273
+msgid "Installation Notes:"
+msgstr "Kuurulum notları:"
+
+#: .\templates\warranty_and_services\emails\installation_notification.html:282
+#: .\templates\warranty_and_services\mobile\maintenance_form.html:117
+msgid "Equipment Information"
+msgstr "Malzeme Bilgisi"
+
+#: .\templates\warranty_and_services\emails\installation_notification.html:313
+msgid "Barcode"
+msgstr "Barkod"
+
+#: .\templates\warranty_and_services\emails\installation_notification.html:326
+msgid "Product Image"
+msgstr "Ürün Resmi"
+
+#: .\templates\warranty_and_services\emails\installation_notification.html:335
+#: .\templates\warranty_and_services\mobile\installation_form_new.html:96
+#: .\templates\warranty_and_services\warranty_detail.html:116
+msgid "Customer Information"
+msgstr "Müşteri Bilgisi"
+
+#: .\templates\warranty_and_services\emails\installation_notification.html:350
+msgid "Sector"
+msgstr "Ana İş Alanı"
+
+#: .\templates\warranty_and_services\emails\installation_notification.html:364
+#: .\templates\warranty_and_services\mobile\installation_form_new.html:158
+msgid "Phone"
+msgstr "Phone"
+
+#: .\templates\warranty_and_services\emails\installation_notification.html:370
+msgid "Tax No"
+msgstr "Vergi No"
+
+#: .\templates\warranty_and_services\emails\installation_notification.html:383
+msgid "Warranty Information"
+msgstr "Garanti Bilgileri"
+
+#: .\templates\warranty_and_services\emails\installation_notification.html:389
+#: .\templates\warranty_and_services\warranty_tracking_list.html:172
+#: .\warranty_and_services\models.py:642
+msgid "Warranty Type"
+msgstr "Garanti Türü"
+
+#: .\templates\warranty_and_services\emails\installation_notification.html:390
+#: .\venv\Lib\site-packages\django\db\models\fields\__init__.py:1868
+msgid "Duration"
+msgstr "Süre"
+
+#: .\templates\warranty_and_services\emails\installation_notification.html:391
+msgid "Start"
+msgstr "Başla"
+
+#: .\templates\warranty_and_services\emails\installation_notification.html:392
+msgid "End"
+msgstr "Son"
+
+#: .\templates\warranty_and_services\emails\installation_notification.html:402
+msgid "Year"
+msgstr "Yıl"
+
+#: .\templates\warranty_and_services\emails\installation_notification.html:404
+#: .\templates\warranty_and_services\emails\installation_notification.html:450
+msgid "Hour"
+msgstr "Saat"
+
+#: .\templates\warranty_and_services\emails\installation_notification.html:430
+msgid "Service Schedule"
+msgstr "Servis Zamanı"
+
+#: .\templates\warranty_and_services\emails\installation_notification.html:436
+#: .\templates\warranty_and_services\service_tracking_list.html:183
+#: .\warranty_and_services\models.py:854
+msgid "Service Type"
+msgstr "Servis Türü"
+
+#: .\templates\warranty_and_services\emails\installation_notification.html:438
+#: .\templates\warranty_and_services\installation_list.html:122
+#: .\templates\warranty_and_services\service_tracking_list.html:186
+msgid "Next Service"
+msgstr "Sonraki Servis"
+
+#: .\templates\warranty_and_services\emails\installation_notification.html:448
+msgid "Month"
+msgstr "Ay"
+
+#: .\templates\warranty_and_services\emails\installation_notification.html:458
+msgid "Pending"
+msgstr "Beklemede"
+
+#: .\templates\warranty_and_services\emails\installation_notification.html:473
+msgid "Warranty Types"
+msgstr "Garanti Türü"
+
+#: .\templates\warranty_and_services\emails\installation_notification.html:477
+msgid "Service Plans"
+msgstr "Bakım Planı"
+
+#: .\templates\warranty_and_services\emails\installation_notification.html:481
+msgid "Photo"
+msgstr ""
+
+#: .\templates\warranty_and_services\emails\installation_notification.html:488
+msgid "This document was generated automatically on"
+msgstr "Bu döküman otomatik oluşturulmuştur."
+
+#: .\templates\warranty_and_services\emails\installation_notification.html:489
+msgid "Warranty and Service Tracking System"
+msgstr "Garanti ve Bakım Takip Sistemi"
+
+#: .\templates\warranty_and_services\installation_list.html:21
+msgid "The Active Warranty Installations"
+msgstr "Aktif Garanti Kurulumları"
+
+#: .\templates\warranty_and_services\installation_list.html:34
+msgid "Map"
+msgstr "Harita"
+
+#: .\templates\warranty_and_services\installation_list.html:79
+msgid "Customer, product or serial no..."
+msgstr ""
+
+#: .\templates\warranty_and_services\installation_list.html:121
+msgid "Next Warranty Expiration"
+msgstr "Garanti Sonu Bilgisi"
+
+#: .\templates\warranty_and_services\mobile\installation_form_new.html:9
+#: .\templates\warranty_and_services\mobile\installation_form_new.html:78
+msgid "Installation Form"
+msgstr "Kurulum Formu"
+
+#: .\templates\warranty_and_services\mobile\installation_form_new.html:83
+msgid "SN:"
+msgstr ""
+
+#: .\templates\warranty_and_services\mobile\installation_form_new.html:102
+msgid "Customer Company Name"
+msgstr "Firma Adı"
+
+#: .\templates\warranty_and_services\mobile\installation_form_new.html:109
+msgid "Type or search company name..."
+msgstr ""
+
+#: .\templates\warranty_and_services\mobile\installation_form_new.html:148
+msgid "New Customer"
+msgstr "Yeni Müşteri"
+
+#: .\templates\warranty_and_services\mobile\installation_form_new.html:178
+msgid "Contact Person"
+msgstr "Kontak Kişisi"
+
+#: .\templates\warranty_and_services\mobile\installation_form_new.html:183
+msgid "Contact Phone"
+msgstr "Kontak Telefonu"
+
+#: .\templates\warranty_and_services\mobile\installation_form_new.html:188
+msgid "Contact Email"
+msgstr "Kontak Email"
+
+#: .\templates\warranty_and_services\mobile\installation_form_new.html:195
+msgid "Save"
+msgstr "Kaydet"
+
+#: .\templates\warranty_and_services\mobile\installation_form_new.html:223
+#: .\warranty_and_services\models.py:110
+msgid "Installation Address"
+msgstr "Kurulum Adresi"
+
+#: .\templates\warranty_and_services\mobile\installation_form_new.html:228
+msgid "GPS Location"
+msgstr ""
+
+#: .\templates\warranty_and_services\mobile\installation_form_new.html:232
+msgid "Get Current Location"
+msgstr "Konumu Al"
+
+#: .\templates\warranty_and_services\mobile\installation_form_new.html:238
+msgid "Location:"
+msgstr "Konum:"
+
+#: .\templates\warranty_and_services\mobile\installation_form_new.html:246
+#: .\warranty_and_services\models.py:115
+msgid "Installation Notes"
+msgstr "Kurulum Notları"
+
+#: .\templates\warranty_and_services\mobile\installation_form_new.html:256
+msgid "Photos and Files"
+msgstr "Resim ve Dosyalar"
+
+#: .\templates\warranty_and_services\mobile\installation_form_new.html:262
+#: .\templates\warranty_and_services\mobile\maintenance_form.html:411
+msgid "Photos"
+msgstr "Resimler"
+
+#: .\templates\warranty_and_services\mobile\installation_form_new.html:265
+msgid "Take Photo"
+msgstr "Fotoğraf Çek"
+
+#: .\templates\warranty_and_services\mobile\installation_form_new.html:268
+msgid "Gallery"
+msgstr "Galeri"
+
+#: .\templates\warranty_and_services\mobile\installation_form_new.html:281
+msgid "Files"
+msgstr "Dosyalar"
+
+#: .\templates\warranty_and_services\mobile\installation_form_new.html:283
+msgid "Select File"
+msgstr "Dosya Seç"
+
+#: .\templates\warranty_and_services\mobile\installation_form_new.html:297
+msgid "Complete Installation"
+msgstr "Kurulumu Tamamla"
+
+#: .\templates\warranty_and_services\mobile\installation_form_new.html:307
+msgid "Processing..."
+msgstr ""
+
+#: .\templates\warranty_and_services\mobile\maintenance_form.html:12
+msgid "Maintenance Form - Mobile"
+msgstr "Bakım Formu - Mobile"
+
+#: .\templates\warranty_and_services\mobile\maintenance_form.html:95
+msgid "Maintenance Form"
+msgstr "Bakım Formu"
+
+#: .\templates\warranty_and_services\mobile\maintenance_form.html:96
+msgid "Equipment maintenance registration form"
+msgstr "Malzeme bakım kayıt formu"
+
+#: .\templates\warranty_and_services\mobile\maintenance_form.html:118
+msgid "Equipment to be maintained"
+msgstr "Bakım yapılan malzeme"
+
+#: .\templates\warranty_and_services\mobile\maintenance_form.html:126
+msgid "Equipment Name"
+msgstr "Malzeme İsmi"
+
+#: .\templates\warranty_and_services\mobile\maintenance_form.html:136
+msgid "Short Code"
+msgstr "Kısa Kod"
+
+#: .\templates\warranty_and_services\mobile\maintenance_form.html:152
+msgid "Last Maintenance"
+msgstr "Son Bakım"
+
+#: .\templates\warranty_and_services\mobile\maintenance_form.html:158
+msgid "Location"
+msgstr "Konum"
+
+#: .\templates\warranty_and_services\mobile\maintenance_form.html:173
+msgid "Maintenance Information"
+msgstr "Bakım Bilgileri"
+
+#: .\templates\warranty_and_services\mobile\maintenance_form.html:174
+msgid "Details of maintenance operations performed"
+msgstr "Bakımı detayları"
+
+#: .\templates\warranty_and_services\mobile\maintenance_form.html:182
+msgid "Maintenance Type"
+msgstr "Bakım Türü"
+
+#: .\templates\warranty_and_services\mobile\maintenance_form.html:199
+msgid "Periodic Maintenance"
+msgstr "Periyodik Bakım"
+
+#: .\templates\warranty_and_services\mobile\maintenance_form.html:204
+msgid "Routine maintenance performed on time"
+msgstr "Rutin bakım"
+
+#: .\templates\warranty_and_services\mobile\maintenance_form.html:223
+msgid "Breakdown Maintenance"
+msgstr "Arizi Bakım"
+
+#: .\templates\warranty_and_services\mobile\maintenance_form.html:228
+msgid "Maintenance performed due to breakdown"
+msgstr "Arizi Bakım"
+
+#: .\templates\warranty_and_services\mobile\maintenance_form.html:236
+msgid "Breakdown Reason"
+msgstr "Arıza Sebebi"
+
+#: .\templates\warranty_and_services\mobile\maintenance_form.html:238
+msgid "Please explain the reason for the breakdown in detail..."
+msgstr "Lütfen arızanın sebebini detaylı giriniz.."
+
+#: .\templates\warranty_and_services\mobile\maintenance_form.html:245
+msgid "Work Performed"
+msgstr "Çalışma Bilgileri"
+
+#: .\templates\warranty_and_services\mobile\maintenance_form.html:247
+msgid "Describe the work performed as part of periodic maintenance..."
+msgstr ""
+
+#: .\templates\warranty_and_services\mobile\maintenance_form.html:254
+msgid "Technician"
+msgstr "Teknisyen"
+
+#: .\templates\warranty_and_services\mobile\maintenance_form.html:261
+msgid "Maintenance Technician"
+msgstr "Bakım Teknisyeni"
+
+#: .\templates\warranty_and_services\mobile\maintenance_form.html:268
+msgid "Maintenance Date"
+msgstr "Bakım Zamanı"
+
+#: .\templates\warranty_and_services\mobile\maintenance_form.html:284
+msgid "Controls"
+msgstr "Kontroller"
+
+#: .\templates\warranty_and_services\mobile\maintenance_form.html:285
+msgid "Control operations to be performed"
+msgstr "Yapılan Kontroller"
+
+#: .\templates\warranty_and_services\mobile\maintenance_form.html:326
+msgid "Spare parts used"
+msgstr "Değişen yedek parçalar"
+
+#: .\templates\warranty_and_services\mobile\maintenance_form.html:356
+msgid "Part Number: Not Specified"
+msgstr "Yedek Parça No: Tanımlanmamış"
+
+#: .\templates\warranty_and_services\mobile\maintenance_form.html:364
+msgid "Quantity:"
+msgstr "Miktar"
+
+#: .\templates\warranty_and_services\mobile\maintenance_form.html:385
+#: .\templates\warranty_and_services\mobile\maintenance_form.html:394
+msgid "Notes"
+msgstr "Notlar"
+
+#: .\templates\warranty_and_services\mobile\maintenance_form.html:386
+msgid "Additional information and explanations"
+msgstr "Ek açıklamalar"
+
+#: .\templates\warranty_and_services\mobile\maintenance_form.html:396
+msgid "You can write additional notes about the maintenance..."
+msgstr "Ek açıklama yazabilirsiniz"
+
+#: .\templates\warranty_and_services\mobile\maintenance_form.html:412
+msgid "Add maintenance photos"
+msgstr "Bakım resmi ekleyin"
+
+#: .\templates\warranty_and_services\mobile\maintenance_form.html:417
+#: .\templates\warranty_and_services\mobile\maintenance_form.html:445
+msgid "Open Camera"
+msgstr "Kamerayı açın"
+
+#: .\templates\warranty_and_services\mobile\maintenance_form.html:452
+msgid "Select Image"
+msgstr "Resim Seçin"
+
+#: .\templates\warranty_and_services\mobile\maintenance_form.html:466
+#: .\warranty_and_services\admin.py:104
+#: .\warranty_and_services\admin_broken.py:119
+#: .\warranty_and_services\admin_clean.py:117
+msgid "Documents"
+msgstr "Belgeler"
+
+#: .\templates\warranty_and_services\mobile\maintenance_form.html:467
+msgid "Add maintenance documents"
+msgstr "Bakım dosyası ekleyin"
+
+#: .\templates\warranty_and_services\mobile\maintenance_form.html:472
+msgid "Add File"
+msgstr "Dosya Ekle"
+
+#: .\templates\warranty_and_services\mobile\maintenance_form.html:501
+msgid "Add Document"
+msgstr "Dosya Ekle"
+
+#: .\templates\warranty_and_services\mobile\maintenance_form.html:514
+msgid "Saving..."
+msgstr "Kayediyor..."
+
+#: .\templates\warranty_and_services\mobile\maintenance_form.html:514
+msgid "Save Maintenance"
+msgstr "Bakımı Kaydet"
+
+#: .\templates\warranty_and_services\mobile\maintenance_form.html:517
+msgid "* fields are required"
+msgstr ""
+
+#: .\templates\warranty_and_services\mobile\mobile_installation_scanner.html:9
+msgid "Installation Scanner - GVS Mobile"
+msgstr "Kurulum Tarayıcısı - GCS Mobile"
+
+#: .\templates\warranty_and_services\mobile\mobile_installation_scanner.html:50
+msgid "Installation Scanner"
+msgstr "Kurulum Tarayıcısı"
+
+#: .\templates\warranty_and_services\mobile\mobile_installation_scanner.html:51
+msgid "Installation with QR Code"
+msgstr "QR Kod ile Kur"
+
+#: .\templates\warranty_and_services\mobile\mobile_installation_scanner.html:73
+msgid "Scan QR Code"
+msgstr "QR Kod Tara"
+
+#: .\templates\warranty_and_services\mobile\mobile_installation_scanner.html:74
+msgid "Hold the equipment's QR code to the camera"
+msgstr "Malzeme kodunu kameraya tutun"
+
+#: .\templates\warranty_and_services\mobile\mobile_installation_scanner.html:79
+msgid "Start Camera"
+msgstr "Kamerayı Başlat"
+
+#: .\templates\warranty_and_services\mobile\mobile_installation_scanner.html:85
+msgid "Manual Entry"
+msgstr "Manuel Giriş"
+
+#: .\templates\warranty_and_services\mobile\mobile_installation_scanner.html:90
+msgid "Enter equipment serial number"
+msgstr "Malzeme seri no girin"
+
+#: .\templates\warranty_and_services\mobile\mobile_installation_scanner.html:96
+msgid "Search Equipment"
+msgstr "Malzeme Ara"
+
+#: .\templates\warranty_and_services\service_tracking_list.html:53
+#: .\templates\warranty_and_services\warranty_tracking_list.html:43
+msgid "Total tracked items"
+msgstr "Toplam ürün"
+
+#: .\templates\warranty_and_services\service_tracking_list.html:72
+msgid "Pending Service"
+msgstr "Beklyen Servis"
+
+#: .\templates\warranty_and_services\service_tracking_list.html:74
+msgid "Products awaiting service"
+msgstr "Bakım bekleyen ürünler"
+
+#: .\templates\warranty_and_services\service_tracking_list.html:93
+#: .\templates\warranty_and_services\service_tracking_list.html:143
+msgid "Due Soon (7 Days)"
+msgstr "Süresi Dolacaklar (7 Gün)"
+
+#: .\templates\warranty_and_services\service_tracking_list.html:95
+msgid "Service required within 7 days"
+msgstr "/ gün içinde servis gerektirenler"
+
+#: .\templates\warranty_and_services\service_tracking_list.html:114
+msgid "Overdue Service"
+msgstr "Süresi Geçen Servisler"
+
+#: .\templates\warranty_and_services\service_tracking_list.html:116
+msgid "Products past due date"
+msgstr "Süresi geçen ürünler"
+
+#: .\templates\warranty_and_services\service_tracking_list.html:127
+#: .\templates\warranty_and_services\warranty_tracking_list.html:117
+msgid "Filters"
+msgstr "Filtreler"
+
+#: .\templates\warranty_and_services\service_tracking_list.html:141
+#: .\templates\warranty_and_services\warranty_tracking_list.html:131
+msgid "All"
+msgstr "Tümü"
+
+#: .\templates\warranty_and_services\service_tracking_list.html:142
+msgid "Pending Services"
+msgstr "Bekleyen Servisler"
+
+#: .\templates\warranty_and_services\service_tracking_list.html:145
+msgid "Done"
+msgstr "Tamamlandı"
+
+#: .\templates\warranty_and_services\service_tracking_list.html:174
+msgid "Service List"
+msgstr "Bakım Listesi"
+
+#: .\templates\warranty_and_services\service_tracking_list.html:184
+#: .\warranty_and_services\models.py:859
+msgid "Service Value"
+msgstr "Bakım Değeri"
+
+#: .\templates\warranty_and_services\service_tracking_list.html:272
+msgid "No Records available"
+msgstr "Kayıt bulunamadı"
+
+#: .\templates\warranty_and_services\service_tracking_list.html:273
+msgid "No service records found matching these criteria."
+msgstr "Bu kritelerlere göre kayıt bulunamadı"
+
+#: .\templates\warranty_and_services\warranty_detail.html:18
+#: .\warranty_and_services\admin.py:115
+#: .\warranty_and_services\admin_broken.py:130
+#: .\warranty_and_services\admin_clean.py:128
+msgid "Warranty Details"
+msgstr "Garanti Detayları"
+
+#: .\templates\warranty_and_services\warranty_detail.html:29
+msgid "Full Installation Details"
+msgstr "Yükleme Detayı"
+
+#: .\templates\warranty_and_services\warranty_detail.html:49
+msgid "Warranty Status"
+msgstr "Garanti Statüsü"
+
+#: .\templates\warranty_and_services\warranty_detail.html:81
+msgid "Years"
+msgstr "Yıl"
+
+#: .\templates\warranty_and_services\warranty_detail.html:81
+msgid "Hours"
+msgstr "Saat"
+
+#: .\templates\warranty_and_services\warranty_detail.html:86
+msgid "End Date"
+msgstr "Bitiş Tarihi"
+
+#: .\templates\warranty_and_services\warranty_detail.html:91
+msgid "Days Left"
+msgstr "Gün Kaldı"
+
+#: .\templates\warranty_and_services\warranty_detail.html:102
+msgid "Calculation Details:"
+msgstr "Hesaplama Detayları:"
+
+#: .\templates\warranty_and_services\warranty_detail.html:122
+msgid "Company Details"
+msgstr "Firma Detayı:"
+
+#: .\templates\warranty_and_services\warranty_detail.html:125
+msgid "Name:"
+msgstr "Adı:"
+
+#: .\templates\warranty_and_services\warranty_detail.html:129
+msgid "Type:"
+msgstr "Tür:"
+
+#: .\templates\warranty_and_services\warranty_detail.html:134
+msgid "Business:"
+msgstr "İş Alanı:"
+
+#: .\templates\warranty_and_services\warranty_detail.html:140
+msgid "Tax Number:"
+msgstr "Vergi No:"
+
+#: .\templates\warranty_and_services\warranty_detail.html:148
+msgid "Contact Details"
+msgstr "Kontak Detayı"
+
+#: .\templates\warranty_and_services\warranty_detail.html:152
+msgid "Email:"
+msgstr ""
+
+#: .\templates\warranty_and_services\warranty_detail.html:158
+msgid "Phone:"
+msgstr ""
+
+#: .\templates\warranty_and_services\warranty_detail.html:164
+msgid "Manager:"
+msgstr "Yönetici:"
+
+#: .\templates\warranty_and_services\warranty_detail.html:170
+msgid "Related Company:"
+msgstr "Bağlı Olduğu Bayi:"
+
+#: .\templates\warranty_and_services\warranty_tracking_list.html:62
+msgid "Active Warranty"
+msgstr "Aktif Garanti"
+
+#: .\templates\warranty_and_services\warranty_tracking_list.html:64
+msgid "Products with active warranty"
+msgstr "Garantileri aktif olan ürünler"
+
+#: .\templates\warranty_and_services\warranty_tracking_list.html:83
+msgid "Due Soon"
+msgstr "SÜresi Dolacaklar"
+
+#: .\templates\warranty_and_services\warranty_tracking_list.html:85
+msgid "Due within 30 days"
+msgstr "30 gün içinde süresi dolacaklar"
+
+#: .\templates\warranty_and_services\warranty_tracking_list.html:106
+msgid "Products with expired warranty"
+msgstr "Garanti süresi dolan ürünler"
+
+#: .\templates\warranty_and_services\warranty_tracking_list.html:132
+msgid "Active Warranties"
+msgstr "Aktif Garantiler"
+
+#: .\templates\warranty_and_services\warranty_tracking_list.html:133
+msgid "Due Soon (30 Days)"
+msgstr "Süresi Dolacaklar(30 Gün)"
+
+#: .\templates\warranty_and_services\warranty_tracking_list.html:163
+msgid "Warranty List"
+msgstr "Garanti Listesi"
+
+#: .\templates\warranty_and_services\warranty_tracking_list.html:173
+#: .\warranty_and_services\models.py:647
+msgid "Warranty Value"
+msgstr "Garanti Değeri"
+
+#: .\templates\warranty_and_services\warranty_tracking_list.html:175
+msgid "Warranty Expiration"
+msgstr "Garanti Süresi"
+
+#: .\templates\warranty_and_services\warranty_tracking_list.html:176
+msgid "Remaining Days"
+msgstr "Kalan Gün"
+
+#: .\templates\warranty_and_services\warranty_tracking_list.html:254
+msgid "No Record Found"
+msgstr ""
+
+#: .\templates\warranty_and_services\warranty_tracking_list.html:255
+msgid "No warranty record found matching these criteria."
+msgstr ""
+
 #: .\venv\Lib\site-packages\django\contrib\messages\apps.py:16
 msgid "Messages"
-msgstr "Mesajlar"
+msgstr ""
 
 #: .\venv\Lib\site-packages\django\contrib\sitemaps\apps.py:8
 msgid "Site Maps"
-msgstr "Site Haritası"
+msgstr ""
 
 #: .\venv\Lib\site-packages\django\contrib\staticfiles\apps.py:9
 msgid "Static Files"
@@ -1387,15 +2467,15 @@ msgstr ""
 
 #: .\venv\Lib\site-packages\django\core\paginator.py:32
 msgid "That page number is not an integer"
-msgstr ""
+msgstr "Bu sayfa numarası tam sayı değil"
 
 #: .\venv\Lib\site-packages\django\core\paginator.py:33
 msgid "That page number is less than 1"
-msgstr ""
+msgstr "Bu sayfa sayısı 1 den küçük"
 
 #: .\venv\Lib\site-packages\django\core\paginator.py:34
 msgid "That page contains no results"
-msgstr ""
+msgstr "Bu sayfada sonuç gösterilemiyor"
 
 #: .\venv\Lib\site-packages\django\core\validators.py:22
 msgid "Enter a valid value."
@@ -1405,7 +2485,8 @@ msgstr ""
 msgid "Enter a valid domain name."
 msgstr ""
 
-#: .\venv\Lib\site-packages\django\core\validators.py:153 .\venv\Lib\site-packages\django\forms\fields.py:775
+#: .\venv\Lib\site-packages\django\core\validators.py:153
+#: .\venv\Lib\site-packages\django\forms\fields.py:775
 msgid "Enter a valid URL."
 msgstr ""
 
@@ -1419,14 +2500,18 @@ msgstr ""
 
 #. Translators: "letters" means latin letters: a-z and A-Z.
 #: .\venv\Lib\site-packages\django\core\validators.py:289
-msgid "Enter a valid “slug” consisting of letters, numbers, underscores or hyphens."
+msgid ""
+"Enter a valid “slug” consisting of letters, numbers, underscores or hyphens."
 msgstr ""
 
 #: .\venv\Lib\site-packages\django\core\validators.py:297
-msgid "Enter a valid “slug” consisting of Unicode letters, numbers, underscores, or hyphens."
+msgid ""
+"Enter a valid “slug” consisting of Unicode letters, numbers, underscores, or "
+"hyphens."
 msgstr ""
 
-#: .\venv\Lib\site-packages\django\core\validators.py:309 .\venv\Lib\site-packages\django\core\validators.py:318
+#: .\venv\Lib\site-packages\django\core\validators.py:309
+#: .\venv\Lib\site-packages\django\core\validators.py:318
 #: .\venv\Lib\site-packages\django\core\validators.py:332
 #: .\venv\Lib\site-packages\django\db\models\fields\__init__.py:2220
 #, python-format
@@ -1437,7 +2522,8 @@ msgstr ""
 msgid "IPv4"
 msgstr ""
 
-#: .\venv\Lib\site-packages\django\core\validators.py:320 .\venv\Lib\site-packages\django\utils\ipv6.py:43
+#: .\venv\Lib\site-packages\django\core\validators.py:320
+#: .\venv\Lib\site-packages\django\utils\ipv6.py:43
 msgid "IPv6"
 msgstr ""
 
@@ -1472,25 +2558,34 @@ msgstr ""
 #: .\venv\Lib\site-packages\django\core\validators.py:441
 #, python-format
 msgid ""
-"Ensure this value is a multiple of step size %(limit_value)s, starting from %(offset)s, e.g. %(offset)s, "
-"%(valid_value1)s, %(valid_value2)s, and so on."
+"Ensure this value is a multiple of step size %(limit_value)s, starting from "
+"%(offset)s, e.g. %(offset)s, %(valid_value1)s, %(valid_value2)s, and so on."
 msgstr ""
 
 #: .\venv\Lib\site-packages\django\core\validators.py:473
 #, python-format
-msgid "Ensure this value has at least %(limit_value)d character (it has %(show_value)d)."
-msgid_plural "Ensure this value has at least %(limit_value)d characters (it has %(show_value)d)."
+msgid ""
+"Ensure this value has at least %(limit_value)d character (it has "
+"%(show_value)d)."
+msgid_plural ""
+"Ensure this value has at least %(limit_value)d characters (it has "
+"%(show_value)d)."
 msgstr[0] ""
 msgstr[1] ""
 
 #: .\venv\Lib\site-packages\django\core\validators.py:491
 #, python-format
-msgid "Ensure this value has at most %(limit_value)d character (it has %(show_value)d)."
-msgid_plural "Ensure this value has at most %(limit_value)d characters (it has %(show_value)d)."
+msgid ""
+"Ensure this value has at most %(limit_value)d character (it has "
+"%(show_value)d)."
+msgid_plural ""
+"Ensure this value has at most %(limit_value)d characters (it has "
+"%(show_value)d)."
 msgstr[0] ""
 msgstr[1] ""
 
-#: .\venv\Lib\site-packages\django\core\validators.py:514 .\venv\Lib\site-packages\django\forms\fields.py:366
+#: .\venv\Lib\site-packages\django\core\validators.py:514
+#: .\venv\Lib\site-packages\django\forms\fields.py:366
 #: .\venv\Lib\site-packages\django\forms\fields.py:405
 msgid "Enter a number."
 msgstr ""
@@ -1511,21 +2606,26 @@ msgstr[1] ""
 
 #: .\venv\Lib\site-packages\django\core\validators.py:526
 #, python-format
-msgid "Ensure that there are no more than %(max)s digit before the decimal point."
-msgid_plural "Ensure that there are no more than %(max)s digits before the decimal point."
+msgid ""
+"Ensure that there are no more than %(max)s digit before the decimal point."
+msgid_plural ""
+"Ensure that there are no more than %(max)s digits before the decimal point."
 msgstr[0] ""
 msgstr[1] ""
 
 #: .\venv\Lib\site-packages\django\core\validators.py:597
 #, python-format
-msgid "File extension “%(extension)s” is not allowed. Allowed extensions are: %(allowed_extensions)s."
+msgid ""
+"File extension “%(extension)s” is not allowed. Allowed extensions are: "
+"%(allowed_extensions)s."
 msgstr ""
 
 #: .\venv\Lib\site-packages\django\core\validators.py:659
 msgid "Null characters are not allowed."
 msgstr ""
 
-#: .\venv\Lib\site-packages\django\db\models\base.py:1600 .\venv\Lib\site-packages\django\forms\models.py:908
+#: .\venv\Lib\site-packages\django\db\models\base.py:1600
+#: .\venv\Lib\site-packages\django\forms\models.py:908
 msgid "and"
 msgstr ""
 
@@ -1561,7 +2661,8 @@ msgstr ""
 #. 'month'. Eg: "Title must be unique for pub_date year"
 #: .\venv\Lib\site-packages\django\db\models\fields\__init__.py:141
 #, python-format
-msgid "%(field_label)s must be unique for %(date_field_label)s %(lookup_type)s."
+msgid ""
+"%(field_label)s must be unique for %(date_field_label)s %(lookup_type)s."
 msgstr ""
 
 #: .\venv\Lib\site-packages\django\db\models\fields\__init__.py:180
@@ -1598,13 +2699,17 @@ msgstr ""
 
 #: .\venv\Lib\site-packages\django\db\models\fields\__init__.py:1427
 #, python-format
-msgid "“%(value)s” value has an invalid date format. It must be in YYYY-MM-DD format."
+msgid ""
+"“%(value)s” value has an invalid date format. It must be in YYYY-MM-DD "
+"format."
 msgstr ""
 
 #: .\venv\Lib\site-packages\django\db\models\fields\__init__.py:1431
 #: .\venv\Lib\site-packages\django\db\models\fields\__init__.py:1566
 #, python-format
-msgid "“%(value)s” value has the correct format (YYYY-MM-DD) but it is an invalid date."
+msgid ""
+"“%(value)s” value has the correct format (YYYY-MM-DD) but it is an invalid "
+"date."
 msgstr ""
 
 #: .\venv\Lib\site-packages\django\db\models\fields\__init__.py:1435
@@ -1613,12 +2718,16 @@ msgstr ""
 
 #: .\venv\Lib\site-packages\django\db\models\fields\__init__.py:1562
 #, python-format
-msgid "“%(value)s” value has an invalid format. It must be in YYYY-MM-DD HH:MM[:ss[.uuuuuu]][TZ] format."
+msgid ""
+"“%(value)s” value has an invalid format. It must be in YYYY-MM-DD "
+"HH:MM[:ss[.uuuuuu]][TZ] format."
 msgstr ""
 
 #: .\venv\Lib\site-packages\django\db\models\fields\__init__.py:1570
 #, python-format
-msgid "“%(value)s” value has the correct format (YYYY-MM-DD HH:MM[:ss[.uuuuuu]][TZ]) but it is an invalid date/time."
+msgid ""
+"“%(value)s” value has the correct format (YYYY-MM-DD HH:MM[:ss[.uuuuuu]]"
+"[TZ]) but it is an invalid date/time."
 msgstr ""
 
 #: .\venv\Lib\site-packages\django\db\models\fields\__init__.py:1575
@@ -1636,11 +2745,9 @@ msgstr ""
 
 #: .\venv\Lib\site-packages\django\db\models\fields\__init__.py:1864
 #, python-format
-msgid "“%(value)s” value has an invalid format. It must be in [DD] [[HH:]MM:]ss[.uuuuuu] format."
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\db\models\fields\__init__.py:1868
-msgid "Duration"
+msgid ""
+"“%(value)s” value has an invalid format. It must be in [DD] "
+"[[HH:]MM:]ss[.uuuuuu] format."
 msgstr ""
 
 #: .\venv\Lib\site-packages\django\db\models\fields\__init__.py:1920
@@ -1718,12 +2825,16 @@ msgstr ""
 
 #: .\venv\Lib\site-packages\django\db\models\fields\__init__.py:2526
 #, python-format
-msgid "“%(value)s” value has an invalid format. It must be in HH:MM[:ss[.uuuuuu]] format."
+msgid ""
+"“%(value)s” value has an invalid format. It must be in HH:MM[:ss[.uuuuuu]] "
+"format."
 msgstr ""
 
 #: .\venv\Lib\site-packages\django\db\models\fields\__init__.py:2530
 #, python-format
-msgid "“%(value)s” value has the correct format (HH:MM[:ss[.uuuuuu]]) but it is an invalid time."
+msgid ""
+"“%(value)s” value has the correct format (HH:MM[:ss[.uuuuuu]]) but it is an "
+"invalid time."
 msgstr ""
 
 #: .\venv\Lib\site-packages\django\db\models\fields\__init__.py:2534
@@ -1753,7 +2864,7 @@ msgstr ""
 
 #: .\venv\Lib\site-packages\django\db\models\fields\files.py:420
 msgid "Image"
-msgstr "Resim"
+msgstr ""
 
 #: .\venv\Lib\site-packages\django\db\models\fields\json.py:24
 msgid "A JSON object"
@@ -1804,11 +2915,13 @@ msgstr ""
 msgid "Enter a whole number."
 msgstr ""
 
-#: .\venv\Lib\site-packages\django\forms\fields.py:486 .\venv\Lib\site-packages\django\forms\fields.py:1267
+#: .\venv\Lib\site-packages\django\forms\fields.py:486
+#: .\venv\Lib\site-packages\django\forms\fields.py:1267
 msgid "Enter a valid date."
 msgstr ""
 
-#: .\venv\Lib\site-packages\django\forms\fields.py:509 .\venv\Lib\site-packages\django\forms\fields.py:1268
+#: .\venv\Lib\site-packages\django\forms\fields.py:509
+#: .\venv\Lib\site-packages\django\forms\fields.py:1268
 msgid "Enter a valid time."
 msgstr ""
 
@@ -1840,7 +2953,8 @@ msgstr ""
 #: .\venv\Lib\site-packages\django\forms\fields.py:644
 #, python-format
 msgid "Ensure this filename has at most %(max)d character (it has %(length)d)."
-msgid_plural "Ensure this filename has at most %(max)d characters (it has %(length)d)."
+msgid_plural ""
+"Ensure this filename has at most %(max)d characters (it has %(length)d)."
 msgstr[0] ""
 msgstr[1] ""
 
@@ -1849,16 +2963,20 @@ msgid "Please either submit a file or check the clear checkbox, not both."
 msgstr ""
 
 #: .\venv\Lib\site-packages\django\forms\fields.py:717
-msgid "Upload a valid image. The file you uploaded was either not an image or a corrupted image."
+msgid ""
+"Upload a valid image. The file you uploaded was either not an image or a "
+"corrupted image."
 msgstr ""
 
-#: .\venv\Lib\site-packages\django\forms\fields.py:889 .\venv\Lib\site-packages\django\forms\fields.py:975
+#: .\venv\Lib\site-packages\django\forms\fields.py:889
+#: .\venv\Lib\site-packages\django\forms\fields.py:975
 #: .\venv\Lib\site-packages\django\forms\models.py:1592
 #, python-format
 msgid "Select a valid choice. %(value)s is not one of the available choices."
 msgstr ""
 
-#: .\venv\Lib\site-packages\django\forms\fields.py:977 .\venv\Lib\site-packages\django\forms\fields.py:1096
+#: .\venv\Lib\site-packages\django\forms\fields.py:977
+#: .\venv\Lib\site-packages\django\forms\fields.py:1096
 #: .\venv\Lib\site-packages\django\forms\models.py:1590
 msgid "Enter a list of values."
 msgstr ""
@@ -1888,8 +3006,8 @@ msgstr ""
 #: .\venv\Lib\site-packages\django\forms\formsets.py:61
 #, python-format
 msgid ""
-"ManagementForm data is missing or has been tampered with. Missing fields: %(field_names)s. You may need to file a bug "
-"report if the issue persists."
+"ManagementForm data is missing or has been tampered with. Missing fields: "
+"%(field_names)s. You may need to file a bug report if the issue persists."
 msgstr ""
 
 #: .\venv\Lib\site-packages\django\forms\formsets.py:65
@@ -1906,7 +3024,8 @@ msgid_plural "Please submit at least %(num)d forms."
 msgstr[0] ""
 msgstr[1] ""
 
-#: .\venv\Lib\site-packages\django\forms\formsets.py:484 .\venv\Lib\site-packages\django\forms\formsets.py:491
+#: .\venv\Lib\site-packages\django\forms\formsets.py:484
+#: .\venv\Lib\site-packages\django\forms\formsets.py:491
 msgid "Order"
 msgstr ""
 
@@ -1926,7 +3045,9 @@ msgstr ""
 
 #: .\venv\Lib\site-packages\django\forms\models.py:913
 #, python-format
-msgid "Please correct the duplicate data for %(field_name)s which must be unique for the %(lookup)s in %(date_field)s."
+msgid ""
+"Please correct the duplicate data for %(field_name)s which must be unique "
+"for the %(lookup)s in %(date_field)s."
 msgstr ""
 
 #: .\venv\Lib\site-packages\django\forms\models.py:922
@@ -1948,7 +3069,9 @@ msgstr ""
 
 #: .\venv\Lib\site-packages\django\forms\utils.py:229
 #, python-format
-msgid "%(datetime)s couldn’t be interpreted in time zone %(current_timezone)s; it may be ambiguous or it may not exist."
+msgid ""
+"%(datetime)s couldn’t be interpreted in time zone %(current_timezone)s; it "
+"may be ambiguous or it may not exist."
 msgstr ""
 
 #: .\venv\Lib\site-packages\django\forms\widgets.py:528
@@ -2298,12 +3421,12 @@ msgstr ""
 #: .\venv\Lib\site-packages\django\utils\dates.py:77
 msgctxt "alt. month"
 msgid "November"
-msgstr "Kasım"
+msgstr ""
 
 #: .\venv\Lib\site-packages\django\utils\dates.py:78
 msgctxt "alt. month"
 msgid "December"
-msgstr "Aralık"
+msgstr ""
 
 #: .\venv\Lib\site-packages\django\utils\ipv6.py:20
 msgid "This is not a valid IPv6 address."
@@ -2320,7 +3443,8 @@ msgid "or"
 msgstr ""
 
 #. Translators: This string is used as a separator between list elements
-#: .\venv\Lib\site-packages\django\utils\text.py:306 .\venv\Lib\site-packages\django\utils\timesince.py:135
+#: .\venv\Lib\site-packages\django\utils\text.py:306
+#: .\venv\Lib\site-packages\django\utils\timesince.py:135
 msgid ", "
 msgstr ""
 
@@ -2376,34 +3500,39 @@ msgstr ""
 
 #: .\venv\Lib\site-packages\django\views\csrf.py:34
 msgid ""
-"You are seeing this message because this HTTPS site requires a “Referer header” to be sent by your web browser, but "
-"none was sent. This header is required for security reasons, to ensure that your browser is not being hijacked by third "
-"parties."
+"You are seeing this message because this HTTPS site requires a “Referer "
+"header” to be sent by your web browser, but none was sent. This header is "
+"required for security reasons, to ensure that your browser is not being "
+"hijacked by third parties."
 msgstr ""
 
 #: .\venv\Lib\site-packages\django\views\csrf.py:40
 msgid ""
-"If you have configured your browser to disable “Referer” headers, please re-enable them, at least for this site, or for "
-"HTTPS connections, or for “same-origin” requests."
+"If you have configured your browser to disable “Referer” headers, please re-"
+"enable them, at least for this site, or for HTTPS connections, or for “same-"
+"origin” requests."
 msgstr ""
 
 #: .\venv\Lib\site-packages\django\views\csrf.py:45
 msgid ""
-"If you are using the <meta name=\"referrer\" content=\"no-referrer\"> tag or including the “Referrer-Policy: no-"
-"referrer” header, please remove them. The CSRF protection requires the “Referer” header to do strict referer checking. "
-"If you’re concerned about privacy, use alternatives like <a rel=\"noreferrer\" …> for links to third-party sites."
+"If you are using the <meta name=\"referrer\" content=\"no-referrer\"> tag or "
+"including the “Referrer-Policy: no-referrer” header, please remove them. The "
+"CSRF protection requires the “Referer” header to do strict referer checking. "
+"If you’re concerned about privacy, use alternatives like <a "
+"rel=\"noreferrer\" …> for links to third-party sites."
 msgstr ""
 
 #: .\venv\Lib\site-packages\django\views\csrf.py:54
 msgid ""
-"You are seeing this message because this site requires a CSRF cookie when submitting forms. This cookie is required for "
-"security reasons, to ensure that your browser is not being hijacked by third parties."
+"You are seeing this message because this site requires a CSRF cookie when "
+"submitting forms. This cookie is required for security reasons, to ensure "
+"that your browser is not being hijacked by third parties."
 msgstr ""
 
 #: .\venv\Lib\site-packages\django\views\csrf.py:60
 msgid ""
-"If you have configured your browser to disable cookies, please re-enable them, at least for this site, or for “same-"
-"origin” requests."
+"If you have configured your browser to disable cookies, please re-enable "
+"them, at least for this site, or for “same-origin” requests."
 msgstr ""
 
 #: .\venv\Lib\site-packages\django\views\csrf.py:66
@@ -2414,7 +3543,8 @@ msgstr ""
 msgid "No year specified"
 msgstr ""
 
-#: .\venv\Lib\site-packages\django\views\generic\dates.py:64 .\venv\Lib\site-packages\django\views\generic\dates.py:115
+#: .\venv\Lib\site-packages\django\views\generic\dates.py:64
+#: .\venv\Lib\site-packages\django\views\generic\dates.py:115
 #: .\venv\Lib\site-packages\django\views\generic\dates.py:214
 msgid "Date out of range"
 msgstr ""
@@ -2431,14 +3561,17 @@ msgstr ""
 msgid "No week specified"
 msgstr ""
 
-#: .\venv\Lib\site-packages\django\views\generic\dates.py:353 .\venv\Lib\site-packages\django\views\generic\dates.py:384
+#: .\venv\Lib\site-packages\django\views\generic\dates.py:353
+#: .\venv\Lib\site-packages\django\views\generic\dates.py:384
 #, python-format
 msgid "No %(verbose_name_plural)s available"
 msgstr ""
 
 #: .\venv\Lib\site-packages\django\views\generic\dates.py:680
 #, python-format
-msgid "Future %(verbose_name_plural)s not available because %(class_name)s.allow_future is False."
+msgid ""
+"Future %(verbose_name_plural)s not available because "
+"%(class_name)s.allow_future is False."
 msgstr ""
 
 #: .\venv\Lib\site-packages\django\views\generic\dates.py:720
@@ -2489,15 +3622,17 @@ msgstr ""
 #: .\venv\Lib\site-packages\django\views\templates\default_urlconf.html:206
 #, python-format
 msgid ""
-"View <a href=\"https://docs.djangoproject.com/en/%(version)s/releases/\" target=\"_blank\" rel=\"noopener\">release "
-"notes</a> for Django %(version)s"
+"View <a href=\"https://docs.djangoproject.com/en/%(version)s/releases/\" "
+"target=\"_blank\" rel=\"noopener\">release notes</a> for Django %(version)s"
 msgstr ""
 
 #: .\venv\Lib\site-packages\django\views\templates\default_urlconf.html:208
 #, python-format
 msgid ""
-"You are seeing this page because <a href=\"https://docs.djangoproject.com/en/%(version)s/ref/settings/#debug\" "
-"target=\"_blank\" rel=\"noopener\">DEBUG=True</a> is in your settings file and you have not configured any URLs."
+"You are seeing this page because <a href=\"https://docs.djangoproject.com/en/"
+"%(version)s/ref/settings/#debug\" target=\"_blank\" "
+"rel=\"noopener\">DEBUG=True</a> is in your settings file and you have not "
+"configured any URLs."
 msgstr ""
 
 #: .\venv\Lib\site-packages\django\views\templates\default_urlconf.html:217
@@ -2524,445 +3659,470 @@ msgstr ""
 msgid "Connect, get help, or contribute"
 msgstr ""
 
-#: .\warranty_and_services\admin.py:64
-msgid "Installation Details"
+#: .\warranty_and_services\admin.py:67
+#: .\warranty_and_services\admin_broken.py:82
+#: .\warranty_and_services\admin_clean.py:80
+msgid "Location Information"
 msgstr ""
 
-#: .\warranty_and_services\admin.py:67
-msgid "Location Information"
-msgstr "Lokasyon bilgileri"
-
 #: .\warranty_and_services\admin.py:71
+#: .\warranty_and_services\admin_broken.py:86
+#: .\warranty_and_services\admin_clean.py:84
 msgid "Additional Information"
-msgstr "Ek Bilgiler"
+msgstr ""
 
-#: .\warranty_and_services\admin.py:75 .\warranty_and_services\admin.py:122 .\warranty_and_services\admin.py:156
+#: .\warranty_and_services\admin.py:75 .\warranty_and_services\admin.py:122
+#: .\warranty_and_services\admin.py:156
+#: .\warranty_and_services\admin_broken.py:90
+#: .\warranty_and_services\admin_broken.py:137
+#: .\warranty_and_services\admin_broken.py:180
+#: .\warranty_and_services\admin_clean.py:88
+#: .\warranty_and_services\admin_clean.py:135
+#: .\warranty_and_services\admin_clean.py:178
 msgid "Timestamps"
 msgstr ""
 
 #: .\warranty_and_services\admin.py:84
+#: .\warranty_and_services\admin_broken.py:99
+#: .\warranty_and_services\admin_clean.py:97
 msgid "Has GPS Location"
 msgstr ""
 
-#: .\warranty_and_services\admin.py:90 .\warranty_and_services\models.py:63
+#: .\warranty_and_services\admin.py:90
+#: .\warranty_and_services\admin_broken.py:105
+#: .\warranty_and_services\admin_clean.py:103
+#: .\warranty_and_services\models.py:82
 msgid "Inventory Item"
 msgstr ""
 
-#: .\warranty_and_services\admin.py:104
-msgid "Documents"
-msgstr ""
-
-#: .\warranty_and_services\admin.py:115
-msgid "Warranty Details"
-msgstr ""
-
 #: .\warranty_and_services\admin.py:118 .\warranty_and_services\admin.py:152
+#: .\warranty_and_services\admin_broken.py:133
+#: .\warranty_and_services\admin_broken.py:176
+#: .\warranty_and_services\admin_clean.py:131
+#: .\warranty_and_services\admin_clean.py:174
 msgid "Calculated Information"
-msgstr "Hesaplanan Bilgiler"
+msgstr ""
 
 #: .\warranty_and_services\admin.py:135
+#: .\warranty_and_services\admin_broken.py:150
+#: .\warranty_and_services\admin_clean.py:148
 msgid "Days Remaining"
-msgstr "Kalan Süre"
+msgstr ""
 
 #: .\warranty_and_services\admin.py:146
+#: .\warranty_and_services\admin_broken.py:170
+#: .\warranty_and_services\admin_clean.py:168
+#: .\warranty_and_services\admin_clean.py:282
 msgid "Service Details"
-msgstr "Servis Detayı"
+msgstr ""
 
 #: .\warranty_and_services\admin.py:149
+#: .\warranty_and_services\admin_broken.py:173
+#: .\warranty_and_services\admin_clean.py:171
 msgid "Service Status"
-msgstr "Servis Durumu"
+msgstr ""
 
 #: .\warranty_and_services\admin.py:165
+#: .\warranty_and_services\admin_broken.py:189
+#: .\warranty_and_services\admin_clean.py:187
 msgid "Due"
-msgstr "Son"
+msgstr ""
 
 #: .\warranty_and_services\admin.py:169
+#: .\warranty_and_services\admin_broken.py:193
+#: .\warranty_and_services\admin_clean.py:191
 msgid "Days Until Due"
-msgstr "Kalan Gün "
+msgstr ""
 
 #: .\warranty_and_services\admin.py:177
 msgid "Mark selected services as completed"
 msgstr ""
 
 #: .\warranty_and_services\admin.py:188
+#: .\warranty_and_services\admin_broken.py:215
+#: .\warranty_and_services\admin_clean.py:213
 msgid "Image Details"
 msgstr ""
 
 #: .\warranty_and_services\admin.py:191 .\warranty_and_services\admin.py:218
+#: .\warranty_and_services\admin_broken.py:218
+#: .\warranty_and_services\admin_broken.py:245
+#: .\warranty_and_services\admin_clean.py:216
+#: .\warranty_and_services\admin_clean.py:243
 msgid "Upload Information"
-msgstr "Yüklenen Bilgiler"
+msgstr ""
 
-#: .\warranty_and_services\admin.py:201 .\warranty_and_services\admin.py:228 .\warranty_and_services\models.py:103
-#: .\warranty_and_services\models.py:215 .\warranty_and_services\models.py:371 .\warranty_and_services\models.py:524
-#: .\warranty_and_services\models.py:736
+#: .\warranty_and_services\admin.py:201 .\warranty_and_services\admin.py:228
+#: .\warranty_and_services\admin_broken.py:228
+#: .\warranty_and_services\admin_broken.py:255
+#: .\warranty_and_services\admin_clean.py:226
+#: .\warranty_and_services\admin_clean.py:253
+#: .\warranty_and_services\admin_clean.py:298
+#: .\warranty_and_services\models.py:122 .\warranty_and_services\models.py:327
+#: .\warranty_and_services\models.py:484 .\warranty_and_services\models.py:637
+#: .\warranty_and_services\models.py:849
 msgid "Installation"
 msgstr ""
 
 #: .\warranty_and_services\admin.py:212
+#: .\warranty_and_services\admin_broken.py:239
+#: .\warranty_and_services\admin_clean.py:237
 msgid "Document Details"
 msgstr ""
 
 #: .\warranty_and_services\admin.py:215
+#: .\warranty_and_services\admin_broken.py:242
+#: .\warranty_and_services\admin_clean.py:240
 msgid "Document Settings"
 msgstr ""
 
-#: .\warranty_and_services\models.py:52
-msgid "Installer User"
+#: .\warranty_and_services\admin_broken.py:164
+#: .\warranty_and_services\admin_clean.py:162
+msgid "Installed Item"
 msgstr ""
 
-#: .\warranty_and_services\models.py:53
-msgid "User who performed the installation"
+#: .\warranty_and_services\admin_broken.py:204
+#: .\warranty_and_services\admin_clean.py:202
+msgid "Mark selected services as completed and create next"
 msgstr ""
 
-#: .\warranty_and_services\models.py:58
-msgid "Date and time when the installation was completed"
+#: .\warranty_and_services\admin_clean.py:285
+msgid "Service Actions"
 msgstr ""
 
-#: .\warranty_and_services\models.py:64
-msgid "Inventory item to be installed"
+#: .\warranty_and_services\admin_clean.py:288
+msgid "Meta Information"
+msgstr ""
+
+#: .\warranty_and_services\admin_clean.py:317
+#: .\warranty_and_services\admin_clean.py:331
+msgid "Service Entry"
 msgstr ""
 
 #: .\warranty_and_services\models.py:71
+msgid "Installer User"
+msgstr ""
+
+#: .\warranty_and_services\models.py:72
+msgid "User who performed the installation"
+msgstr ""
+
+#: .\warranty_and_services\models.py:77
+msgid "Date and time when the installation was completed"
+msgstr ""
+
+#: .\warranty_and_services\models.py:83
+msgid "Inventory item to be installed"
+msgstr ""
+
+#: .\warranty_and_services\models.py:90
 msgid "End user customer where equipment is installed"
 msgstr ""
 
-#: .\warranty_and_services\models.py:78
+#: .\warranty_and_services\models.py:97
 msgid "Latitude"
 msgstr ""
 
-#: .\warranty_and_services\models.py:79
+#: .\warranty_and_services\models.py:98
 msgid "GPS latitude coordinate"
 msgstr ""
 
-#: .\warranty_and_services\models.py:86
+#: .\warranty_and_services\models.py:105
 msgid "Longitude"
 msgstr ""
 
-#: .\warranty_and_services\models.py:87
+#: .\warranty_and_services\models.py:106
 msgid "GPS longitude coordinate"
 msgstr ""
 
-#: .\warranty_and_services\models.py:91
-msgid "Installation Address"
-msgstr ""
-
-#: .\warranty_and_services\models.py:92
+#: .\warranty_and_services\models.py:111
 msgid "Detailed address of installation location"
 msgstr ""
 
-#: .\warranty_and_services\models.py:96
-msgid "Installation Notes"
-msgstr ""
-
-#: .\warranty_and_services\models.py:97
+#: .\warranty_and_services\models.py:116
 msgid "Additional notes about the installation"
 msgstr ""
 
-#: .\warranty_and_services\models.py:152 .\warranty_and_services\models.py:157 .\warranty_and_services\models.py:162
+#: .\warranty_and_services\models.py:263 .\warranty_and_services\models.py:268
+#: .\warranty_and_services\models.py:273
 msgid "Selected inventory item is already in use."
 msgstr ""
 
-#: .\warranty_and_services\models.py:167
+#: .\warranty_and_services\models.py:278
 msgid "Installations can only be made for end user customers."
 msgstr ""
 
-#: .\warranty_and_services\models.py:180
+#: .\warranty_and_services\models.py:291
 msgid "Location not set"
 msgstr ""
 
-#: .\warranty_and_services\models.py:219 .\warranty_and_services\models.py:268
+#: .\warranty_and_services\models.py:331 .\warranty_and_services\models.py:380
 msgid "Installation Image"
 msgstr ""
 
-#: .\warranty_and_services\models.py:220
+#: .\warranty_and_services\models.py:332
 msgid "Photo taken during installation"
 msgstr ""
 
-#: .\warranty_and_services\models.py:225
+#: .\warranty_and_services\models.py:337
 msgid "Image Title"
 msgstr ""
 
-#: .\warranty_and_services\models.py:226
+#: .\warranty_and_services\models.py:338
 msgid "Descriptive title for the image"
 msgstr ""
 
-#: .\warranty_and_services\models.py:230
+#: .\warranty_and_services\models.py:342
 msgid "Image Description"
 msgstr ""
 
-#: .\warranty_and_services\models.py:231
+#: .\warranty_and_services\models.py:343
 msgid "Detailed description of what the image shows"
 msgstr ""
 
-#: .\warranty_and_services\models.py:236
+#: .\warranty_and_services\models.py:348
 msgid "Before Installation"
 msgstr ""
 
-#: .\warranty_and_services\models.py:237
+#: .\warranty_and_services\models.py:349
 msgid "During Installation"
 msgstr ""
 
-#: .\warranty_and_services\models.py:238
+#: .\warranty_and_services\models.py:350
 msgid "After Installation"
 msgstr ""
 
-#: .\warranty_and_services\models.py:239
+#: .\warranty_and_services\models.py:351
 msgid "Equipment Photo"
 msgstr ""
 
-#: .\warranty_and_services\models.py:240
+#: .\warranty_and_services\models.py:352
 msgid "Location Photo"
 msgstr ""
 
-#: .\warranty_and_services\models.py:241
+#: .\warranty_and_services\models.py:353
 msgid "Documentation Photo"
 msgstr ""
 
-#: .\warranty_and_services\models.py:242
+#: .\warranty_and_services\models.py:354
 msgid "Other"
 msgstr ""
 
-#: .\warranty_and_services\models.py:245
+#: .\warranty_and_services\models.py:357
 msgid "Image Type"
-msgstr "Resim Türü"
+msgstr ""
 
-#: .\warranty_and_services\models.py:249
+#: .\warranty_and_services\models.py:361
 msgid "Captured At"
 msgstr ""
 
-#: .\warranty_and_services\models.py:250
+#: .\warranty_and_services\models.py:362
 msgid "When the photo was taken"
 msgstr ""
 
-#: .\warranty_and_services\models.py:256 .\warranty_and_services\models.py:412
+#: .\warranty_and_services\models.py:368 .\warranty_and_services\models.py:525
 msgid "Uploaded By"
 msgstr ""
 
-#: .\warranty_and_services\models.py:257
+#: .\warranty_and_services\models.py:369
 msgid "User who uploaded the image"
 msgstr ""
 
-#: .\warranty_and_services\models.py:262 .\warranty_and_services\models.py:418
+#: .\warranty_and_services\models.py:374 .\warranty_and_services\models.py:531
 msgid "File Size (bytes)"
 msgstr ""
 
-#: .\warranty_and_services\models.py:269
+#: .\warranty_and_services\models.py:381
 msgid "Installation Images"
 msgstr ""
 
-#: .\warranty_and_services\models.py:375 .\warranty_and_services\models.py:439
+#: .\warranty_and_services\models.py:488 .\warranty_and_services\models.py:552
 msgid "Installation Document"
 msgstr ""
 
-#: .\warranty_and_services\models.py:376
+#: .\warranty_and_services\models.py:489
 msgid "Document related to the installation"
 msgstr ""
 
-#: .\warranty_and_services\models.py:380
+#: .\warranty_and_services\models.py:493
 msgid "Document Title"
 msgstr ""
 
-#: .\warranty_and_services\models.py:381
+#: .\warranty_and_services\models.py:494
 msgid "Descriptive title for the document"
 msgstr ""
 
-#: .\warranty_and_services\models.py:385
+#: .\warranty_and_services\models.py:498
 msgid "Document Description"
 msgstr ""
 
-#: .\warranty_and_services\models.py:386
+#: .\warranty_and_services\models.py:499
 msgid "Detailed description of the document content"
 msgstr ""
 
-#: .\warranty_and_services\models.py:391
+#: .\warranty_and_services\models.py:504
 msgid "Installation Manual"
 msgstr ""
 
-#: .\warranty_and_services\models.py:392
+#: .\warranty_and_services\models.py:505
 msgid "Installation Certificate"
 msgstr ""
 
-#: .\warranty_and_services\models.py:393
+#: .\warranty_and_services\models.py:506
 msgid "Installation Report"
 msgstr ""
 
-#: .\warranty_and_services\models.py:394
+#: .\warranty_and_services\models.py:507
 msgid "Installation Checklist"
 msgstr ""
 
-#: .\warranty_and_services\models.py:395
+#: .\warranty_and_services\models.py:508
 msgid "Warranty Document"
 msgstr ""
 
-#: .\warranty_and_services\models.py:396
+#: .\warranty_and_services\models.py:509
 msgid "Technical Specification"
 msgstr ""
 
-#: .\warranty_and_services\models.py:397
+#: .\warranty_and_services\models.py:510
 msgid "Installation Contract"
 msgstr ""
 
-#: .\warranty_and_services\models.py:398
+#: .\warranty_and_services\models.py:511
 msgid "Invoice/Receipt"
 msgstr ""
 
-#: .\warranty_and_services\models.py:399
+#: .\warranty_and_services\models.py:512
 msgid "Other Document"
 msgstr ""
 
-#: .\warranty_and_services\models.py:402
+#: .\warranty_and_services\models.py:515
 msgid "Document Type"
-msgstr "Belge Türü"
+msgstr ""
 
-#: .\warranty_and_services\models.py:406
+#: .\warranty_and_services\models.py:519
 msgid "Uploaded At"
 msgstr ""
 
-#: .\warranty_and_services\models.py:413
+#: .\warranty_and_services\models.py:526
 msgid "User who uploaded the document"
 msgstr ""
 
-#: .\warranty_and_services\models.py:423
+#: .\warranty_and_services\models.py:536
 msgid "File Extension"
 msgstr ""
 
-#: .\warranty_and_services\models.py:427
+#: .\warranty_and_services\models.py:540
 msgid "Required Document"
 msgstr ""
 
-#: .\warranty_and_services\models.py:428
+#: .\warranty_and_services\models.py:541
 msgid "Mark as required document for this installation"
 msgstr ""
 
-#: .\warranty_and_services\models.py:432
+#: .\warranty_and_services\models.py:545
 msgid "Confidential"
 msgstr ""
 
-#: .\warranty_and_services\models.py:433
+#: .\warranty_and_services\models.py:546
 msgid "Mark as confidential document (restricted access)"
 msgstr ""
 
-#: .\warranty_and_services\models.py:440
+#: .\warranty_and_services\models.py:553
 msgid "Installation Documents"
 msgstr ""
 
-#: .\warranty_and_services\models.py:494
+#: .\warranty_and_services\models.py:607
 msgid "File size cannot exceed 50MB."
 msgstr ""
 
-#: .\warranty_and_services\models.py:506
+#: .\warranty_and_services\models.py:619
 msgid "File type not allowed. Allowed types: PDF, DOC, XLS, PPT, TXT, Images."
 msgstr ""
 
-#: .\warranty_and_services\models.py:516
+#: .\warranty_and_services\models.py:629
 msgid "Time-Term Warranty (Year Based)"
 msgstr ""
 
-#: .\warranty_and_services\models.py:517
+#: .\warranty_and_services\models.py:630
 msgid "Working Hours Warranty"
 msgstr ""
 
-#: .\warranty_and_services\models.py:529
-msgid "Warranty Type"
-msgstr "Garanti tipi"
-
-#: .\warranty_and_services\models.py:534
-msgid "Warranty Value"
-msgstr ""
-
-#: .\warranty_and_services\models.py:535
+#: .\warranty_and_services\models.py:648
 msgid "Years for time-term warranty, Hours for working hours warranty"
 msgstr ""
 
-#: .\warranty_and_services\models.py:538
+#: .\warranty_and_services\models.py:651
 msgid "End of Warranty Date"
 msgstr ""
 
-#: .\warranty_and_services\models.py:539
+#: .\warranty_and_services\models.py:652
 msgid "Calculated warranty end date"
 msgstr ""
 
-#: .\warranty_and_services\models.py:543 .\warranty_and_services\models.py:765
+#: .\warranty_and_services\models.py:656 .\warranty_and_services\models.py:878
 msgid "Calculation Notes"
 msgstr ""
 
-#: .\warranty_and_services\models.py:544
+#: .\warranty_and_services\models.py:657
 msgid "Details about how the warranty end date was calculated"
 msgstr ""
 
-#: .\warranty_and_services\models.py:550
+#: .\warranty_and_services\models.py:663
 msgid "Warranty Follow-Up"
 msgstr ""
 
-#: .\warranty_and_services\models.py:551
+#: .\warranty_and_services\models.py:664
 msgid "Warranty Follow-Ups"
 msgstr ""
 
-#: .\warranty_and_services\models.py:728
+#: .\warranty_and_services\models.py:841
 msgid "Time-Term Service (Month Based)"
 msgstr ""
 
-#: .\warranty_and_services\models.py:729
+#: .\warranty_and_services\models.py:842
 msgid "Working Hours Service"
 msgstr ""
 
-#: .\warranty_and_services\models.py:741
-msgid "Service Type"
-msgstr ""
-
-#: .\warranty_and_services\models.py:746
-msgid "Service Value"
-msgstr ""
-
-#: .\warranty_and_services\models.py:747
+#: .\warranty_and_services\models.py:860
 msgid "Months for time-term service, Hours for working hours service"
 msgstr ""
 
-#: .\warranty_and_services\models.py:751
+#: .\warranty_and_services\models.py:864
 msgid "Calculated next service date"
 msgstr ""
 
-#: .\warranty_and_services\models.py:755
+#: .\warranty_and_services\models.py:868
 msgid "Service Completed"
 msgstr ""
 
-#: .\warranty_and_services\models.py:756
+#: .\warranty_and_services\models.py:869
 msgid "Mark as completed when service is done"
 msgstr ""
 
-#: .\warranty_and_services\models.py:761
+#: .\warranty_and_services\models.py:874
 msgid "Completion Date"
 msgstr ""
 
-#: .\warranty_and_services\models.py:766
+#: .\warranty_and_services\models.py:879
 msgid "Details about how the service date was calculated"
 msgstr ""
 
-#: .\warranty_and_services\models.py:772
+#: .\warranty_and_services\models.py:883
+msgid "Completion Notes"
+msgstr ""
+
+#: .\warranty_and_services\models.py:884
+msgid "Notes about the completed service"
+msgstr ""
+
+#: .\warranty_and_services\models.py:890
 msgid "Service Follow-Up"
 msgstr ""
 
-#: .\warranty_and_services\models.py:773
+#: .\warranty_and_services\models.py:891
 msgid "Service Follow-Ups"
 msgstr ""
 
-#~ msgid "Sort By"
-#~ msgstr "Sırala"
-
-#~ msgid "Main Item List"
-#~ msgstr "Ana Ürün Listesi"
-
-#~ msgid "Confirm Delete"
-#~ msgstr "Onayla"
-
-#~ msgid "confirm_delete"
-#~ msgstr "Onayla"
-
-#~ msgid "cancel"
-#~ msgstr "iptal"
-
-#~ msgid "delete"
-#~ msgstr "Sil"
-
-#~ msgid "Companies"
-#~ msgstr "Firmalar"
+#~ msgid "Sunday Work Calışıyor Mu?"
+#~ msgstr "Pazar Çalışıyor"

@@ -833,6 +833,61 @@ class WarrantyFollowUp(models.Model):
 
 
 class ServiceFollowUp(models.Model):
+    def send_service_due_notification(self, days_before=15):
+        """Send notification email for upcoming service due (X days left or expired)."""
+        from django.core.mail import EmailMultiAlternatives
+        from django.template.loader import render_to_string
+        from django.conf import settings
+        import logging
+        try:
+            installation = self.installation
+            context = {
+                'service_followup': self,
+                'installation': installation,
+                'customer': installation.customer,
+                'next_service_date': self.next_service_date,
+                'service_type_display': self.get_service_type_display(),
+                'service_value': self.service_value,
+                'current_date': timezone.now().strftime('%d.%m.%Y %H:%M'),
+                'days_until_due': self.days_until_due,
+                'days_before': days_before,
+                'language': 'tr',
+            }
+
+            if days_before > 0:
+                subject = f"Service Due in {days_before} Days - {installation.inventory_item.name.name}"
+            elif days_before == 0:
+                subject = f"Service Due Today - {installation.inventory_item.name.name}"
+            else:
+                subject = f"Service Expired - {installation.inventory_item.name.name}"
+
+            html_content = render_to_string('warranty_and_services/emails/service_due_notification.html', context)
+
+            recipients = set()
+            # 1. Customer email
+            if installation.customer and installation.customer.email:
+                recipients.add(installation.customer.email)
+            # 2. Contact persons
+            if hasattr(installation.customer, 'contactperson_set'):
+                for contact in installation.customer.contactperson_set.all():
+                    if contact.email:
+                        recipients.add(contact.email)
+            # 3. Company managers (same as maintenance notification)
+            if installation.company:
+                for u in installation.company.customuser_set.filter(role__in=[
+                    'manager_main', 'salesmanager_main', 'service_main',
+                    'manager_distributor', 'salesmanager_distributor', 'service_distributor']):
+                    if u.email:
+                        recipients.add(u.email)
+                if installation.company.related_manager and installation.company.related_manager.email:
+                    recipients.add(installation.company.related_manager.email)
+
+            if recipients:
+                email = EmailMultiAlternatives(subject, '', settings.DEFAULT_FROM_EMAIL, list(recipients))
+                email.attach_alternative(html_content, "text/html")
+                email.send()
+        except Exception as e:
+            logging.exception(f"Failed to send service due notification for ServiceFollowUp {self.pk}: {e}")
     """
     Model for tracking service schedules based on different service types.
     Similar to warranty but for maintenance/service intervals.

@@ -1,10 +1,10 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kurulum Detayları - {{ installation.customer.name }}</title>
+    <title>{% trans "Installation Details" %} - {{ installation.customer.name }}</title>
     <style type="text/css">
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
@@ -224,7 +224,7 @@
     <div class="container">
         <!-- Header -->
         <div class="header">
-            <h1>Kurulum Tamamlandı</h1>
+            <h1>{% trans "Installation Completed" %}</h1>
             <p>{{ installation.customer.name }} - {{ installation.setup_date|date:"d MMMM Y" }}</p>
         </div>
 
@@ -232,22 +232,22 @@
             <!-- Installation Overview -->
             <div class="section">
                 <div class="section-header">
-                    <h2><span class="icon"></span>Kurulum Bilgileri</h2>
+                    <h2><span class="icon"></span>{% trans "Installation Information" %}</h2>
                 </div>
                 <div class="section-body">
                     <div class="info-grid">
                         <div>
                             <div class="info-item">
-                                <span class="info-label">Kurulum Tarihi</span>
+                                <span class="info-label">{% trans "Installation Date" %}</span>
                                 <span class="info-value">{{ installation.setup_date|date:"d.m.Y H:i" }}</span>
                             </div>
                             <div class="info-item">
-                                <span class="info-label">Kurulumu Yapan</span>
+                                <span class="info-label">{% trans "Installer" %}</span>
                                 <span class="info-value">{{ installation.user.get_full_name|default:installation.user.username }}</span>
                             </div>
                             {% if installation.location_address %}
                             <div class="info-item">
-                                <span class="info-label">Adres</span>
+                                <span class="info-label">{% trans "Address" %}</span>
                                 <span class="info-value">{{ installation.location_address }}</span>
                             </div>
                             {% endif %}
@@ -255,14 +255,14 @@
                         <div>
                             {% if installation.location_latitude and installation.location_longitude %}
                             <div class="info-item">
-                                <span class="info-label">GPS Koordinat</span>
+                                <span class="info-label">{% trans "GPS Coordinates" %}</span>
                                 <span class="info-value">{{ installation.location_latitude|floatformat:6 }}, {{ installation.location_longitude|floatformat:6 }}</span>
                             </div>
                             {% endif %}
                             {% if installation.installation_notes %}
                             <div class="info-item">
-                                <span class="info-label">Durum</span>
-                                <span class="info-value"><span class="badge badge-completed">Tamamlandı</span></span>
+                                <span class="info-label">{% trans "Status" %}</span>
+                                <span class="info-value"><span class="badge badge-completed">{% trans "Completed" %}</span></span>
                             </div>
                             {% endif %}
                         </div>
@@ -270,7 +270,7 @@
                     
                     {% if installation.installation_notes %}
                     <div class="notes">
-                        <p><strong>Kurulum Notları:</strong><br>{{ installation.installation_notes|linebreaks }}</p>
+                        <p><strong>{% trans "Installation Notes:" %}</strong><br>{{ installation.installation_notes|linebreaks }}</p>
                     </div>
                     {% endif %}
                 </div>
@@ -279,24 +279,24 @@
             <!-- Equipment Information -->
             <div class="section">
                 <div class="section-header">
-                    <h2><span class="icon"></span>Ekipman Bilgileri</h2>
+                    <h2><span class="icon"></span>{% trans "Equipment Information" %}</h2>
                 </div>
                 <div class="section-body">
                     <div class="info-grid">
                         <div>
                             <div class="info-item">
-                                <span class="info-label">Ürün</span>
+                                <span class="info-label">{% trans "Product" %}</span>
                                 <span class="info-value">{{ installation.inventory_item.name.name }}</span>
                             </div>
                             {% if installation.inventory_item.name.brand_name %}
                             <div class="info-item">
-                                <span class="info-label">Marka</span>
+                                <span class="info-label">{% trans "Brand" %}</span>
                                 <span class="info-value">{{ installation.inventory_item.name.brand_name }}</span>
                             </div>
                             {% endif %}
                             {% if installation.inventory_item.name.category %}
                             <div class="info-item">
-                                <span class="info-label">Kategori</span>
+                                <span class="info-label">{% trans "Category" %}</span>
                                 <span class="info-value">{{ installation.inventory_item.name.category.name }}</span>
                             </div>
                             {% endif %}
@@ -304,26 +304,26 @@
                         <div>
                             {% if installation.inventory_item.serial_no %}
                             <div class="info-item">
-                                <span class="info-label">Seri No</span>
+                                <span class="info-label">{% trans "Serial No" %}</span>
                                 <span class="info-value">{{ installation.inventory_item.serial_no }}</span>
                             </div>
                             {% endif %}
                             {% if installation.inventory_item.barcode %}
                             <div class="info-item">
-                                <span class="info-label">Barkod</span>
+                                <span class="info-label">{% trans "Barcode" %}</span>
                                 <span class="info-value">{{ installation.inventory_item.barcode }}</span>
                             </div>
                             {% endif %}
                             <div class="info-item">
-                                <span class="info-label">Durum</span>
-                                <span class="info-value"><span class="badge badge-active">Kullanımda</span></span>
+                                <span class="info-label">{% trans "Status" %}</span>
+                                <span class="info-value"><span class="badge badge-active">{% trans "In Use" %}</span></span>
                             </div>
                         </div>
                     </div>
                     
                     {% if installation.inventory_item.item_master.image.first %}
                     <div style="text-align: center; margin: 20px 0;">
-                        <img src="{{ installation.inventory_item.item_master.image.first.url }}" class="product-image" alt="Ürün Görseli" />
+                        <img src="{{ installation.inventory_item.item_master.image.first.url }}" class="product-image" alt="{% trans 'Product Image' %}" />
                     </div>
                     {% endif %}
                 </div>
@@ -332,22 +332,22 @@
             <!-- Customer Information -->
             <div class="section">
                 <div class="section-header">
-                    <h2><span class="icon"></span>Müşteri Bilgileri</h2>
+                    <h2><span class="icon"></span>{% trans "Customer Information" %}</h2>
                 </div>
                 <div class="section-body">
                     <div class="info-grid">
                         <div>
                             <div class="info-item">
-                                <span class="info-label">Firma Adı</span>
+                                <span class="info-label">{% trans "Company Name" %}</span>
                                 <span class="info-value">{{ installation.customer.name }}</span>
                             </div>
                             <div class="info-item">
-                                <span class="info-label">Tip</span>
+                                <span class="info-label">{% trans "Type" %}</span>
                                 <span class="info-value">{{ installation.customer.get_company_type_display }}</span>
                             </div>
                             {% if installation.customer.core_business %}
                             <div class="info-item">
-                                <span class="info-label">Sektör</span>
+                                <span class="info-label">{% trans "Sector" %}</span>
                                 <span class="info-value">{{ installation.customer.core_business.name }}</span>
                             </div>
                             {% endif %}
@@ -355,19 +355,19 @@
                         <div>
                             {% if installation.customer.email %}
                             <div class="info-item">
-                                <span class="info-label">E-posta</span>
+                                <span class="info-label">{% trans "Email" %}</span>
                                 <span class="info-value">{{ installation.customer.email }}</span>
                             </div>
                             {% endif %}
                             {% if installation.customer.telephone %}
                             <div class="info-item">
-                                <span class="info-label">Telefon</span>
+                                <span class="info-label">{% trans "Phone" %}</span>
                                 <span class="info-value">{{ installation.customer.telephone }}</span>
                             </div>
                             {% endif %}
                             {% if installation.customer.tax_number %}
                             <div class="info-item">
-                                <span class="info-label">Vergi No</span>
+                                <span class="info-label">{% trans "Tax No" %}</span>
                                 <span class="info-value">{{ installation.customer.tax_number }}</span>
                             </div>
                             {% endif %}
@@ -380,17 +380,17 @@
             {% if warranties %}
             <div class="section">
                 <div class="section-header">
-                    <h2><span class="icon"></span>Garanti Bilgileri</h2>
+                    <h2><span class="icon"></span>{% trans "Warranty Information" %}</h2>
                 </div>
                 <div class="section-body">
                     <table class="table">
                         <thead>
                             <tr>
-                                <th>Garanti Türü</th>
-                                <th>Süre</th>
-                                <th>Başlangıç</th>
-                                <th>Bitiş</th>
-                                <th>Durum</th>
+                                <th>{% trans "Warranty Type" %}</th>
+                                <th>{% trans "Duration" %}</th>
+                                <th>{% trans "Start" %}</th>
+                                <th>{% trans "End" %}</th>
+                                <th>{% trans "Status" %}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -399,20 +399,20 @@
                                 <td>{{ warranty.get_warranty_type_display }}</td>
                                 <td>
                                     {% if warranty.warranty_type == 'time_term' %}
-                                        {{ warranty.warranty_value|floatformat:"0" }} Yıl
+                                        {{ warranty.warranty_value|floatformat:"0" }} {% trans "Year" %}
                                     {% else %}
-                                        {{ warranty.warranty_value|floatformat:"0" }} Saat
+                                        {{ warranty.warranty_value|floatformat:"0" }} {% trans "Hour" %}
                                     {% endif %}
                                 </td>
                                 <td>{{ installation.setup_date|date:"d.m.Y" }}</td>
                                 <td>{{ warranty.end_of_warranty_date|date:"d.m.Y" }}</td>
                                 <td>
                                     {% if warranty.is_expired %}
-                                        <span class="badge badge-expired">Süresi Dolmuş</span>
+                                        <span class="badge badge-expired">{% trans "Expired" %}</span>
                                     {% elif warranty.is_expiring_soon %}
-                                        <span class="badge badge-pending">Yakında Dolacak</span>
+                                        <span class="badge badge-pending">{% trans "Expiring Soon" %}</span>
                                     {% else %}
-                                        <span class="badge badge-active">Aktif</span>
+                                        <span class="badge badge-active">{% trans "Active" %}</span>
                                     {% endif %}
                                 </td>
                             </tr>
@@ -427,16 +427,16 @@
             {% if installation.service_followups.exists %}
             <div class="section">
                 <div class="section-header">
-                    <h2><span class="icon"></span>Servis Programı</h2>
+                    <h2><span class="icon"></span>{% trans "Service Schedule" %}</h2>
                 </div>
                 <div class="section-body">
                     <table class="table">
                         <thead>
                             <tr>
-                                <th>Servis Türü</th>
-                                <th>Aralık</th>
-                                <th>Sonraki Servis</th>
-                                <th>Durum</th>
+                                <th>{% trans "Service Type" %}</th>
+                                <th>{% trans "Interval" %}</th>
+                                <th>{% trans "Next Service" %}</th>
+                                <th>{% trans "Status" %}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -445,17 +445,17 @@
                                 <td>{{ service.get_service_type_display }}</td>
                                 <td>
                                     {% if service.service_type == 'time_term' %}
-                                        {{ service.service_value|floatformat:"0" }} Ay
+                                        {{ service.service_value|floatformat:"0" }} {% trans "Month" %}
                                     {% else %}
-                                        {{ service.service_value|floatformat:"0" }} Saat
+                                        {{ service.service_value|floatformat:"0" }} {% trans "Hour" %}
                                     {% endif %}
                                 </td>
                                 <td>{{ service.next_service_date|date:"d.m.Y" }}</td>
                                 <td>
                                     {% if service.is_completed %}
-                                        <span class="badge badge-completed">Tamamlandı</span>
+                                        <span class="badge badge-completed">{% trans "Completed" %}</span>
                                     {% else %}
-                                        <span class="badge badge-pending">Bekliyor</span>
+                                        <span class="badge badge-pending">{% trans "Pending" %}</span>
                                     {% endif %}
                                 </td>
                             </tr>
@@ -470,23 +470,23 @@
             <div class="stats-grid">
                 <div class="stat-card">
                     <div class="stat-number">{{ warranties|length }}</div>
-                    <div class="stat-label">Garanti Türü</div>
+                    <div class="stat-label">{% trans "Warranty Types" %}</div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-number">{{ installation.service_followups.count }}</div>
-                    <div class="stat-label">Servis Planı</div>
+                    <div class="stat-label">{% trans "Service Plans" %}</div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-number">{{ installation.images.count }}</div>
-                    <div class="stat-label">Fotoğraf</div>
+                    <div class="stat-label">{% trans "Photo" %}</div>
                 </div>
             </div>
         </div>
 
         <!-- Footer -->
         <div class="footer">
-            <p>Bu belge {{ installation.setup_date|date:"d.m.Y H:i" }} tarihinde otomatik olarak oluşturulmuştur.</p>
-            <p>Konnektom Teknoloji A.Ş. - Garanti ve Servis Takip Sistemi</p>
+            <p>{% trans "This document was generated automatically on" %} {{ installation.setup_date|date:"d.m.Y H:i" }}.</p>
+            <p>Konnektom  - {% trans "Warranty and Service Tracking System" %}</p>
         </div>
     </div>
 </body>

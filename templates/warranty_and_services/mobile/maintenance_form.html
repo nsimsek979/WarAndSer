@@ -9,7 +9,7 @@
     <meta name="format-detection" content="telephone=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>Bakım Formu - Mobile</title>
+    <title>{% trans "Maintenance Form - Mobile" %}</title>
     <link rel="shortcut icon" type="image/x-icon" href="{% static 'konnektom-logo.png' %}">
 
     <!-- Tailwind CSS -->
@@ -92,8 +92,8 @@
                     <i class="fas fa-arrow-left text-lg"></i>
                 </button>
                 <div>
-                    <h1 class="text-lg font-bold">Bakım Formu</h1>
-                    <p class="text-sm text-blue-100">Ekipman bakımı kayıt formu</p>
+                    <h1 class="text-lg font-bold">{% trans "Maintenance Form" %}</h1>
+                    <p class="text-sm text-blue-100">{% trans "Equipment maintenance registration form" %}</p>
                 </div>
             </div>
             <div class="flex items-center space-x-2">
@@ -114,8 +114,8 @@
                         <i class="fas fa-cog text-xl"></i>
                     </div>
                     <div>
-                        <h2 class="text-lg font-bold">Ekipman Bilgileri</h2>
-                        <p class="text-green-100 text-sm">Bakım yapılacak ekipman</p>
+                        <h2 class="text-lg font-bold">{% trans "Equipment Information" %}</h2>
+                        <p class="text-green-100 text-sm">{% trans "Equipment to be maintained" %}</p>
                     </div>
                 </div>
             </div>
@@ -123,39 +123,39 @@
             <div class="p-6 space-y-4">
                 <div class="grid grid-cols-1 gap-4">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Ekipman Adı</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">{% trans "Equipment Name" %}</label>
                         <div class="text-lg font-semibold text-gray-900">{{ installation.item_name }}</div>
                     </div>
                     
                     <div class="grid grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Seri No</label>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">{% trans "Serial No" %}</label>
                             <div class="text-gray-900 font-medium">{{ installation.serial_no }}</div>
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Kısa Kod</label>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">{% trans "Short Code" %}</label>
                             <div class="text-gray-900 font-medium">{{ installation.item_shortcode }}</div>
                         </div>
                     </div>
                     
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Müşteri</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">{% trans "Customer" %}</label>
                         <div class="text-gray-900 font-medium">{{ installation.customer_name }}</div>
                     </div>
                     
                     <div class="grid grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Kurulum Tarihi</label>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">{% trans "Installation Date" %}</label>
                             <div class="text-gray-700">{{ installation.installation_date }}</div>
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Son Bakım</label>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">{% trans "Last Maintenance" %}</label>
                             <div class="text-gray-700">{{ installation.last_maintenance_date }}</div>
                         </div>
                     </div>
                     
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Konum</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">{% trans "Location" %}</label>
                         <div class="text-gray-700">{{ installation.installation_location }}</div>
                     </div>
                 </div>
@@ -170,8 +170,8 @@
                         <i class="fas fa-clipboard-list text-xl"></i>
                     </div>
                     <div>
-                        <h2 class="text-lg font-bold">Bakım Bilgileri</h2>
-                        <p class="text-orange-100 text-sm">Yapılan bakım işlemlerinin detayları</p>
+                        <h2 class="text-lg font-bold">{% trans "Maintenance Information" %}</h2>
+                        <p class="text-orange-100 text-sm">{% trans "Details of maintenance operations performed" %}</p>
                     </div>
                 </div>
             </div>
@@ -179,7 +179,7 @@
             <div class="p-6 space-y-6">
                 <!-- Maintenance Type -->
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Bakım Türü *</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">{% trans "Maintenance Type" %} *</label>
                     <div class="space-y-3">
                         <!-- Periodic Maintenance Option -->
                         <label class="flex items-center p-4 border rounded-lg cursor-pointer transition-all duration-200"
@@ -196,12 +196,12 @@
                                     <i class="fas fa-calendar-check mr-2 transition-colors duration-200"
                                        :class="formData.maintenance_type === 'periodic' ? 'text-green-700' : 'text-green-600'"></i>
                                     <span class="text-sm font-medium transition-colors duration-200"
-                                          :class="formData.maintenance_type === 'periodic' ? 'text-green-800' : 'text-gray-900'">Periyodik Bakım</span>
+                                          :class="formData.maintenance_type === 'periodic' ? 'text-green-800' : 'text-gray-900'">{% trans "Periodic Maintenance" %}</span>
                                     <i class="fas fa-check ml-2 text-green-600" 
                                        x-show="formData.maintenance_type === 'periodic'"></i>
                                 </div>
                                 <div class="text-xs transition-colors duration-200"
-                                     :class="formData.maintenance_type === 'periodic' ? 'text-green-600' : 'text-gray-500'">Zamanında yapılan rutin bakım</div>
+                                     :class="formData.maintenance_type === 'periodic' ? 'text-green-600' : 'text-gray-500'">{% trans "Routine maintenance performed on time" %}</div>
                             </div>
                         </label>
                         
@@ -220,12 +220,12 @@
                                     <i class="fas fa-exclamation-triangle mr-2 transition-colors duration-200"
                                        :class="formData.maintenance_type === 'breakdown' ? 'text-red-700' : 'text-red-600'"></i>
                                     <span class="text-sm font-medium transition-colors duration-200"
-                                          :class="formData.maintenance_type === 'breakdown' ? 'text-red-800' : 'text-gray-900'">Arıza Bakımı</span>
+                                          :class="formData.maintenance_type === 'breakdown' ? 'text-red-800' : 'text-gray-900'">{% trans "Breakdown Maintenance" %}</span>
                                     <i class="fas fa-check ml-2 text-red-600" 
                                        x-show="formData.maintenance_type === 'breakdown'"></i>
                                 </div>
                                 <div class="text-xs transition-colors duration-200"
-                                     :class="formData.maintenance_type === 'breakdown' ? 'text-red-600' : 'text-gray-500'">Arıza sonucu yapılan bakım</div>
+                                     :class="formData.maintenance_type === 'breakdown' ? 'text-red-600' : 'text-gray-500'">{% trans "Maintenance performed due to breakdown" %}</div>
                             </div>
                         </label>
                     </div>
@@ -233,39 +233,39 @@
 
                 <!-- Breakdown Reason (only for breakdown maintenance) -->
                 <div x-show="formData.maintenance_type === 'breakdown'" x-transition>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Arıza Sebebi *</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">{% trans "Breakdown Reason" %} *</label>
                     <textarea x-model="formData.breakdown_reason" 
-                              placeholder="Arızanın nedenini detaylı olarak açıklayın..."
+                              placeholder="{% trans 'Please explain the reason for the breakdown in detail...' %}"
                               rows="3"
                               class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent resize-none"></textarea>
                 </div>
 
                 <!-- Work Performed (only for periodic maintenance) -->
                 <div x-show="formData.maintenance_type === 'periodic'" x-transition>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Yapılan İş *</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">{% trans "Work Performed" %} *</label>
                     <textarea x-model="formData.work_performed" 
-                              placeholder="Periyodik bakım kapsamında yapılan işleri açıklayın..."
+                              placeholder="{% trans 'Describe the work performed as part of periodic maintenance...' %}"
                               rows="3"
                               class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent resize-none"></textarea>
                 </div>
 
                 <!-- Technician (Auto-filled, read-only) -->
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Teknisyen</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">{% trans "Technician" %}</label>
                     <div class="flex items-center p-4 bg-gray-50 border border-gray-200 rounded-lg">
                         <div class="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold text-sm mr-3">
                             <span x-text="technicianInitials"></span>
                         </div>
                         <div>
                             <div class="font-medium text-gray-900" x-text="technicianName"></div>
-                            <div class="text-sm text-gray-500">Bakım Teknisyeni</div>
+                            <div class="text-sm text-gray-500">{% trans "Maintenance Technician" %}</div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Maintenance Date -->
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Bakım Tarihi *</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">{% trans "Maintenance Date" %} *</label>
                     <input type="date" 
                            x-model="formData.service_date"
                            class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent">
@@ -281,8 +281,8 @@
                         <i class="fas fa-clipboard-check text-xl"></i>
                     </div>
                     <div>
-                        <h2 class="text-lg font-bold">Kontroller</h2>
-                        <p class="text-blue-100 text-sm">Yapılması gereken kontrol işlemleri</p>
+                        <h2 class="text-lg font-bold">{% trans "Controls" %}</h2>
+                        <p class="text-blue-100 text-sm">{% trans "Control operations to be performed" %}</p>
                     </div>
                 </div>
             </div>
@@ -322,8 +322,8 @@
                         <i class="fas fa-cogs text-xl"></i>
                     </div>
                     <div>
-                        <h2 class="text-lg font-bold">Yedek Parçalar</h2>
-                        <p class="text-green-100 text-sm">Kullanılan yedek parçalar</p>
+                        <h2 class="text-lg font-bold">{% trans "Spare Parts" %}</h2>
+                        <p class="text-green-100 text-sm">{% trans "Spare parts used" %}</p>
                     </div>
                 </div>
             </div>
@@ -353,7 +353,7 @@
                                 <div class="text-xs transition-colors duration-200"
                                      :class="formData.used_spare_parts.some(p => p.id === part.id) ? 
                                              'text-green-600' : 'text-gray-500'"
-                                     x-text="part.part_number || 'Parça Kodu: Belirtilmemiş'"></div>
+                                     x-text="part.part_number || '{% trans 'Part Number: Not Specified' %}'"></div>
                             </div>
                         </label>
                         
@@ -361,7 +361,7 @@
                         <div x-show="formData.used_spare_parts.some(p => p.id === part.id)" 
                              x-transition class="px-4 pb-4">
                             <div class="flex items-center space-x-3">
-                                <label class="text-sm text-gray-600">Miktar:</label>
+                                <label class="text-sm text-gray-600">{% trans "Quantity:" %}</label>
                                 <input type="number" 
                                        :value="getSparePartQuantity(part.id)"
                                        @input="updateSparePartQuantity(part.id, $event.target.value)"
@@ -382,8 +382,8 @@
                         <i class="fas fa-sticky-note text-xl"></i>
                     </div>
                     <div>
-                        <h2 class="text-lg font-bold">Notlar</h2>
-                        <p class="text-yellow-100 text-sm">Ek bilgiler ve açıklamalar</p>
+                        <h2 class="text-lg font-bold">{% trans "Notes" %}</h2>
+                        <p class="text-yellow-100 text-sm">{% trans "Additional information and explanations" %}</p>
                     </div>
                 </div>
             </div>
@@ -391,9 +391,9 @@
             <div class="p-6">
                 <!-- Parts Used -->
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Notlar</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">{% trans "Notes" %}</label>
                     <textarea x-model="formData.notes" 
-                              placeholder="Bakım ile ilgili ek notlarınızı yazabilirsiniz..."
+                              placeholder="{% trans 'You can write additional notes about the maintenance...' %}"
                               rows="4"
                               class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent resize-none"></textarea>
                 </div>
@@ -408,13 +408,13 @@
                         <i class="fas fa-camera text-xl"></i>
                     </div>
                     <div class="flex-1">
-                        <h2 class="text-lg font-bold">Fotoğraflar</h2>
-                        <p class="text-purple-100 text-sm">Bakım fotoğrafları ekleyin</p>
+                        <h2 class="text-lg font-bold">{% trans "Photos" %}</h2>
+                        <p class="text-purple-100 text-sm">{% trans "Add maintenance photos" %}</p>
                     </div>
                     <button @click.prevent="openCamera()" 
                             class="px-4 py-2 bg-white/20 hover:bg-white/30 rounded-lg transition-colors">
                         <i class="fas fa-camera mr-2"></i>
-                        Kamera Aç
+                        {% trans "Open Camera" %}
                     </button>
                 </div>
             </div>
@@ -442,14 +442,14 @@
                     <button @click.prevent="openCamera()" 
                             class="border-2 border-dashed border-gray-300 rounded-lg p-6 hover:border-blue-500 transition-colors flex flex-col items-center justify-center">
                         <i class="fas fa-camera text-xl text-blue-500 mb-2"></i>
-                        <span class="text-sm text-gray-500">Kamera Aç</span>
+                        <span class="text-sm text-gray-500">{% trans "Open Camera" %}</span>
                     </button>
                     
                     <!-- File Upload Button -->
                     <button @click.prevent="openFileSelector()" 
                             class="border-2 border-dashed border-gray-300 rounded-lg p-6 hover:border-green-500 transition-colors flex flex-col items-center justify-center">
                         <i class="fas fa-image text-xl text-green-500 mb-2"></i>
-                        <span class="text-sm text-gray-500">Resim Seç</span>
+                        <span class="text-sm text-gray-500">{% trans "Select Image" %}</span>
                     </button>
                 </div>
             </div>
@@ -463,13 +463,13 @@
                         <i class="fas fa-file-alt text-xl"></i>
                     </div>
                     <div class="flex-1">
-                        <h2 class="text-lg font-bold">Belgeler</h2>
-                        <p class="text-indigo-100 text-sm">Bakım belgeleri ekleyin</p>
+                        <h2 class="text-lg font-bold">{% trans "Documents" %}</h2>
+                        <p class="text-indigo-100 text-sm">{% trans "Add maintenance documents" %}</p>
                     </div>
                     <button @click="openFileUpload()" 
                             class="px-4 py-2 bg-white/20 hover:bg-white/30 rounded-lg transition-colors">
                         <i class="fas fa-paperclip mr-2"></i>
-                        Dosya Ekle
+                        {% trans "Add File" %}
                     </button>
                 </div>
             </div>
@@ -498,7 +498,7 @@
                 <button @click="openFileUpload()" 
                         class="w-full border-2 border-dashed border-gray-300 rounded-lg p-6 hover:border-indigo-500 transition-colors flex flex-col items-center justify-center">
                     <i class="fas fa-plus text-2xl text-gray-400 mb-2"></i>
-                    <span class="text-sm text-gray-500">Belge Ekle</span>
+                    <span class="text-sm text-gray-500">{% trans "Add Document" %}</span>
                 </button>
             </div>
         </div>
@@ -511,10 +511,10 @@
                     class="w-full text-white font-bold py-4 px-6 rounded-xl transition-all duration-200 shadow-lg">
                 <i x-show="!submitting" class="fas fa-save mr-2"></i>
                 <i x-show="submitting" class="fas fa-spinner fa-spin mr-2"></i>
-                <span x-text="submitting ? 'Kaydediliyor...' : 'Bakımı Kaydet'"></span>
+                <span x-text="submitting ? '{% trans 'Saving...' %}' : '{% trans 'Save Maintenance' %}'"></span>
             </button>
             
-            <p class="text-sm text-gray-500 text-center">* işaretli alanlar zorunludur</p>
+            <p class="text-sm text-gray-500 text-center">{% trans '* fields are required' %}</p>
         </div>
     </main>
 

@@ -229,10 +229,10 @@ def inventory_item_detail(request, pk):
             if not item_installations.exists():
                 # Item is not accessible to this distributor user
                 from django.core.exceptions import PermissionDenied
-                raise PermissionDenied("Bu ürüne erişim izniniz bulunmamaktadır.")
+                raise PermissionDenied("You don't have permission to access this item.")
         else:
             from django.core.exceptions import PermissionDenied
-            raise PermissionDenied("Şirket bilginiz tanımlı değil.")
+            raise PermissionDenied("Your company information is not defined.")
     elif hasattr(user, 'role') and user.role == 'sales_manager':
         # Sales manager can access:
         # 1. Available items (in_used=False)
@@ -250,10 +250,10 @@ def inventory_item_detail(request, pk):
                 
                 if not item_installations.exists():
                     from django.core.exceptions import PermissionDenied
-                    raise PermissionDenied("Bu kullanımda olan ürüne erişim izniniz bulunmamaktadır.")
+                    raise PermissionDenied("You don't have permission to access this item.")
             else:
                 from django.core.exceptions import PermissionDenied
-                raise PermissionDenied("Şirket bilginiz tanımlı değil.")
+                raise PermissionDenied("Your company information is not defined.")
         # If item is available (in_used=False), sales manager can always access it
     
     # Get related inventory items for the same ItemMaster
@@ -544,7 +544,7 @@ def item_master_create(request):
                             
                             # Check if this service type was already added
                             if service_type in added_service_types:
-                                messages.warning(request, f'Aynı tip servis periyodu birden fazla eklenemez: {service_type}. Sadece ilki eklendi.')
+                                messages.warning(request, f'You can\'t add the same service period type multiple times: {service_type}. Only the first one was added.')
                                 continue
                             
                             description = maintenance_descriptions[i] if i < len(maintenance_descriptions) else ''
@@ -744,7 +744,7 @@ def item_master_update(request, pk):
                             
                             # Check if this service type was already added
                             if service_type in added_service_types:
-                                messages.warning(request, f'Aynı tip servis periyodu birden fazla eklenemez: {service_type}. Sadece ilki eklendi.')
+                                messages.warning(request, f'You can\'t add the same service period type multiple times: {service_type}. Only the first one was added.')
                                 continue
                             
                             description = maintenance_descriptions[i] if i < len(maintenance_descriptions) else ''
@@ -938,10 +938,10 @@ def inventory_item_update(request, pk):
             )
             
             if not item_installations.exists():
-                messages.error(request, _('Bu ürüne erişim izniniz bulunmamaktadır.'))
+                messages.error(request, _('You don\'t have permission to update this item.'))
                 return redirect('item-master:inventory_item_list')
         else:
-            messages.error(request, _('Şirket bilginiz tanımlı değil.'))
+            messages.error(request, _('Your company information is not defined.'))
             return redirect('item-master:inventory_item_list')
     elif hasattr(user, 'role') and user.role == 'sales_manager':
         # Sales manager can update:
@@ -959,10 +959,10 @@ def inventory_item_update(request, pk):
                 )
                 
                 if not item_installations.exists():
-                    messages.error(request, _('Bu kullanımda olan ürüne erişim izniniz bulunmamaktadır.'))
+                    messages.error(request, _('You don\'t have permission to update this item.'))
                     return redirect('item-master:inventory_item_list')
             else:
-                messages.error(request, _('Şirket bilginiz tanımlı değil.'))
+                messages.error(request, _('Your company information is not defined.'))
                 return redirect('item-master:inventory_item_list')
         # If item is available (in_used=False), sales manager can always update it
     
@@ -1108,10 +1108,10 @@ def inventory_item_delete(request, pk):
             )
             
             if not item_installations.exists():
-                messages.error(request, _('Bu ürüne erişim izniniz bulunmamaktadır.'))
+                messages.error(request, _('You don\'t have permission to access this item.'))
                 return redirect('item-master:inventory_item_list')
         else:
-            messages.error(request, _('Şirket bilginiz tanımlı değil.'))
+            messages.error(request, _('Your company information is not defined.'))
             return redirect('item-master:inventory_item_list')
     elif hasattr(user, 'role') and user.role == 'sales_manager':
         # Sales manager can delete:
@@ -1129,10 +1129,10 @@ def inventory_item_delete(request, pk):
                 )
                 
                 if not item_installations.exists():
-                    messages.error(request, _('Bu kullanımda olan ürüne erişim izniniz bulunmamaktadır.'))
+                    messages.error(request, _('You don\'t have permission to access this item.'))
                     return redirect('item-master:inventory_item_list')
             else:
-                messages.error(request, _('Şirket bilginiz tanımlı değil.'))
+                messages.error(request, _('Your company information is not defined.'))
                 return redirect('item-master:inventory_item_list')
         # If item is available (in_used=False), sales manager can always delete it
     

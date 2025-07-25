@@ -1,0 +1,35 @@
+{% load i18n %}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>{% trans "Service Due Notification" %}</title>
+</head>
+<body>
+    {% if days_before > 0 %}
+        <h2>{% blocktrans with days=days_before %}Service Due in {{ days }} Days{% endblocktrans %}</h2>
+        <p>{% blocktrans with name=installation.inventory_item.name.name date=service_followup.next_service_date|date:'d.m.Y' days=days_before %}
+            The service for item <strong>{{ name }}</strong> is due on <strong>{{ date }}</strong> (in {{ days }} days).
+        {% endblocktrans %}</p>
+    {% elif days_before == 0 %}
+        <h2>{% trans "Service Due Today" %}</h2>
+        <p>{% blocktrans with name=installation.inventory_item.name.name date=service_followup.next_service_date|date:'d.m.Y' %}
+            The service for item <strong>{{ name }}</strong> is due today ({{ date }}).
+        {% endblocktrans %}</p>
+    {% else %}
+        <h2>{% trans "Service Expired" %}</h2>
+        <p>{% blocktrans with name=installation.inventory_item.name.name date=service_followup.next_service_date|date:'d.m.Y' %}
+            The service for item <strong>{{ name }}</strong> was due on <strong>{{ date }}</strong> and is now expired.
+        {% endblocktrans %}</p>
+    {% endif %}
+    <ul>
+        <li><strong>{% trans "Customer" %}:</strong> {{ customer }}</li>
+        <li><strong>{% trans "Service Type" %}:</strong> {{ service_type_display }}</li>
+        <li><strong>{% trans "Service Value" %}:</strong> {{ service_value }}</li>
+        <li><strong>{% trans "Next Service Date" %}:</strong> {{ next_service_date|date:'d.m.Y' }}</li>
+        <li><strong>{% trans "Days Until Due" %}:</strong> {{ days_until_due }}</li>
+    </ul>
+    <p>{% trans "Please ensure the necessary preparations are made for the upcoming service." %}</p>
+    <p>{% trans "This is an automated notification." %}</p>
+</body>
+</html>

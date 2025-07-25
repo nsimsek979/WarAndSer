@@ -4,9 +4,8 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import ListView, DetailView
 from django.db.models import Q, Count, Case, When, IntegerField
 from django.utils import timezone
-from django.conf import settings
 from django.core.paginator import Paginator
-from django.http import JsonResponse, HttpResponse
+from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from django.contrib import messages
@@ -1888,18 +1887,13 @@ def item_service_history(request, installation_id):
     except Exception as e:
         messages.error(request, f'Bir hata oluştu: {str(e)}')
         return redirect('warranty_and_services:service_tracking_list')
-
+7
 
 def installation_map_view(request):
     """
     Display installations on a Google Map
     """
-    print("=== MAP VIEW START ===")
-    print(f"User authenticated: {request.user.is_authenticated}")
-    print(f"User: {request.user}")
-    print(f"Request path: {request.path}")
-    print(f"Request method: {request.method}")
-    
+    print("=== MAP VIEW DEBUG ===")
     try:
         # Get all installations with location data
         installations = Installation.objects.filter(
@@ -1911,46 +1905,48 @@ def installation_map_view(request):
         
         markers = []
         for installation in installations:
-            print(f"Processing installation: {installation.id}")
+            print(f"Processing installation: {installation.id} - {installation.inventory_item}")
             
-            # Simple marker without complex date logic
+            # Get next service date
+            next_service = "Belirtilmemiş"
+            services = installation.service_followups.filter(is_completed=False).order_by('next_service_date')
+            if services.exists():
+                next_service = services.first().next_service_date.strftime('%d.%m.%Y')
+            
+            # Determine marker color based on service status
+            color = '#10B981'  # Green default
+            if services.exists():
+                service = services.first()
+                next_service_date = service.next_service_date
+                # Ensure both are date objects for subtraction
+                if hasattr(next_service_date, 'date'):
+                    next_service_date = next_service_date.date()
+                days_until = (next_service_date - timezone.now().date()).days
+                if days_until < 0:
+                    color = '#EF4444'  # Red - overdue
+                elif days_until <= 7:
+                    color = '#F59E0B'  # Yellow - due soon
+            
             markers.append({
                 'lat': float(installation.location_latitude),
                 'lng': float(installation.location_longitude),
-                'title': str(installation.inventory_item.name.name) if installation.inventory_item.name else 'Ürün',
+                'title': installation.inventory_item.name.name if installation.inventory_item.name else 'Ürün',
                 'customer': installation.customer.name,
                 'address': installation.location_address or 'Adres belirtilmemiş',
-                'dealer': installation.customer.name,
-                'next_service': 'Test',
+                'dealer': installation.customer.related_company.name if installation.customer.related_company else 'Bayi belirtilmemiş',
+                'next_service': next_service,
                 'installation_id': installation.id,
-                'color': '#10B981'  # Always green for now
+                'color': color
             })
         
         print(f"Created {len(markers)} markers")
         
-        # Add test marker if no real markers exist
-        if len(markers) == 0:
-            print("No markers found, adding test marker")
-            markers.append({
-                'lat': 39.925533,
-                'lng': 32.866287,
-                'title': 'Test Marker - Ankara',
-                'customer': 'Test Müşteri',
-                'address': 'Test Adres, Ankara',
-                'dealer': 'Test Bayi',
-                'next_service': 'Test Servis',
-                'installation_id': 999,
-                'color': '#10B981'
-            })
-        
         # Convert to JSON for JavaScript
         markers_json = json.dumps(markers)
-        print("JSON conversion successful")
         
         context = {
             'markers_json': markers_json,
-            'total_installations': len(markers),
-            'google_maps_api_key': settings.GOOGLE_MAPS_API_KEY
+            'total_installations': len(markers)
         }
         
         print("Rendering template...")
@@ -1959,49 +1955,6 @@ def installation_map_view(request):
     except Exception as e:
         print(f"ERROR in map view: {str(e)}")
         import traceback
-        print(f"Full traceback: {traceback.format_exc()}")
-        return HttpResponse(f"<h1>Map Error</h1><p>{str(e)}</p><pre>{traceback.format_exc()}</pre>")
-        # Get all installations with location data
-        installations = Installation.objects.filter(
-            location_latitude__isnull=False,
-            location_longitude__isnull=False
-        ).select_related('customer', 'inventory_item', 'inventory_item__name')
-        
-        print(f"Found {installations.count()} installations with coordinates")
-        
-        markers = []
-        for installation in installations:
-            print(f"Processing installation: {installation.id}")
-            
-            # Simple marker without complex date logic
-            markers.append({
-                'lat': float(installation.location_latitude),
-                'lng': float(installation.location_longitude),
-                'title': str(installation.inventory_item.name.name) if installation.inventory_item.name else 'Ürün',
-                'customer': installation.customer.name,
-                'address': installation.location_address or 'Adres belirtilmemiş',
-                'dealer': installation.customer.name,
-                'next_service': 'Test',
-                'installation_id': installation.id,
-                'color': '#10B981'  # Always green for now
-            })
-        
-        print(f"Created {len(markers)} markers")
-        
-        # Convert to JSON for JavaScript
-        markers_json = json.dumps(markers)
-        
-        context = {
-            'markers_json': markers_json,
-            'total_installations': len(markers),
-            'google_maps_api_key': settings.GOOGLE_MAPS_API_KEY
-        }
-        
-        print("Rendering template...")
-        return render(request, 'warranty_and_services/installation_map.html', context)
-        
-    except Exception as e:
-        print(f"ERROR in map view: {str(e)}")
-        return HttpResponse(f"<h1>Map Error</h1><p>{str(e)}</p>")
-        
-
+        traceback.print_exc()
+        messages.error(request, f'Harita yüklenirken hata oluştu: {str(e)}')
+        return redirect('warranty_and_services:installation_list')

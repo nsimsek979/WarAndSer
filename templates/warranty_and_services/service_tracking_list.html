@@ -2,7 +2,7 @@
 {% load i18n %}
 {% load custom_filters %}
 
-{% block title %}Servis Takip{% endblock %}
+{% block title %}Service Tracking{% endblock %}
 
 {% block content %}
 <div class="max-w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -13,7 +13,7 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
             </svg>
-            <h1 class="text-3xl font-bold text-gray-900">Servis Takip</h1>
+            <h1 class="text-3xl font-bold text-gray-900">{% trans "Service Tracking" %}</h1>
         </div>
         <div class="flex space-x-3">
             <a href="{% url 'warranty_and_services:warranty_tracking_list' %}" 
@@ -48,9 +48,9 @@
                     </div>
                     <div class="ml-5 w-0 flex-1">
                         <dl>
-                            <dt class="text-sm font-medium text-gray-500 truncate">Toplam Ürün</dt>
+                            <dt class="text-sm font-medium text-gray-500 truncate">{% trans "Total Items" %}</dt>
                             <dd class="text-2xl font-semibold text-gray-900">{{ stats.total }}</dd>
-                            <dd class="text-xs text-gray-400">Servis takipli ürün sayısı</dd>
+                            <dd class="text-xs text-gray-400">{% trans "Total tracked items" %}</dd>
                         </dl>
                     </div>
                 </div>
@@ -69,9 +69,9 @@
                     </div>
                     <div class="ml-5 w-0 flex-1">
                         <dl>
-                            <dt class="text-sm font-medium text-gray-500 truncate">Bekleyen Servis</dt>
+                            <dt class="text-sm font-medium text-gray-500 truncate">{% trans "Pending Service" %}</dt>
                             <dd class="text-2xl font-semibold text-gray-900">{{ stats.pending }}</dd>
-                            <dd class="text-xs text-gray-400">Servis bekleyen ürünler</dd>
+                            <dd class="text-xs text-gray-400">{% trans "Products awaiting service" %}</dd>
                         </dl>
                     </div>
                 </div>
@@ -90,9 +90,9 @@
                     </div>
                     <div class="ml-5 w-0 flex-1">
                         <dl>
-                            <dt class="text-sm font-medium text-gray-500 truncate">Yaklaşan (7 gün)</dt>
+                            <dt class="text-sm font-medium text-gray-500 truncate">{% trans "Due Soon (7 Days)" %}</dt>
                             <dd class="text-2xl font-semibold text-gray-900">{{ stats.due_soon }}</dd>
-                            <dd class="text-xs text-gray-400">7 gün içinde servis gerekli</dd>
+                            <dd class="text-xs text-gray-400">{% trans "Service required within 7 days" %}</dd>
                         </dl>
                     </div>
                 </div>
@@ -111,9 +111,9 @@
                     </div>
                     <div class="ml-5 w-0 flex-1">
                         <dl>
-                            <dt class="text-sm font-medium text-gray-500 truncate">Geciken Servis</dt>
+                            <dt class="text-sm font-medium text-gray-500 truncate">{% trans "Overdue Service" %}</dt>
                             <dd class="text-2xl font-semibold text-gray-900">{{ stats.overdue }}</dd>
-                            <dd class="text-xs text-gray-400">Servis tarihi geçen ürünler</dd>
+                            <dd class="text-xs text-gray-400">{% trans "Products past due date" %}</dd>
                         </dl>
                     </div>
                 </div>
@@ -124,25 +124,25 @@
     <!-- Filters -->
     <div class="bg-white shadow-lg rounded-lg border border-gray-200 mb-8">
         <div class="px-6 py-4 border-b border-gray-200">
-            <h3 class="text-lg font-medium text-gray-900">Filtreler</h3>
+            <h3 class="text-lg font-medium text-gray-900">{% trans "Filters" %}</h3>
         </div>
         <div class="p-6">
             <form method="GET" class="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Arama</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">{% trans "Search" %}</label>
                     <input type="text" name="search" 
                            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                            placeholder="Müşteri, ürün veya seri no..." 
                            value="{{ search_query }}">
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Durum</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">{% trans "Status" %}</label>
                     <select name="filter" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
-                        <option value="all" {% if filter_type == 'all' %}selected{% endif %}>Tümü</option>
-                        <option value="pending" {% if filter_type == 'pending' %}selected{% endif %}>Bekleyen Servisler</option>
-                        <option value="due_soon" {% if filter_type == 'due_soon' %}selected{% endif %}>Yaklaşan (7 gün)</option>
-                        <option value="overdue" {% if filter_type == 'overdue' %}selected{% endif %}>Geciken</option>
-                        <option value="completed" {% if filter_type == 'completed' %}selected{% endif %}>Tamamlanan</option>
+                        <option value="all" {% if filter_type == 'all' %}selected{% endif %}>{% trans "All" %}</option>
+                        <option value="pending" {% if filter_type == 'pending' %}selected{% endif %}>{% trans "Pending Services" %}</option>
+                        <option value="due_soon" {% if filter_type == 'due_soon' %}selected{% endif %}>{% trans "Due Soon (7 Days)" %}</option>
+                        <option value="overdue" {% if filter_type == 'overdue' %}selected{% endif %}>{% trans "Overdue Services" %}</option>
+                        <option value="completed" {% if filter_type == 'completed' %}selected{% endif %}>{% trans "Done" %}</option>
                     </select>
                 </div>
                 <div class="col-span-2">
@@ -171,21 +171,21 @@
     <!-- Service List Table -->
     <div class="bg-white shadow-lg rounded-lg border border-gray-200 overflow-hidden">
         <div class="px-6 py-4 border-b border-gray-200">
-            <h3 class="text-lg font-medium text-gray-900">Servis Listesi</h3>
+            <h3 class="text-lg font-medium text-gray-900">{% trans "Service List" %}</h3>
         </div>
         <div class="overflow-x-auto">
             <table class="w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50">
                     <tr>
-                        <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Müşteri</th>
-                        <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ürün</th>
-                        <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Seri No</th>
-                        <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Servis Türü</th>
-                        <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Servis Değeri</th>
-                        <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kurulum Tarihi</th>
-                        <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Sonraki Servis</th>
-                        <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Durum</th>
-                        <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">İşlemler</th>
+                        <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Customer" %}</th>
+                        <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Product" %}</th>
+                        <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Serial No" %}</th>
+                        <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Service Type" %}</th>
+                        <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Service Value" %}</th>
+                        <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Installation Date" %}</th>
+                        <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Next Service" %}</th>
+                        <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Status" %}</th>
+                        <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Actions" %}</th>
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
@@ -229,19 +229,19 @@
                         <td class="px-3 py-4 whitespace-nowrap">
                             {% if installation.critical_service.is_completed %}
                                 <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
-                                    Tamamlandı
+                                    Done
                                 </span>
                             {% elif installation.critical_service.next_service_date|date:"Y-m-d" <= today %}
                                 <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">
-                                    Geciken
+                                    Expired
                                 </span>
                             {% elif installation.critical_service.next_service_date|timeuntil|slice:":1" == "1" %}
                                 <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">
-                                    Bu Hafta
+                                    This Week
                                 </span>
                             {% else %}
                                 <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
-                                    Bekliyor
+                                    Pending
                                 </span>
                             {% endif %}
                         </td>
@@ -269,8 +269,8 @@
                             <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2M4 13h2m13-8V9a4 4 0 00-4-4H9a4 4 0 00-4 4v4h2m5-1V8a2 2 0 012-2h2a2 2 0 012 2v3m0 0h-2M9 12h2m-2 0V8a2 2 0 012-2h2a2 2 0 012 2v4H9z"></path>
                             </svg>
-                            <h3 class="mt-2 text-sm font-medium text-gray-900">Kayıt bulunamadı</h3>
-                            <p class="mt-1 text-sm text-gray-500">Bu kriterlere uygun servis kaydı mevcut değil.</p>
+                            <h3 class="mt-2 text-sm font-medium text-gray-900">{% trans "No Records available" %}</h3>
+                            <p class="mt-1 text-sm text-gray-500">{% trans "No service records found matching these criteria." %}</p>
                         </td>
                     </tr>
                     {% endfor %}

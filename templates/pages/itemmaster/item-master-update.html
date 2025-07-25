@@ -191,7 +191,7 @@
                 // Check if this type already exists
                 const existingType = this.maintenanceData.find(m => m.type === type);
                 if (existingType) {
-                    this.showErrorMessage(`Bu tip servis periyodu zaten eklenmiş: ${type}. Önce mevcut olanı silin.`);
+                    this.showErrorMessage(`This type of service period is already added: ${type}. Please delete the existing one.`);
                     selectElement.value = '';
                     return;
                 }
@@ -206,7 +206,7 @@
                         is_critical: true,
                         id: Date.now()
                     });
-                    this.showSuccessMessage(`${type} - ${value} ${unit} bakım programı eklendi.`);
+                    this.showSuccessMessage(`${type} - ${value} ${unit} maintenance program added.`);
                 }
                 selectElement.value = '';
             }
@@ -214,7 +214,7 @@
         removeMaintenance(index) {
             const maintenance = this.maintenanceData[index];
             this.maintenanceData.splice(index, 1);
-            this.showSuccessMessage(`${maintenance.type} bakım programı kaldırıldı.`);
+            this.showSuccessMessage(`${maintenance.type} maintenance program removed.`);
         },
         showSuccessMessage(message) {
             // Create and show a temporary success message
@@ -423,11 +423,11 @@
                                     {{ spare_item.shortcode }} - {{ spare_item.name }}
                                 </option>
                                 {% empty %}
-                                <option value="" disabled>{% trans "No spare parts available (looking for stock type 'Yedek Parça')" %}</option>
+                                <option value="" disabled>{% trans "No spare parts available (looking for stock type 'Spare Part')" %}</option>
                                 {% endfor %}
                             </select>
                             {% if not spare_part_items %}
-                            <p class="mt-1 text-xs text-red-500">{% trans "No items found with stock type 'Yedek Parça'" %}</p>
+                            <p class="mt-1 text-xs text-red-500">{% trans "No items found with stock type 'Spare Part'" %}</p>
                             {% endif %}
                         </div>
                         <div>
@@ -690,13 +690,13 @@
                                             </span>
                                             <span class="text-sm font-semibold text-gray-900">
                                                 <span x-show="warranty.type.toLowerCase().includes('hour')">
-                                                    <span x-text="(warranty.value % 1 !== 0) ? warranty.value + ' saat' : parseInt(warranty.value).toLocaleString('tr-TR') + ' saat'"></span>
+                                                    <span x-text="(warranty.value % 1 !== 0) ? warranty.value + ' hours' : parseInt(warranty.value).toLocaleString('tr-TR') + ' hours'"></span>
                                                 </span>
                                                 <span x-show="warranty.type.toLowerCase().includes('month')">
-                                                    <span x-text="(warranty.value % 1 !== 0) ? warranty.value + ' ay' : parseInt(warranty.value).toLocaleString('tr-TR') + ' ay'"></span>
+                                                    <span x-text="(warranty.value % 1 !== 0) ? warranty.value + ' months' : parseInt(warranty.value).toLocaleString('tr-TR') + ' months'"></span>
                                                 </span>
                                                 <span x-show="warranty.type.toLowerCase().includes('year')">
-                                                    <span x-text="(warranty.value % 1 !== 0) ? warranty.value + ' yıl' : parseInt(warranty.value).toLocaleString('tr-TR') + ' yıl'"></span>
+                                                    <span x-text="(warranty.value % 1 !== 0) ? warranty.value + ' years' : parseInt(warranty.value).toLocaleString('tr-TR') + ' years'"></span>
                                                 </span>
                                                 <span x-show="!warranty.type.toLowerCase().includes('hour') && !warranty.type.toLowerCase().includes('month') && !warranty.type.toLowerCase().includes('year')">
                                                     <span x-text="(warranty.value % 1 !== 0) ? warranty.value : parseInt(warranty.value).toLocaleString('tr-TR')"></span>
@@ -705,16 +705,16 @@
                                         </div>
                                         <p class="text-xs text-gray-500 mt-1">
                                             <span x-show="warranty.type.toLowerCase().includes('hour')">
-                                                <span x-text="'Garanti: ' + warranty.type + ' - ' + ((warranty.value % 1 !== 0) ? warranty.value : parseInt(warranty.value).toLocaleString('tr-TR')) + ' saat kapsamı'"></span>
+                                                <span x-text="'Garanti: ' + warranty.type + ' - ' + ((warranty.value % 1 !== 0) ? warranty.value : parseInt(warranty.value).toLocaleString('tr-TR')) + ' hours'"></span>
                                             </span>
                                             <span x-show="warranty.type.toLowerCase().includes('month')">
-                                                <span x-text="'Garanti: ' + warranty.type + ' - ' + ((warranty.value % 1 !== 0) ? warranty.value : parseInt(warranty.value).toLocaleString('tr-TR')) + ' ay kapsamı'"></span>
+                                                <span x-text="'Garanti: ' + warranty.type + ' - ' + ((warranty.value % 1 !== 0) ? warranty.value : parseInt(warranty.value).toLocaleString('tr-TR')) + ' months'"></span>
                                             </span>
                                             <span x-show="warranty.type.toLowerCase().includes('year')">
-                                                <span x-text="'Garanti: ' + warranty.type + ' - ' + ((warranty.value % 1 !== 0) ? warranty.value : parseInt(warranty.value).toLocaleString('tr-TR')) + ' yıl kapsamı'"></span>
+                                                <span x-text="'Garanti: ' + warranty.type + ' - ' + ((warranty.value % 1 !== 0) ? warranty.value : parseInt(warranty.value).toLocaleString('tr-TR')) + ' years'"></span>
                                             </span>
                                             <span x-show="!warranty.type.toLowerCase().includes('hour') && !warranty.type.toLowerCase().includes('month') && !warranty.type.toLowerCase().includes('year')">
-                                                <span x-text="'Garanti: ' + warranty.type + ' - ' + ((warranty.value % 1 !== 0) ? warranty.value : parseInt(warranty.value).toLocaleString('tr-TR')) + ' kapsamı'"></span>
+                                                <span x-text="'Garanti: ' + warranty.type + ' - ' + ((warranty.value % 1 !== 0) ? warranty.value : parseInt(warranty.value).toLocaleString('tr-TR')) + ' '"></span>
                                             </span>
                                         </p>
                                     </div>

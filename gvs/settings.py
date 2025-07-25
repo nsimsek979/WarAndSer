@@ -163,6 +163,3 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'shipstore.app@gmail.com'  # Your Gmail address
 EMAIL_HOST_PASSWORD = 'jstz iios mkao qxes'  # Use App Password if 2FA is enabled
 DEFAULT_FROM_EMAIL = 'shipstore.app@gmail.com'  # Your Gmail address
-
-# Google Maps API Key
-GOOGLE_MAPS_API_KEY = 'AIzaSyAt0CrhP93-WFBTjiA4ls_1OxBud5K5oPI'

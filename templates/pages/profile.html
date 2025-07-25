@@ -19,6 +19,12 @@
       <span class="font-semibold">{% trans 'Role' %}:</span> {{ user.get_role_display|default:'-' }}
     </div>
     <div>
+      <span class="font-semibold">{% trans 'Company' %}:</span> {{ user.company|default:'-' }}
+    </div>
+    <div>
+      <span class="font-semibold">{% trans 'Manager' %}:</span> {{ user.company.related_manager|default:'-' }}
+    </div>
+    <div>
       <span class="font-semibold">{% trans 'Default Language' %}:</span>
       {% if user.profile_language %}
         {{ user.profile_language|upper }}
@@ -29,8 +35,6 @@
       {% endif %}
     </div>
   </div>
-  <div class="mt-8">
-    <a href="{% url 'logout' %}" class="inline-block px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded text-gray-700 font-semibold">{% trans 'Logout' %}</a>
-  </div>
+  
 </div>
 {% endblock %}
