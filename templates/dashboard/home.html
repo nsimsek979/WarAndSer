@@ -136,48 +136,131 @@
         </div>
     </div>
 
-    <!-- Core Business Statistics Section -->
-    {% if core_business_summary %}
+    <!-- Installation Reports Section -->
     <div class="bg-white shadow-lg rounded-lg border border-gray-200 mb-8">
         <div class="px-6 py-4 border-b border-gray-200">
             <h2 class="text-lg font-medium text-gray-900 flex items-center">
-                <svg class="w-5 h-5 mr-2 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-5 h-5 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
                 </svg>
-                Core Business Overview
+                Installation Reports
             </h2>
         </div>
         
-        <!-- Summary Stats -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 p-6">
-            <div class="text-center">
-                <div class="text-3xl font-bold text-purple-600">{{ core_business_summary.total_businesses }}</div>
-                <div class="text-sm text-gray-500 mt-1">Total Core Businesses</div>
-            </div>
-            <div class="text-center">
-                <div class="text-3xl font-bold text-blue-600">{{ core_business_summary.businesses_with_installations }}</div>
-                <div class="text-sm text-gray-500 mt-1">With Installations</div>
-            </div>
-            <div class="text-center">
-                {% if core_business_summary.top_business %}
-                <div class="text-lg font-semibold text-green-600">{{ core_business_summary.top_business.customer__core_business__name|truncatechars:20 }}</div>
-                <div class="text-sm text-gray-500 mt-1">Top Business ({{ core_business_summary.top_business.installation_count }} installations)</div>
-                {% else %}
-                <div class="text-lg font-semibold text-gray-400">No Data</div>
-                <div class="text-sm text-gray-500 mt-1">Top Business</div>
-                {% endif %}
-            </div>
-            <div class="text-center">
-                <a href="{% url 'dashboard:core_business_report' %}" target="_blank" rel="noopener noreferrer" class="inline-block bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 shadow-md hover:shadow-lg">
-                    <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <!-- Three Report Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 p-6">
+            <!-- Core Business Report -->
+            {% if core_business_summary %}
+            <div class="bg-white rounded-lg p-6 border border-gray-200 hover:bg-purple-50 hover:border-purple-200 transition-colors duration-200">
+                <div class="mb-4 pb-3 border-b border-gray-200">
+                    <h3 class="text-lg font-semibold text-gray-900 flex items-center">
+                        <svg class="w-6 h-6 text-purple-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                        </svg>
+                        Core Business Report
+                    </h3>
+                </div>
+                <div class="space-y-3 mb-4">
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Total Businesses:</span>
+                        <span class="font-semibold text-gray-900">{{ core_business_summary.total_businesses }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">With Installations:</span>
+                        <span class="font-semibold text-gray-900">{{ core_business_summary.businesses_with_installations }}</span>
+                    </div>
+                    {% if core_business_summary.top_business %}
+                    <div class="text-center bg-gray-50 rounded p-2">
+                        <div class="text-sm text-gray-500">Top Business</div>
+                        <div class="font-semibold text-gray-900">{{ core_business_summary.top_business.customer__core_business__name|truncatechars:25 }}</div>
+                        <div class="text-xs text-gray-500">{{ core_business_summary.top_business.installation_count }} installations</div>
+                    </div>
+                    {% endif %}
+                </div>
+                <a href="{% url 'dashboard:core_business_report' %}" target="_blank" rel="noopener noreferrer" class="w-full inline-block bg-gray-600 hover:bg-gray-700 text-white font-semibold py-2 px-4 rounded text-center transition-colors duration-200">
+                    <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
                     </svg>
                     View Full Report
                 </a>
             </div>
+            {% endif %}
+
+            <!-- Distributor Report -->
+            {% if distributor_summary %}
+            <div class="bg-white rounded-lg p-6 border border-gray-200 hover:bg-green-50 hover:border-green-200 transition-colors duration-200">
+                <div class="mb-4 pb-3 border-b border-gray-200">
+                    <h3 class="text-lg font-semibold text-gray-900 flex items-center">
+                        <svg class="w-6 h-6 text-green-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                        </svg>
+                        Distributor Report
+                    </h3>
+                </div>
+                <div class="space-y-3 mb-4">
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Total Distributors:</span>
+                        <span class="font-semibold text-gray-900">{{ distributor_summary.total_distributors }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">With Installations:</span>
+                        <span class="font-semibold text-gray-900">{{ distributor_summary.distributors_with_installations }}</span>
+                    </div>
+                    {% if distributor_summary.top_distributor %}
+                    <div class="text-center bg-gray-50 rounded p-2">
+                        <div class="text-sm text-gray-500">Top Distributor</div>
+                        <div class="font-semibold text-gray-900">{{ distributor_summary.top_distributor.customer__related_company__name|truncatechars:25 }}</div>
+                        <div class="text-xs text-gray-500">{{ distributor_summary.top_distributor.installation_count }} installations</div>
+                    </div>
+                    {% endif %}
+                </div>
+                <a href="{% url 'dashboard:distributor_report' %}" target="_blank" rel="noopener noreferrer" class="w-full inline-block bg-gray-600 hover:bg-gray-700 text-white font-semibold py-2 px-4 rounded text-center transition-colors duration-200">
+                    <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                    </svg>
+                    View Full Report
+                </a>
+            </div>
+            {% endif %}
+
+            <!-- Category Report -->
+            {% if category_summary %}
+            <div class="bg-white rounded-lg p-6 border border-gray-200 hover:bg-blue-50 hover:border-blue-200 transition-colors duration-200">
+                <div class="mb-4 pb-3 border-b border-gray-200">
+                    <h3 class="text-lg font-semibold text-gray-900 flex items-center">
+                        <svg class="w-6 h-6 text-blue-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
+                        </svg>
+                        Category Report
+                    </h3>
+                </div>
+                <div class="space-y-3 mb-4">
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Total Categories:</span>
+                        <span class="font-semibold text-gray-900">{{ category_summary.total_categories }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Parent Categories:</span>
+                        <span class="font-semibold text-gray-900">{{ category_summary.parent_categories }}</span>
+                    </div>
+                    {% if category_summary.top_category %}
+                    <div class="text-center bg-gray-50 rounded p-2">
+                        <div class="text-sm text-gray-500">Top Category</div>
+                        <div class="font-semibold text-gray-900">{{ category_summary.top_category.inventory_item__name__category__category_name|truncatechars:25 }}</div>
+                        <div class="text-xs text-gray-500">{{ category_summary.top_category.installation_count }} installations</div>
+                    </div>
+                    {% endif %}
+                </div>
+                <a href="{% url 'dashboard:category_report' %}" target="_blank" rel="noopener noreferrer" class="w-full inline-block bg-gray-600 hover:bg-gray-700 text-white font-semibold py-2 px-4 rounded text-center transition-colors duration-200">
+                    <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                    </svg>
+                    View Full Report
+                </a>
+            </div>
+            {% endif %}
         </div>
     </div>
-    {% endif %}
 
     <!-- Quick Access -->
     <div class="bg-white shadow-lg rounded-lg border border-gray-200 mb-8">
