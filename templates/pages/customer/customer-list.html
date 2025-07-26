@@ -5,6 +5,10 @@
 {% load customer_permissions %}
 
 {% block title %}{% trans 'Customer List' %}{% endblock %}
+
+{% block page_title %}{% trans "Customers" %}{% endblock %}
+{% block page_description %}{% trans "Manage customer information and relationships" %}{% endblock %}
+
 {% block content %}
 <div x-data="{
         search: '',

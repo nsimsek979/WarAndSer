@@ -4,6 +4,10 @@
 {% load customer_permissions %}
 
 {% block title %}{{ company.name }}{% endblock %}
+
+{% block page_title %}{{ company.name }}{% endblock %}
+{% block page_description %}{% trans "Customer details and information" %}{% endblock %}
+
 {% block content %}
 <div class="max-w-7xl mx-auto mt-8 bg-white rounded-xl shadow p-8">
   <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-8 border-b border-gray-200 pb-4">

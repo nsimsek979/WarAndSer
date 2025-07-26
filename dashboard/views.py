@@ -8,7 +8,7 @@ from datetime import timedelta
 import json
 
 try:
-    from warranty_and_services.models import Installation, WarrantyFollowUp, ServiceFollowUp
+    from warranty_and_services.models import Installation, WarrantyFollowUp, ServiceFollowUp, MaintenanceRecord
     from warranty_and_services.utils import get_user_accessible_companies_filter
     from customer.models import CoreBusiness
 except ImportError:
@@ -16,6 +16,7 @@ except ImportError:
     Installation = None
     WarrantyFollowUp = None
     ServiceFollowUp = None
+    MaintenanceRecord = None
     get_user_accessible_companies_filter = None
     CoreBusiness = None
 
@@ -31,7 +32,7 @@ def home(request):
         print("Debug Dashboard: User has no company attribute")
 
     # Only calculate stats if models are available
-    if Installation and WarrantyFollowUp and ServiceFollowUp and get_user_accessible_companies_filter and CoreBusiness:
+    if Installation and WarrantyFollowUp and ServiceFollowUp and MaintenanceRecord and get_user_accessible_companies_filter and CoreBusiness:
         now = timezone.now()
 
         # Get user's accessible companies filter for different model types
@@ -70,6 +71,23 @@ def home(request):
         ).count()
         context['overdue_services'] = overdue_services
         print(f"Debug Dashboard: Overdue services: {overdue_services}")
+
+        # Breakdown maintenance statistics
+        breakdown_maintenance_count = MaintenanceRecord.objects.filter(
+            service_followup__installation__in=Installation.objects.filter(installation_filter),
+            maintenance_type='breakdown'
+        ).count()
+        context['breakdown_maintenance_count'] = breakdown_maintenance_count
+        print(f"Debug Dashboard: Breakdown maintenance count: {breakdown_maintenance_count}")
+        
+        # Recent breakdown maintenance (last 30 days)
+        recent_breakdowns = MaintenanceRecord.objects.filter(
+            service_followup__installation__in=Installation.objects.filter(installation_filter),
+            maintenance_type='breakdown',
+            maintenance_date__gte=now - timedelta(days=30)
+        ).count()
+        context['recent_breakdowns'] = recent_breakdowns
+        print(f"Debug Dashboard: Recent breakdowns (30 days): {recent_breakdowns}")
 
         # Core Business Installation Statistics - Summary only for dashboard
         core_business_summary_stats = Installation.objects.filter(
@@ -567,3 +585,230 @@ def category_report(request):
         ]
 
     return render(request, 'dashboard/category_report.html', context)
+
+
+@login_required(login_url='login')
+def breakdown_maintenance_report(request):
+    """Detailed Breakdown Maintenance Report with pagination and chart data"""
+    context = {}
+
+    # Only generate report if models are available
+    if Installation and MaintenanceRecord and get_user_accessible_companies_filter:
+        # Get user's accessible companies filter
+        installation_filter = get_user_accessible_companies_filter(request.user, 'installation')
+        
+        # Get date filter parameter
+        date_filter = request.GET.get('period', 'all')
+        
+        # Calculate date range based on filter
+        end_date = timezone.now()
+        start_date = None
+        
+        if date_filter == '1month':
+            start_date = end_date - timedelta(days=30)
+        elif date_filter == '1quarter':
+            start_date = end_date - timedelta(days=90)
+        elif date_filter == '1year':
+            start_date = end_date - timedelta(days=365)
+        # 'all' means no date filter
+        
+        # Build base queryset for breakdown maintenance only
+        base_queryset = MaintenanceRecord.objects.filter(
+            service_followup__installation__in=Installation.objects.filter(installation_filter),
+            maintenance_type='breakdown'
+        ).select_related(
+            'service_followup__installation',
+            'service_followup__installation__customer',
+            'service_followup__installation__inventory_item',
+            'service_followup__installation__inventory_item__name',
+            'service_followup__installation__inventory_item__name__category'
+        )
+        
+        # Apply date filter if specified
+        if start_date:
+            base_queryset = base_queryset.filter(service_date__gte=start_date)
+        
+        # Breakdown by Customer/Company
+        customer_breakdown_stats = base_queryset.values(
+            'service_followup__installation__customer__name'
+        ).annotate(
+            breakdown_count=Count('id')
+        ).order_by('-breakdown_count')
+        
+        # Breakdown by Category
+        category_breakdown_stats = base_queryset.values(
+            'service_followup__installation__inventory_item__name__category__category_name'
+        ).annotate(
+            breakdown_count=Count('id')
+        ).filter(
+            service_followup__installation__inventory_item__name__category__category_name__isnull=False
+        ).order_by('-breakdown_count')
+        
+        # Breakdown by Distributor
+        distributor_breakdown_stats = base_queryset.values(
+            'service_followup__installation__customer__related_company__name'
+        ).annotate(
+            breakdown_count=Count('id')
+        ).filter(
+            service_followup__installation__customer__related_company__name__isnull=False
+        ).order_by('-breakdown_count')
+        
+        # Monthly breakdown trend - SQLite compatible
+        monthly_breakdown_stats = base_queryset.extra(
+            select={'month': "strftime('%%Y-%%m', service_date)"}
+        ).values('month').annotate(
+            breakdown_count=Count('id')
+        ).order_by('month')
+        
+        # Prepare chart data for customer breakdowns - Top 9 + Others
+        chart_customers = list(customer_breakdown_stats[:9])
+        others_count = sum(item['breakdown_count'] for item in customer_breakdown_stats[9:])
+        
+        if others_count > 0:
+            chart_customers.append({
+                'service_followup__installation__customer__name': 'Others',
+                'breakdown_count': others_count
+            })
+        
+        # Customer breakdown chart data
+        customer_labels = []
+        customer_data = []
+        customer_colors = [
+            '#DC2626', '#EF4444', '#F87171', '#FCA5A5', '#FECACA',
+            '#FEE2E2', '#B91C1C', '#991B1B', '#7F1D1D', '#64748B'
+        ]
+        
+        # Prepare chart data for category breakdowns - Top 9 + Others
+        chart_categories = list(category_breakdown_stats[:9])
+        category_others_count = sum(item['breakdown_count'] for item in category_breakdown_stats[9:])
+        
+        if category_others_count > 0:
+            chart_categories.append({
+                'service_followup__installation__inventory_item__name__category__category_name': 'Others',
+                'breakdown_count': category_others_count
+            })
+        
+        # Category breakdown chart data
+        category_labels = []
+        category_data = []
+        category_colors = [
+            '#EF4444', '#F97316', '#EAB308', '#22C55E', '#06B6D4',
+            '#3B82F6', '#8B5CF6', '#EC4899', '#F59E0B', '#64748B'
+        ]
+        
+        for stat in chart_categories:
+            if stat['service_followup__installation__inventory_item__name__category__category_name']:
+                category_labels.append(stat['service_followup__installation__inventory_item__name__category__category_name'])
+                category_data.append(stat['breakdown_count'])
+        
+        # Monthly trend chart data
+        monthly_labels = []
+        monthly_data = []
+        
+        for stat in monthly_breakdown_stats:
+            if stat['month']:
+                monthly_labels.append(stat['month'])
+                monthly_data.append(stat['breakdown_count'])
+        
+        for stat in chart_customers:
+            if stat['service_followup__installation__customer__name']:
+                customer_labels.append(stat['service_followup__installation__customer__name'])
+                customer_data.append(stat['breakdown_count'])
+        
+        # Prepare comprehensive chart data for all visualizations
+        context['chart_data'] = {
+            'customer_data': {
+                'labels': json.dumps(customer_labels),
+                'data': json.dumps(customer_data),
+                'colors': json.dumps(customer_colors[:len(customer_data)])
+            },
+            'monthly_data': {
+                'labels': json.dumps(monthly_labels),
+                'data': json.dumps(monthly_data),
+                'colors': json.dumps(['#f97316'] * len(monthly_data))
+            },
+            'category_data': {
+                'labels': json.dumps(category_labels),
+                'data': json.dumps(category_data),
+                'colors': json.dumps(category_colors[:len(category_data)])
+            }
+        }
+        
+        # Summary statistics for dashboard
+        total_breakdowns = base_queryset.count()
+        customers_affected = customer_breakdown_stats.count()
+        # All breakdown records in our query are resolved (since they have MaintenanceRecord)
+        resolved_breakdowns = total_breakdowns
+        avg_resolution_time = 0
+        
+        # Calculate average resolution time using maintenance_date - service_date
+        if base_queryset.exists():
+            total_days = 0
+            count = 0
+            for record in base_queryset:
+                if record.service_date and record.maintenance_date:
+                    # Convert maintenance_date to date for comparison
+                    maintenance_date = record.maintenance_date.date()
+                    days = (maintenance_date - record.service_date).days
+                    total_days += days
+                    count += 1
+            if count > 0:
+                avg_resolution_time = total_days / count
+        
+        context['summary'] = {
+            'total_maintenance': total_breakdowns,
+            'total_breakdowns': total_breakdowns,
+            'customers_affected': customers_affected,
+            'avg_resolution_time': avg_resolution_time
+        }
+        
+        # Top customers by breakdown count (renamed for template consistency)
+        context['top_customers'] = []
+        for customer in customer_breakdown_stats[:5]:
+            context['top_customers'].append({
+                'customer_name': customer['service_followup__installation__customer__name'],
+                'breakdown_count': customer['breakdown_count']
+            })
+        
+        # All maintenance records for main table with additional calculated fields
+        all_maintenance_records = base_queryset.order_by('-maintenance_date')
+        
+        # Add calculated fields for each record
+        for record in all_maintenance_records:
+            # Calculate resolution days using maintenance_date - service_date
+            if record.service_date and record.maintenance_date:
+                maintenance_date = record.maintenance_date.date()
+                record.resolution_days = (maintenance_date - record.service_date).days
+            else:
+                record.resolution_days = None
+                
+            # Since all records are resolved (they have MaintenanceRecord), no pending cases
+            record.days_since_report = None
+        
+        # Pagination for maintenance records
+        page = request.GET.get('page', 1)
+        per_page = 20
+        
+        paginator = Paginator(all_maintenance_records, per_page)
+        
+        try:
+            paginated_records = paginator.page(page)
+        except PageNotAnInteger:
+            paginated_records = paginator.page(1)
+        except EmptyPage:
+            paginated_records = paginator.page(paginator.num_pages)
+        
+        context['maintenance_records'] = paginated_records
+        
+        # Add current filter to context
+        context['current_period'] = date_filter
+        
+        # Period options for the dropdown
+        context['period_options'] = [
+            {'value': 'all', 'label': 'All Time'},
+            {'value': '1year', 'label': 'Last 1 Year'},
+            {'value': '1quarter', 'label': 'Last Quarter (3 months)'},
+            {'value': '1month', 'label': 'Last Month'},
+        ]
+
+    return render(request, 'dashboard/breakdown_maintenance_report.html', context)

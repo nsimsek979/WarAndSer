@@ -4,6 +4,10 @@
 {% load humanize %}
 
 {% block title %}{% trans 'Item Master List' %}{% endblock %}
+
+{% block page_title %}{% trans "Item Master" %}{% endblock %}
+{% block page_description %}{% trans "Manage and track all master items in the system" %}{% endblock %}
+
 {% block content %}
 <div x-data="{
         search: '',
@@ -12,103 +16,129 @@
         deleteItem(id) { this.deleteModalId = null; },
         openDeleteModal(id) { this.deleteModalId = id; }
     }" class="pl-8 pr-8 space-y-6">
-    <!-- Header -->
-    <div class="bg-gray-25 pl-8 pr-8">
-        <div class="flex justify-between items-center p-0">
-            <div>
-                <h2 class="text-md font-semibold text-gray-700">{% trans "Item Master" %}</h2>
-                <p class="text-gray-600 mt-0.5 text-sm">{% trans "Item Master Management" %}</p>
-            </div>
-            {% if perms.item_master.add_itemmaster %}
-            <a href="{% url 'item-master:item_master_create' %}" class="inline-flex items-center space-x-2
-                         bg-blue-700 text-white border border-gray-200 px-3 py-1.5 rounded-md hover:bg-blue-900 text-sm">
-                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                <span>{% trans "Add New Item" %}</span>
-            </a>
-            {% endif %}
-        </div>
-    </div>
 
      <div class="bg-white rounded-xl border border-gray-200 p-2">
-         <!-- Search and Filters -->
-             <div class="bg-gray-25 p-6">
-                 <form method="get" class="grid grid-cols-1 md:grid-cols-5 gap-2 items-center">
-                     <div class="relative col-span-2">
-                         <svg class="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8" stroke-width="2"/><path d="M21 21l-4.35-4.35" stroke-width="2" stroke-linecap="round"/></svg>
-                         <input type="text" name="search" value="{{ search_query }}" placeholder="{% trans 'Search by name, shortcode, description...' %}" class="custom-input-search pl-10 w-full" autocomplete="off">
-                     </div>
-                     <div>
-                         <select name="category" class="custom-input-search w-full">
-                             <option value="">{% trans 'All Categories' %}</option>
-                             {% for category in categories %}
-                                 <option value="{{ category.id }}" {% if category_filter == category.id|stringformat:"s" %}selected{% endif %}>{{ category.category_name }}</option>
-                             {% endfor %}
-                         </select>
-                     </div>
-                     <div>
-                         <select name="brand" class="custom-input-search w-full">
-                             <option value="">{% trans 'All Brands' %}</option>
-                             {% for brand in brands %}
-                                 <option value="{{ brand.id }}" {% if brand_filter == brand.id|stringformat:"s" %}selected{% endif %}>{{ brand.name }}</option>
-                             {% endfor %}
-                         </select>
-                     </div>
-                     <div class="flex space-x-2 mt-2 md:mt-0">
-                         <button type="submit" class="bg-blue-700 text-white px-4 py-2 rounded hover:bg-blue-900 text-sm">{% trans 'Search' %}</button>
-                         {% if search_query or category_filter or brand_filter %}
-                         <a href="?" class="bg-gray-200 text-gray-700 px-4 py-2 rounded hover:bg-gray-300 text-sm">{% trans 'Clear' %}</a>
-                         {% endif %}
+         <!-- Search and Filters with Add Button -->
+         <div class="bg-gray-25 p-6">
+             <div class="flex items-start gap-4">
+                 <!-- Search Form -->
+                 <form method="get" class="flex-1" id="search-form" style="margin-top: 4px;">
+                     <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                         <div class="relative">
+                             <div class="relative">
+                                 <svg class="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8" stroke-width="2"/><path d="M21 21l-4.35-4.35" stroke-width="2" stroke-linecap="round"/></svg>
+                                 <input type="text" name="search" value="{{ search_query }}" placeholder="{% trans 'Search by name, shortcode, description...' %}" class="custom-input-search pl-10 w-full" autocomplete="off">
+                             </div>
+                         </div>
+                         <div>
+                             <select name="category" class="custom-input-search w-full">
+                                 <option value="">{% trans 'All Categories' %}</option>
+                                 {% for category in categories %}
+                                     <option value="{{ category.id }}" {% if category_filter == category.id|stringformat:"s" %}selected{% endif %}>{{ category.category_name }}</option>
+                                 {% endfor %}
+                             </select>
+                         </div>
+                         <div>
+                             <select name="brand" class="custom-input-search w-full">
+                                 <option value="">{% trans 'All Brands' %}</option>
+                                 {% for brand in brands %}
+                                     <option value="{{ brand.id }}" {% if brand_filter == brand.id|stringformat:"s" %}selected{% endif %}>{{ brand.name }}</option>
+                                 {% endfor %}
+                             </select>
+                         </div>
                      </div>
                  </form>
+                 
+                 <!-- Action Buttons -->
+                 <div class="flex items-center gap-2" style="margin-top: 4px;">
+                     <!-- Search and Clear Buttons -->
+                     <div class="flex gap-2">
+                         <button type="submit" form="search-form" 
+                                 class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-1.5 rounded-lg text-sm font-medium transition-colors"
+                                 style="height: 32px; line-height: 1;">
+                             {% trans 'Search' %}
+                         </button>
+                         {% if search_query or category_filter or brand_filter %}
+                         <a href="?" 
+                            class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-1.5 rounded-lg text-sm font-medium transition-colors inline-flex items-center"
+                            style="height: 32px; line-height: 1;">
+                             {% trans 'Clear' %}
+                         </a>
+                         {% endif %}
+                     </div>
+                     
+                     <!-- Add New Item Button -->
+                     {% if perms.item_master.add_itemmaster %}
+                     <a href="{% url 'item-master:item_master_create' %}" 
+                        class="bg-green-600 hover:bg-green-700 text-white px-4 py-1.5 rounded-lg text-sm font-medium transition-colors inline-flex items-center gap-2 ml-2"
+                        style="height: 32px; line-height: 1;">
+                         <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                             <path d="M12 4v16m8-8H4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                         </svg>
+                         <span>{% trans "Add New Item" %}</span>
+                     </a>
+                     {% endif %}
+                 </div>
              </div>
+         </div>
          <!-- Items Table -->
-         <div class="bg-white rounded-lg p-6">
-             <div class="overflow-hidden border border-gray-100 rounded-t-xl ">
-                 <table class="min-w-full border-separate border-spacing-0 rounded-t-lg">
-                     <thead class="text-sm  tracking-wider text-gray-700 border-b border-gray-200">
+         <div class="bg-white rounded-lg shadow-lg border border-gray-200">
+             <div class="px-6 py-4 border-b border-gray-200">
+                 <h3 class="text-lg font-semibold text-gray-900 flex items-center">
+                     <svg class="w-5 h-5 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m-8-14l8 4m0 0l8-4m-8 4v10M4 7v10l8 4"></path>
+                     </svg>
+                     {% trans "Item Master List" %} ({{ items.paginator.count }} {% trans "total" %})
+                 </h3>
+             </div>
+             <div class="overflow-x-auto">
+                 <table class="min-w-full divide-y divide-gray-200">
+                     <thead class="bg-gray-50">
                          <tr>
-                             <th class="px-6 py-4 text-left border-b border-gray-200">{% trans "Item" %}</th>
-                             <th class="px-6 py-4 text-left border-b border-gray-200">{% trans "Category" %}</th>
-                             <th class="px-6 py-4 text-left border-b border-gray-200">{% trans "Brand" %}</th>
-                             <th class="px-6 py-4 text-left border-b border-gray-200">{% trans "Stock Type" %}</th>
-                             <th class="px-6 py-4 text-left border-b border-gray-200">{% trans "Status" %}</th>
-                             <th class="px-6 py-4 text-center border-b border-gray-200">{% trans "Inventory" %}</th>
-                             <th class="px-6 py-4 text-left border-b border-gray-200"></th>
+                             <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Image" %}</th>
+                             <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-48">{% trans "Item" %}</th>
+                             <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Category" %}</th>
+                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Brand" %}</th>
+                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Stock Type" %}</th>
+                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Status" %}</th>
+                             <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Inventory" %}</th>
+                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Actions" %}</th>
+                         </tr>
                      </thead>
-                     <tbody>
+                     <tbody class="bg-white divide-y divide-gray-200">
                          {% for item in items %}
-                         <tr class="hover:bg-blue-50 transition">
-                             <td class="px-6 py-3 border-b border-r border-gray-100 bg-white">
-                                 <div class="flex items-center space-x-3">
-                                     <div class="w-8 h-8 bg-gray-100 rounded-md flex items-center justify-center">
+                         <tr class="hover:bg-gray-50 transition-colors duration-200">
+                             <td class="px-6 py-4 text-center">
+                                 <div class="flex justify-center">
+                                     <div class="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
                                          {% if item.images.first %}
-                                             <img src="{{ item.images.first.url.url }}" alt="{{ item.name }}" class="w-8 h-8 rounded-md object-cover">
+                                             <img src="{{ item.images.first.url.url }}" alt="{{ item.name }}" class="w-12 h-12 rounded-lg object-cover">
                                          {% else %}
-                                             <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                             <svg class="h-6 w-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                  <path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                                              </svg>
                                          {% endif %}
                                      </div>
-                                     <div>
-                                         <div class="flex items-center space-x-2">
-                                             <a href="{% url 'item-master:item_master_detail' item.id %}" class="text-xs hover:text-blue-800 font-medium ">
-                                                 {{ item.shortcode }}
-                                             </a>
-                                         </div>
-                                         <a href="{% url 'item-master:item_master_detail' item.id %}" class="text-xs hover:text-blue-600 font-medium ">
-                                             {{ item.name }}
-                                         </a>                                        
-                                     </div>
                                  </div>
                              </td>
-                             <td class="px-6 py-3 border-b border-r border-gray-100 bg-white">
-                                 <span class="inline-block rounded bg-gray-100 text-gray-700 px-2 py-0.5 text-xs">{{ item.category.category_name|default:"-" }}</span>
+                             <td class="px-4 py-4 w-48">
+                                 <div>
+                                     <div class="text-sm font-medium text-gray-900 truncate">
+                                         <a href="{% url 'item-master:item_master_detail' item.id %}" class="hover:text-blue-600 transition-colors" title="{{ item.name }}">
+                                             {{ item.name }}
+                                         </a>
+                                     </div>
+                                     <div class="text-xs text-gray-500">{{ item.shortcode }}</div>
+                                 </div>
                              </td>
-                             <td class="px-6 py-3 border-b border-r border-gray-100 bg-white">
-                                 <span class="inline-block rounded bg-gray-50 text-gray-700 px-2 py-0.5 text-xs">{{ item.brand_name.name|default:"-" }}</span>
+                             <td class="px-4 py-4">
+                                 <div class="text-sm text-gray-900">{{ item.category.category_name|default:"-" }}</div>
                              </td>
-                             <td class="px-6 py-3 border-b border-r border-gray-100 bg-white">
-                                 <span class="inline-block rounded bg-gray-50 text-gray-700 px-2 py-0.5 text-xs">{{ item.stock_type.name|default:"-" }}</span>
+                             <td class="px-6 py-4 whitespace-nowrap">
+                                 <div class="text-sm text-gray-900">{{ item.brand_name.name|default:"-" }}</div>
+                             </td>
+                             <td class="px-6 py-4 whitespace-nowrap">
+                                 <div class="text-sm text-gray-900">{{ item.stock_type.name|default:"-" }}</div>
                              </td>
                              <td class="px-6 py-3 border-b border-r border-gray-100 bg-white">
                                  {% if item.status.status == "Active" %}

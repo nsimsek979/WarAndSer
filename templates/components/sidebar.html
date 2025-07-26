@@ -2,145 +2,236 @@
 {% load i18n %}
 <aside 
             id="separator-sidebar"
-            class="fixed top-0 left-0 z-40 w-64 h-screen transition-transform text-sm font-bold"
-            :class="{ '-translate-x-full': !sidebarOpen, 'transform-none': sidebarOpen }"
+            class="fixed top-0 left-0 z-40 h-screen transition-all duration-300 text-sm font-bold"
+            :class="{ 
+                '-translate-x-full': !sidebarOpen && window.innerWidth < 640, 
+                'w-64': sidebarOpen, 
+                'w-16': !sidebarOpen && window.innerWidth >= 640,
+                'transform-none': sidebarOpen || window.innerWidth >= 640
+            }"
             aria-label="Sidebar"
         >
-            <div class="h-full px-3 py-4 overflow-y-auto bg-white border border-slate-200 dark:bg-gray-800 ">
-                <div class="flex items-center justify-between px-4 mb-5">
-                    <img src="{% static 'konnektom-logo.png' %}" width="80" height="60">
-                    <button @click="sidebarOpen = false" class="sm:hidden text-gray-500 dark:text-gray-400 hover:text-gray-600 dark:hover:text-white">
+            <div class="h-full flex flex-col overflow-hidden bg-white border-r border-gray-200 dark:bg-gray-800 dark:border-gray-700">
+                <!-- Header Section -->
+                <div class="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
+                    <div class="flex items-center space-x-3" :class="{ 'justify-center': !sidebarOpen }">
+                        <img src="{% static 'konnektom-logo.png' %}" :class="{ 'w-8 h-8': !sidebarOpen, 'w-12 h-12': sidebarOpen }" class="transition-all duration-300">
+                        <span x-show="sidebarOpen" class="text-lg font-bold text-gray-800 dark:text-white transition-opacity duration-300">
+                            Konnektom
+                        </span>
+                    </div>
+                    <!-- Sidebar Toggle Button (now inside sidebar) -->
+                    <button @click="sidebarOpen = !sidebarOpen" class="hidden sm:block p-1.5 rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                        <i class="fas fa-bars text-sm"></i>
+                    </button>
+                    <!-- Mobile close button -->
+                    <button @click="sidebarOpen = false" class="sm:hidden p-1.5 rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700">
                         <i class="fas fa-times"></i>
                     </button>
                 </div>
                 
-                <ul class="space-y-2 font-medium mt-20" x-data="{ openMenu: null }">
+                <!-- Navigation Menu -->
+                <nav class="flex-1 p-4 overflow-y-auto">
+                    <ul class="space-y-1" x-data="{ openMenu: null }">
+                        <!-- Dashboard -->
+                        <li>
+                            <a href="/" class="flex items-center p-3 text-gray-700 rounded-lg dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-primary-600 dark:hover:text-primary-400 transition-all group"
+                               :class="{ 'justify-center': !sidebarOpen }">
+                                {% include 'components/icons/dashboard.html' with classes="w-5 h-5 flex-shrink-0" %}
+                                <span x-show="sidebarOpen" class="ml-3 transition-opacity duration-300">{% trans "Dashboard" %}</span>
+                            </a>
+                        </li>
 
-                  <li>
-                        <a href="/" class="flex items-center p-2 text-black  rounded-lg dark:text-white  hover:text-blue-500  focus:text-blue-500 dark:hover:bg-gray-700 group">
-                          {% include 'components/icons/dashboard.html' %}
-                          <span class="ms-3">{% trans "Dashboard" %}</span>
-                        </a>
-                    </li>
-                    <!-- Product Menu (Item Master List inside) -->
-                    <li>
-                        <button 
-                            @click="openMenu === 1 ? openMenu = null : openMenu = 1"
-                            class="flex items-center justify-between w-full p-2 text-black rounded-lg dark:text-white  hover:text-blue-500 dark:hover:bg-gray-700 group"
-                        >
-                            <div class="flex items-center">
-                                {% include 'components/icons/product_menu.html' %}
-                                <span class="ms-3">{% trans "Product Menu" %}</span>
-                            </div>
-                            <i class="fas fa-chevron-down text-xs transition-transform" :class="{ 'rotate-180': openMenu === 1 }"></i>
-                        </button>
-                        <ul x-show="openMenu === 1" class="py-2 space-y-2 ml-9">
-                            <li>
-                                <a href="/item-master/" class="flex items-center p-1.5 text-sm text-black hover:text-blue-500 focus:text-blue-500 rounded-lg dark:text-white dark:hover:bg-gray-700 group">
-                                    <span class="ms-3">{% trans "Item Master List" %}</span>
-                                </a>
-                            </li>
-                            {% if perms.item_master.add_itemmaster %}
-                            <li>
-                                <a href="/item-master/create/" class="flex items-center p-1.5 text-sm text-black hover:text-blue-500 focus:text-blue-500 rounded-lg dark:text-white dark:hover:bg-gray-700 group">
-                                    <span class="ms-3">{% trans "Add New Item" %}</span>
-                                </a>
-                            </li>
-                            {% endif %}
-                            <li>
-                                <a href="/item-master/inventory/" class="flex items-center p-1.5 text-sm text-black hover:text-blue-500 focus:text-blue-500 rounded-lg dark:text-white dark:hover:bg-gray-700 group">
-                                    <span class="ms-3">{% trans "Inventory Items" %}</span>
-                                </a>
-                            </li>
-                          
-                            {% if perms.item_master.add_inventoryitem %}
-                            <li>
-                                <a href="{% url 'item-master:inventory_item_create' %}" class="flex items-center p-1.5 text-sm text-black  hover:text-blue-500 focus:text-blue-500  rounded-lg dark:text-white dark:hover:bg-gray-700 group">
-                                    <span class="ms-3">{% trans "Add Stock Item" %}</span>
-                                </a>
-                            </li>
-                            {% endif %}
-                        </ul>
-                    </li>
-                    <!-- Customer Menu (dropdown) -->
-                    <li>
-                        <button 
-                            @click="openMenu === 4 ? openMenu = null : openMenu = 4"
-                            class="flex items-center justify-between w-full p-2 text-black rounded-lg dark:text-white  hover:text-blue-500 dark:hover:bg-gray-700 group"
-                        >
-                            <div class="flex items-center">
-                                <i class="fas fa-users"></i>
-                                <span class="ms-3">{% trans "Customer" %}</span>
-                            </div>
-                            <i class="fas fa-chevron-down text-xs transition-transform" :class="{ 'rotate-180': openMenu === 4 }"></i>
-                        </button>
-                        <ul x-show="openMenu === 4" class="py-2 space-y-2 ml-9">
-                            <li>
-                                <a href="{% url 'customer:customer_list' %}" class="flex items-center p-1.5 text-sm text-black hover:text-blue-500 focus:text-blue-500 rounded-lg dark:text-white dark:hover:bg-gray-700 group">
-                                    <span class="ms-3">{% trans "Customer List" %}</span>
-                                </a>
-                            </li>
-                            {% if perms.customer.add_company %}
-                            <li>
-                                <a href="{% url 'customer:customer_create' %}" class="flex items-center p-1.5 text-sm text-black hover:text-blue-500 focus:text-blue-500 rounded-lg dark:text-white dark:hover:bg-gray-700 group">
-                                    <span class="ms-3">{% trans "Add New Customer" %}</span>
-                                </a>
-                            </li>
-                            {% endif %}
-                        </ul>
-                    </li>
-                    
-                    <!-- Warranty & Services Menu (dropdown) -->
-                    <li>
-                        <button 
-                            @click="openMenu === 5 ? openMenu = null : openMenu = 5"
-                            class="flex items-center justify-between w-full p-2 text-black rounded-lg dark:text-white  hover:text-blue-500 dark:hover:bg-gray-700 group"
-                        >
-                            <div class="flex items-center">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
-                                </svg>
-                                <span class="ms-3">{% trans "Warranty & Services" %}</span>
-                            </div>
-                            <i class="fas fa-chevron-down text-xs transition-transform" :class="{ 'rotate-180': openMenu === 5 }"></i>
-                        </button>
-                        <ul x-show="openMenu === 5" class="py-2 space-y-2 ml-9">
-                            <li>
-                                <a href="{% url 'warranty_and_services:installation_list' %}" class="flex items-center p-1.5 text-sm text-black hover:text-blue-500 focus:text-blue-500 rounded-lg dark:text-white dark:hover:bg-gray-700 group">
-                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                                    </svg>
-                                    <span class="ms-1">{% trans "Installation List" %}</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="{% url 'warranty_and_services:warranty_tracking_list' %}" class="flex items-center p-1.5 text-sm text-black hover:text-blue-500 focus:text-blue-500 rounded-lg dark:text-white dark:hover:bg-gray-700 group">
-                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <!-- Product Menu -->
+                        <li>
+                            <button 
+                                @click="sidebarOpen ? (openMenu === 1 ? openMenu = null : openMenu = 1) : sidebarOpen = true"
+                                class="flex items-center justify-between w-full p-3 text-gray-700 rounded-lg dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-primary-600 dark:hover:text-primary-400 transition-all group"
+                                :class="{ 'justify-center': !sidebarOpen }"
+                            >
+                                <div class="flex items-center" :class="{ 'justify-center': !sidebarOpen }">
+                                    {% include 'components/icons/product_menu.html' with classes="w-5 h-5 flex-shrink-0" %}
+                                    <span x-show="sidebarOpen" class="ml-3 transition-opacity duration-300">{% trans "Product Menu" %}</span>
+                                </div>
+                                <i x-show="sidebarOpen" class="fas fa-chevron-down text-xs transition-transform" :class="{ 'rotate-180': openMenu === 1 }"></i>
+                            </button>
+                            <ul x-show="openMenu === 1 && sidebarOpen" class="mt-1 ml-8 space-y-1">
+                                <li>
+                                    <a href="/item-master/" class="flex items-center p-2 text-sm text-gray-600 hover:text-primary-600 hover:bg-gray-50 rounded-lg dark:text-gray-400 dark:hover:text-primary-400 dark:hover:bg-gray-700 transition-all">
+                                        <span>{% trans "Item Master List" %}</span>
+                                    </a>
+                                </li>
+                                {% if perms.item_master.add_itemmaster %}
+                                <li>
+                                    <a href="/item-master/create/" class="flex items-center p-2 text-sm text-gray-600 hover:text-primary-600 hover:bg-gray-50 rounded-lg dark:text-gray-400 dark:hover:text-primary-400 dark:hover:bg-gray-700 transition-all">
+                                        <span>{% trans "Add New Item" %}</span>
+                                    </a>
+                                </li>
+                                {% endif %}
+                                <li>
+                                    <a href="/item-master/inventory/" class="flex items-center p-2 text-sm text-gray-600 hover:text-primary-600 hover:bg-gray-50 rounded-lg dark:text-gray-400 dark:hover:text-primary-400 dark:hover:bg-gray-700 transition-all">
+                                        <span>{% trans "Inventory Items" %}</span>
+                                    </a>
+                                </li>
+                                {% if perms.item_master.add_inventoryitem %}
+                                <li>
+                                    <a href="{% url 'item-master:inventory_item_create' %}" class="flex items-center p-2 text-sm text-gray-600 hover:text-primary-600 hover:bg-gray-50 rounded-lg dark:text-gray-400 dark:hover:text-primary-400 dark:hover:bg-gray-700 transition-all">
+                                        <span>{% trans "Add Stock Item" %}</span>
+                                    </a>
+                                </li>
+                                {% endif %}
+                            </ul>
+                        </li>
+
+                        <!-- Customer Menu -->
+                        <li>
+                            <button 
+                                @click="sidebarOpen ? (openMenu === 4 ? openMenu = null : openMenu = 4) : sidebarOpen = true"
+                                class="flex items-center justify-between w-full p-3 text-gray-700 rounded-lg dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-primary-600 dark:hover:text-primary-400 transition-all group"
+                                :class="{ 'justify-center': !sidebarOpen }"
+                            >
+                                <div class="flex items-center" :class="{ 'justify-center': !sidebarOpen }">
+                                    <i class="fas fa-users w-5 h-5 flex-shrink-0"></i>
+                                    <span x-show="sidebarOpen" class="ml-3 transition-opacity duration-300">{% trans "Customer" %}</span>
+                                </div>
+                                <i x-show="sidebarOpen" class="fas fa-chevron-down text-xs transition-transform" :class="{ 'rotate-180': openMenu === 4 }"></i>
+                            </button>
+                            <ul x-show="openMenu === 4 && sidebarOpen" class="mt-1 ml-8 space-y-1">
+                                <li>
+                                    <a href="{% url 'customer:customer_list' %}" class="flex items-center p-2 text-sm text-gray-600 hover:text-primary-600 hover:bg-gray-50 rounded-lg dark:text-gray-400 dark:hover:text-primary-400 dark:hover:bg-gray-700 transition-all">
+                                        <span>{% trans "Customer List" %}</span>
+                                    </a>
+                                </li>
+                                {% if perms.customer.add_company %}
+                                <li>
+                                    <a href="{% url 'customer:customer_create' %}" class="flex items-center p-2 text-sm text-gray-600 hover:text-primary-600 hover:bg-gray-50 rounded-lg dark:text-gray-400 dark:hover:text-primary-400 dark:hover:bg-gray-700 transition-all">
+                                        <span>{% trans "Add New Customer" %}</span>
+                                    </a>
+                                </li>
+                                {% endif %}
+                            </ul>
+                        </li>
+                        
+                        <!-- Warranty & Services Menu -->
+                        <li>
+                            <button 
+                                @click="sidebarOpen ? (openMenu === 5 ? openMenu = null : openMenu = 5) : sidebarOpen = true"
+                                class="flex items-center justify-between w-full p-3 text-gray-700 rounded-lg dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-primary-600 dark:hover:text-primary-400 transition-all group"
+                                :class="{ 'justify-center': !sidebarOpen }"
+                            >
+                                <div class="flex items-center" :class="{ 'justify-center': !sidebarOpen }">
+                                    <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
                                     </svg>
-                                    <span class="ms-1">{% trans "Warranty Tracking" %}</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="{% url 'warranty_and_services:service_tracking_list' %}" class="flex items-center p-1.5 text-sm text-black hover:text-blue-500 focus:text-blue-500 rounded-lg dark:text-white dark:hover:bg-gray-700 group">
-                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                                    </svg>
-                                    <span class="ms-1">{% trans "Service Tracking" %}</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="{% url 'warranty_and_services:mobile_main' %}" class="flex items-center p-1.5 text-sm text-black hover:text-blue-500 focus:text-blue-500 rounded-lg dark:text-white dark:hover:bg-gray-700 group">
-                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
-                                    </svg>
-                                    <span class="ms-1">{% trans "Installation & Maintenance" %}</span>
-                                </a>
-                            </li>
-                        </ul>
-                    </li>
-                </ul>
+                                    <span x-show="sidebarOpen" class="ml-3 transition-opacity duration-300">{% trans "Warranty & Services" %}</span>
+                                </div>
+                                <i x-show="sidebarOpen" class="fas fa-chevron-down text-xs transition-transform" :class="{ 'rotate-180': openMenu === 5 }"></i>
+                            </button>
+                            <ul x-show="openMenu === 5 && sidebarOpen" class="mt-1 ml-8 space-y-1">
+                                <li>
+                                    <a href="{% url 'warranty_and_services:installation_list' %}" class="flex items-center p-2 text-sm text-gray-600 hover:text-primary-600 hover:bg-gray-50 rounded-lg dark:text-gray-400 dark:hover:text-primary-400 dark:hover:bg-gray-700 transition-all">
+                                        <svg class="w-4 h-4 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                        </svg>
+                                        <span>{% trans "Installation List" %}</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'warranty_and_services:warranty_tracking_list' %}" class="flex items-center p-2 text-sm text-gray-600 hover:text-primary-600 hover:bg-gray-50 rounded-lg dark:text-gray-400 dark:hover:text-primary-400 dark:hover:bg-gray-700 transition-all">
+                                        <svg class="w-4 h-4 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                                        </svg>
+                                        <span>{% trans "Warranty Tracking" %}</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'warranty_and_services:service_tracking_list' %}" class="flex items-center p-2 text-sm text-gray-600 hover:text-primary-600 hover:bg-gray-50 rounded-lg dark:text-gray-400 dark:hover:text-primary-400 dark:hover:bg-gray-700 transition-all">
+                                        <svg class="w-4 h-4 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                        </svg>
+                                        <span>{% trans "Service Tracking" %}</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'warranty_and_services:mobile_main' %}" class="flex items-center p-2 text-sm text-gray-600 hover:text-primary-600 hover:bg-gray-50 rounded-lg dark:text-gray-400 dark:hover:text-primary-400 dark:hover:bg-gray-700 transition-all">
+                                        <svg class="w-4 h-4 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                                        </svg>
+                                        <span>{% trans "Installation & Maintenance" %}</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+
+                      
+                    </ul>
+                </nav>
+
+                <!-- Bottom Section: Language & Profile -->
+                <div class="p-4 border-t border-gray-200 dark:border-gray-700 space-y-2">
+                    <!-- Language Switcher -->
+                    <div x-data="{ open: false }" class="relative">
+                        <button 
+                            @click="sidebarOpen ? open = !open : sidebarOpen = true" 
+                            class="flex items-center w-full p-3 text-gray-700 rounded-lg dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-primary-600 dark:hover:text-primary-400 transition-all"
+                            :class="{ 'justify-center': !sidebarOpen }"
+                        >
+                            <i class="fas fa-globe w-5 h-5 flex-shrink-0"></i>
+                            <div x-show="sidebarOpen" class="flex items-center justify-between w-full ml-3">
+                                <span class="text-sm">
+                                    {% get_current_language as LANGUAGE_CODE %}
+                                    {% if LANGUAGE_CODE == 'tr' %}{% trans "Turkish" %}{% elif LANGUAGE_CODE == 'en' %}{% trans "English" %}{% else %}{{ LANGUAGE_CODE }}{% endif %}
+                                </span>
+                                <i class="fas fa-chevron-up text-xs transition-transform" :class="{ 'rotate-180': open }"></i>
+                            </div>
+                        </button>
+                        <div x-show="open && sidebarOpen" class="mt-2 ml-8 space-y-1">
+                            <form action="{% url 'set_language' %}" method="post" class="m-0">
+                                {% csrf_token %}
+                                <input name="next" type="hidden" value="{{ request.path }}" />
+                                <button type="submit" name="language" value="en" class="flex items-center w-full p-2 text-sm text-gray-600 hover:text-primary-600 hover:bg-gray-50 rounded-lg dark:text-gray-400 dark:hover:text-primary-400 dark:hover:bg-gray-700 transition-all"
+                                    :class="{'font-bold text-primary-600 dark:text-primary-400': '{{ LANGUAGE_CODE }}' === 'en'}">
+                                    {% trans "English" %}
+                                </button>
+                                <button type="submit" name="language" value="tr" class="flex items-center w-full p-2 text-sm text-gray-600 hover:text-primary-600 hover:bg-gray-50 rounded-lg dark:text-gray-400 dark:hover:text-primary-400 dark:hover:bg-gray-700 transition-all"
+                                    :class="{'font-bold text-primary-600 dark:text-primary-400': '{{ LANGUAGE_CODE }}' === 'tr'}">
+                                    {% trans "Turkish" %}
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Profile Section -->
+                    <div x-data="{ open: false }" class="relative">
+                        <button 
+                            @click="sidebarOpen ? open = !open : sidebarOpen = true"
+                            class="flex items-center w-full p-3 text-gray-700 rounded-lg dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-primary-600 dark:hover:text-primary-400 transition-all"
+                            :class="{ 'justify-center': !sidebarOpen }"
+                        >
+                            <div class="w-5 h-5 rounded-full bg-primary-600 flex items-center justify-center text-white flex-shrink-0">
+                                <i class="fas fa-user text-xs"></i>
+                            </div>
+                            <div x-show="sidebarOpen" class="flex items-center justify-between w-full ml-3">
+                                <span class="text-sm">{% trans 'Profile' %}</span>
+                                <i class="fas fa-chevron-up text-xs transition-transform" :class="{ 'rotate-180': open }"></i>
+                            </div>
+                        </button>
+                        <div x-show="open && sidebarOpen" class="mt-2 ml-8 space-y-1">
+                            <a href="{% url 'profile' %}" class="flex items-center p-2 text-sm text-gray-600 hover:text-primary-600 hover:bg-gray-50 rounded-lg dark:text-gray-400 dark:hover:text-primary-400 dark:hover:bg-gray-700 transition-all">
+                                <i class="fas fa-user w-4 h-4 mr-2"></i>
+                                <span>{% trans 'View Profile' %}</span>
+                            </a>
+                            <form method="post" action="{% url 'logout' %}" class="m-0">
+                                {% csrf_token %}
+                                <button type="submit" class="flex items-center w-full p-2 text-sm text-gray-600 hover:text-primary-600 hover:bg-gray-50 rounded-lg dark:text-gray-400 dark:hover:text-primary-400 dark:hover:bg-gray-700 transition-all">
+                                    <i class="fas fa-sign-out-alt w-4 h-4 mr-2"></i>
+                                    <span>{% trans 'Sign Out' %}</span>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
             </div>
         </aside>

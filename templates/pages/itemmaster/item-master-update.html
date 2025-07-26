@@ -3,27 +3,12 @@
 {% load static %}
 
 {% block title %}{% trans 'Update Item' %} - {{ item.name }}{% endblock %}
+
+{% block page_title %}{% trans "Update Item" %} - {{ item.name }}{% endblock %}
+{% block page_description %}{% trans "Edit master item information" %}{% endblock %}
+
 {% block content %}
 <div class="pl-8 pr-8 space-y-6">
-    <!-- Header -->
-    <div class="bg-gray-25 pl-8 pr-8">
-        <div class="flex justify-between items-center p-0">
-            <div>
-                <h2 class="text-md font-semibold text-gray-700">{% trans "Update Item" %} - {{ item.name }}</h2>
-                <p class="text-gray-600 mt-0.5 text-sm">{% trans "Edit item details and relationships" %}</p>
-            </div>
-            <div class="flex space-x-2">
-                <a href="{% url 'item-master:item_master_detail' pk=item.pk %}" class="inline-flex items-center space-x-2
-                         bg-gray-100 text-gray-700 border border-gray-200 px-3 py-1.5 rounded-md hover:bg-gray-200 text-sm">
-                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path d="M15 19l-7-7 7-7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                    <span>{% trans "Back to Detail" %}</span>
-                </a>
-            </div>
-        </div>
-    </div>
-
     <!-- Messages -->
     {% if messages %}
     <div class="space-y-2">
@@ -240,11 +225,13 @@
         
         <!-- Tab Navigation -->
         <div class="border-b border-gray-200">
-            <nav class="flex space-x-8 px-6" aria-label="Tabs">
-                <button @click="activeTab = 'basic'"
-                        :class="activeTab === 'basic' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'"
-                        class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
-                    {% trans "Basic Information" %}
+            <div class="flex justify-between items-center px-6 py-4">
+                <nav class="flex space-x-8" aria-label="Tabs">
+                    <button @click="activeTab = 'basic'"
+                            :class="activeTab === 'basic' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'"
+                            class="whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm">
+                        {% trans "Basic Information" %}
+                    </button>
                 </button>
                 <button @click="activeTab = 'spare-parts'"
                         :class="activeTab === 'spare-parts' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'"
@@ -271,10 +258,17 @@
                         class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
                     {% trans "Maintenance" %}
                 </button>
-            </nav>
-        </div>
-
-        <form method="post" enctype="multipart/form-data" class="p-6">
+                </nav>
+                
+                <!-- Back Button -->
+                <a href="{% url 'item-master:item_master_detail' pk=item.pk %}" class="inline-flex items-center space-x-2
+                         bg-gray-100 text-gray-700 border border-gray-200 px-3 py-1.5 rounded-md hover:bg-gray-200 text-sm">
+                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path d="M15 19l-7-7 7-7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <span>{% trans "Back to Detail" %}</span>
+                </a>
+            </div>        <form method="post" enctype="multipart/form-data" class="p-6">
             {% csrf_token %}
             
             <!-- Hidden inputs for deleted items -->
@@ -287,7 +281,6 @@
             
             <!-- Tab 1: Basic Information -->
             <div x-show="activeTab === 'basic'" class="space-y-4">
-                <h3 class="text-md font-semibold text-gray-700 mb-4">{% trans "Basic Information" %}</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <!-- Shortcode -->
                     <div>
@@ -407,10 +400,6 @@
 
             <!-- Tab 2: Spare Parts -->
             <div x-show="activeTab === 'spare-parts'" class="space-y-4">
-                <div class="flex justify-between items-center">
-                    <h3 class="text-md font-semibold text-gray-700">{% trans "Spare Parts" %}</h3>
-                </div>
-                
                 <!-- Add Spare Part Form -->
                 <div class="bg-gray-50 p-4 rounded-lg">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
@@ -475,7 +464,6 @@
             <div x-show="activeTab === 'media'" class="space-y-6">
                 <!-- Images Section -->
                 <div>
-                    <h4 class="text-sm font-semibold text-gray-700 mb-3">{% trans "Images" %}</h4>
                     <div x-data="imageUpload()" class="space-y-4">
                         <!-- Current Images -->
                         <template x-if="imagesData.length > 0">
@@ -535,7 +523,6 @@
 
                 <!-- Specifications Section -->
                 <div>
-                    <h4 class="text-sm font-semibold text-gray-700 mb-3">{% trans "Specifications" %}</h4>
                     <div x-data="specUpload()" class="space-y-4">
                         <!-- Current Specs -->
                         <template x-if="specsData.length > 0">
@@ -614,10 +601,6 @@
 
             <!-- Tab 4: Warranties -->
             <div x-show="activeTab === 'warranty'" class="space-y-4">
-                <div class="flex justify-between items-center">
-                    <h3 class="text-md font-semibold text-gray-700">{% trans "Warranties" %}</h3>
-                </div>
-                
                 <!-- Add Warranty Form -->
                 <div class="bg-gray-50 p-4 rounded-lg">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
@@ -736,10 +719,6 @@
 
             <!-- Tab 5: Services -->
             <div x-show="activeTab === 'services'" class="space-y-4">
-                <div class="flex justify-between items-center">
-                    <h3 class="text-md font-semibold text-gray-700">{% trans "Services" %}</h3>
-                </div>
-                
                 <!-- Add Service Form -->
                 <div class="bg-gray-50 p-4 rounded-lg">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
@@ -798,10 +777,6 @@
 
             <!-- Tab 6: Maintenance -->
             <div x-show="activeTab === 'maintenance'" class="space-y-4">
-                <div class="flex justify-between items-center">
-                    <h3 class="text-md font-semibold text-gray-700">{% trans "Maintenance Schedules" %}</h3>
-                </div>
-                
                 <!-- Add Maintenance Form -->
                 <div class="bg-gray-50 p-4 rounded-lg">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">

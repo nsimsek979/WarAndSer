@@ -3,7 +3,11 @@
 {% load static %}
 {% load humanize %}
 
-{% block title %}{% trans 'Inventory Items' %}{% endblock %}
+{% block title %}{% trans 'Inventory Item List' %}{% endblock %}
+
+{% block page_title %}{% trans "Inventory Items" %}{% endblock %}
+{% block page_description %}{% trans "Manage and track inventory items with stock levels" %}{% endblock %}
+
 {% block content %}
 <div x-data="{
         search: '',
@@ -12,44 +16,7 @@
         deleteItem(id) { this.deleteModalId = null; },
         openDeleteModal(id) { this.deleteModalId = id; }
     }" class="pl-8 pr-8 space-y-6">
-    <!-- Header -->
-    <div class="bg-gray-25 pl-8 pr-8">
-        <div class="flex justify-between items-center p-0">
-            <div>
-                <h2 class="text-md font-semibold text-gray-700">
-                    {% trans "Inventory Items" %}
-                    {% if selected_item_master %}
-                        <span class="text-blue-600">- {{ selected_item_master.name }}</span>
-                    {% endif %}
-                </h2>
-                <p class="text-gray-600 mt-0.5 text-sm">
-                    {% if selected_item_master %}
-                        {% trans "Showing inventory items for" %}: {{ selected_item_master.shortcode }}
-                    {% else %}
-                        {% trans "Inventory Items Management" %}
-                    {% endif %}
-                </p>
-                {% if selected_item_master %}
-                <div class="mt-2">
-                    <a href="{% url 'item-master:inventory_item_list' %}" 
-                       class="inline-flex items-center space-x-1 text-blue-600 hover:text-blue-800 text-sm">
-                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path d="M10 19l-7-7m0 0l7-7m-7 7h18" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                        <span>{% trans "Show All Inventory Items" %}</span>
-                    </a>
-                </div>
-                {% endif %}
-            </div>
-            {% if perms.item_master.add_inventoryitem %}
-            <a href="{% url 'item-master:inventory_item_create' %}" class="inline-flex items-center space-x-2
-                         bg-blue-700 text-white border border-gray-200 px-3 py-1.5 rounded-md hover:bg-blue-900 text-sm">
-                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                <span>{% trans "Add New Inventory Item" %}</span>
-            </a>
-            {% endif %}
-        </div>
-    </div>
+
 
     <!-- Stats Cards -->
     <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
@@ -116,170 +83,210 @@
         </div>
     </div>
 
-     <div class="bg-white rounded-xl border border-gray-200 p-2">
-         <!-- Search and Filters -->
-             <div class="bg-gray-25 p-6">
-                 <form method="get" class="grid grid-cols-1 md:grid-cols-6 gap-2 items-center">
-                     <div class="relative col-span-2">
-                         <svg class="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8" stroke-width="2"/><path d="M21 21l-4.35-4.35" stroke-width="2" stroke-linecap="round"/></svg>
-                         <input type="text" name="search" value="{{ search_query }}" placeholder="{% trans 'Search by name, serial number...' %}" class="custom-input-search pl-10 w-full" autocomplete="off">
-                     </div>
-                     <div>
-                         <select name="category" class="custom-input-search w-full">
-                             <option value="">{% trans 'All Categories' %}</option>
-                             {% for category in categories %}
-                                 <option value="{{ category.id }}" {% if category_filter == category.id|stringformat:"s" %}selected{% endif %}>{{ category.category_name }}</option>
-                             {% endfor %}
-                         </select>
-                     </div>
-                     <div>
-                         <select name="brand" class="custom-input-search w-full">
-                             <option value="">{% trans 'All Brands' %}</option>
-                             {% for brand in brands %}
-                                 <option value="{{ brand.id }}" {% if brand_filter == brand.id|stringformat:"s" %}selected{% endif %}>{{ brand.name }}</option>
-                             {% endfor %}
-                         </select>
-                     </div>
-                     <div>
-                         <select name="in_used" class="custom-input-search w-full">
-                             <option value="">{% trans 'All Status' %}</option>
-                             <option value="false" {% if in_used_filter == "false" %}selected{% endif %}>{% trans 'Available' %}</option>
-                             <option value="true" {% if in_used_filter == "true" %}selected{% endif %}>{% trans 'In Use' %}</option>
-                         </select>
-                     </div>
-                     <div class="flex space-x-2 mt-2 md:mt-0">
-                         <button type="submit" class="bg-blue-700 text-white px-4 py-2 rounded hover:bg-blue-900 text-sm">{% trans 'Search' %}</button>
-                         {% if search_query or category_filter or brand_filter or in_used_filter %}
-                         <a href="?" class="bg-gray-200 text-gray-700 px-4 py-2 rounded hover:bg-gray-300 text-sm">{% trans 'Clear' %}</a>
-                         {% endif %}
-                     </div>
-                 </form>
-             </div>
-         <!-- Items Table -->
-         <div class="bg-white rounded-lg p-6">
-             <div class="overflow-hidden border border-gray-100 rounded-t-xl ">
-                 <table class="min-w-full border-separate border-spacing-0 rounded-t-lg">
-                     <thead class="text-sm tracking-wider text-gray-700 border-b border-gray-200">
-                         <tr>
-                             <th class="px-6 py-4 text-left border-b border-gray-200">{% trans "Item Details" %}</th>
-                             <th class="px-6 py-4 text-left border-b border-gray-200">{% trans "Serial Number" %}</th>
-                             <th class="px-6 py-4 text-left border-b border-gray-200">{% trans "Quantity" %}</th>
-                             <th class="px-6 py-4 text-left border-b border-gray-200">{% trans "Attributes" %}</th>
-                             <th class="px-6 py-4 text-left border-b border-gray-200">{% trans "Status" %}</th>
-                         
-                             <th class="px-6 py-4 text-left border-b border-gray-200"></th>
-                     </thead>
-                     <tbody>
-                         {% for item in items %}
-                         <tr class="hover:bg-blue-50 transition">
-                             <td class="px-6 py-3 border-b border-r border-gray-100 bg-white">
-                                 <div class="flex items-center space-x-3">
-                                     <div class="w-10 h-10 bg-gray-100 rounded-md flex items-center justify-center">
-                                         {% if item.name.images.first %}
-                                             <img src="{{ item.name.images.first.url.url }}" alt="{{ item.name.name }}" class="w-10 h-10 rounded-md object-cover">
-                                         {% else %}
-                                             <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                 <path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                             </svg>
-                                         {% endif %}
-                                     </div>
-                                     <div>
-                                         <div class="flex items-center space-x-2">
-                                             <a href="{% url 'item-master:item_master_detail' item.name.id %}" class="text-xs hover:text-blue-800 font-medium">
-                                                 {{ item.name.shortcode }}
-                                             </a>
-                                             {% if item.name.category %}
-                                                 <span class="inline-block rounded bg-gray-100 text-gray-700 px-2 py-0.5 text-xs">{{ item.name.category.category_name }}</span>
-                                             {% endif %}
-                                         </div>
-                                         <a href="{% url 'item-master:item_master_detail' item.name.id %}" class="text-xs hover:text-blue-600 font-medium">
-                                             {{ item.name.name }}
-                                         </a>
-                                     </div>
-                                 </div>
-                             </td>
-                             <td class="px-6 py-3 border-b border-r border-gray-100 bg-white">
-                                 <div class="flex flex-col space-y-1">
-                                     <code class="text-xs bg-gray-100 px-2 py-1 rounded">{{ item.serial_no }}</code>
-                                     {% if item.qr_code_image %}
-                                         <a href="{{ item.qr_code_image.url }}" target="_blank" class="text-xs text-blue-600 hover:text-blue-800 flex items-center space-x-1">
-                                             <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                 <path d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                             </svg>
-                                             <span>QR Code</span>
-                                         </a>
-                                     {% endif %}
-                                 </div>
-                             </td>
-                             <td class="px-6 py-3 border-b border-r border-gray-100 bg-white">
-                                 <span class="inline-block bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs font-semibold">{{ item.quantity }}</span>
-                             </td>
-                             <td class="px-6 py-3 border-b border-r border-gray-100 bg-white">
-                                 {% if item.attributes.all %}
-                                     <div class="space-y-1">
-                                         {% for attribute in item.attributes.all|slice:":2" %}
-                                             <div class="text-xs">
-                                                 <span class="font-medium text-gray-600">{{ attribute.attribute_type.name }}:</span>
-                                                 <span class="text-gray-800">{{ attribute.value }}</span>
-                                                 {% if attribute.unit %}<span class="text-gray-500">{{ attribute.unit.symbol }}</span>{% endif %}
-                                             </div>
-                                         {% endfor %}
-                                         {% if item.attributes.count > 2 %}
-                                             <div class="text-xs text-gray-500">+{{ item.attributes.count|add:"-2" }} more</div>
-                                         {% endif %}
-                                     </div>
-                                 {% else %}
-                                     <span class="text-xs text-gray-400">{% trans "No attributes" %}</span>
-                                 {% endif %}
-                             </td>
-                             <td class="px-6 py-3 border-b border-r border-gray-100 bg-white">
-                                 {% if item.in_used %}
-                                     <span class="inline-block bg-orange-100 text-orange-800 px-2 py-0.5 rounded text-xs font-semibold">{% trans "In Use" %}</span>
-                                 {% else %}
-                                     <span class="inline-block bg-green-100 text-green-800 px-2 py-0.5 rounded text-xs font-semibold">{% trans "Available" %}</span>
-                                 {% endif %}
-                             </td>
-                           
-                             <td class="px-6 py-3 border-b bg-white text-right">
-                                 <div class="flex items-center justify-end space-x-2">
-                                     <a href="{% url 'item-master:inventory_item_detail' item.pk %}" class="inline-flex items-center px-2 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded text-xs font-semibold transition" title="{% trans 'View Details' %}">
-                                         <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M1.5 12s4-7 10.5-7 10.5 7 10.5 7-4 7-10.5 7S1.5 12 1.5 12z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="12" r="3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                                     </a>
-                                     <a href="{% url 'item-master:item_master_detail' item.name.id %}" class="inline-flex items-center px-2 py-1.5 bg-purple-100 hover:bg-purple-200 text-purple-700 rounded text-xs font-semibold transition" title="{% trans 'View Item Master' %}">
-                                         <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                                     </a>
-                                     {% if perms.item_master.change_itemmaster %}
-                                     <a href="{% url 'item-master:item_master_update' item.name.id %}" class="inline-flex items-center px-2 py-1.5 bg-blue-600 hover:bg-blue-800 text-white rounded text-xs font-semibold transition" title="{% trans 'Edit Item Master' %}">
-                                         <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15.232 5.232l3.536 3.536M9 13l6-6 3 3-6 6H9v-3z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                                     </a>
-                                     {% endif %}
-                                     {% if perms.item_master.change_inventoryitem %}
-                                     <a href="{% url 'item-master:inventory_item_update' item.pk %}" class="inline-flex items-center px-2 py-1.5 bg-green-600 hover:bg-green-800 text-white rounded text-xs font-semibold transition" title="{% trans 'Edit Inventory Item' %}">
-                                         <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                                     </a>
-                                     {% endif %}
-                                    
-                                 </div>
-                             </td>
-                         </tr>
-                         {% empty %}
-                         <tr>
-                             <td colspan="7" class="text-center py-8 text-gray-500">
-                                 <div class="flex flex-col items-center space-y-2">
-                                     <svg class="h-12 w-12 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                         <path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                     </svg>
-                                     <p class="text-sm">{% trans "No inventory items found" %}</p>
-                                     <a href="{% url 'item-master:item_master_create' %}" class="text-blue-600 hover:text-blue-800 text-sm">{% trans "Add first inventory item" %}</a>
-                                 </div>
-                             </td>
-                         </tr>
-                         {% endfor %}
-                     </tbody>
-                 </table>
-             </div>
-         </div>
-     </div>
+    <!-- Search and Filter Bar -->
+    <div class="bg-white rounded-lg border border-gray-200 p-4 mb-6">
+        <div class="flex items-center justify-between">
+            <div class="flex-1 mr-4">
+                <form method="get" id="search-form" class="flex items-center space-x-3" style="margin-top: 10px;">
+                    <!-- Search Input -->
+                    <div class="relative flex-1 max-w-lg">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                            </svg>
+                        </div>
+                        <input type="text" name="search" value="{{ search_query }}"
+                               class="block w-full pl-10 pr-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:ring-blue-500 focus:border-blue-500"
+                               placeholder="{% trans 'Search by name, serial number...' %}"
+                               style="height: 32px;">
+                    </div>
+                    
+                    <!-- Category Filter -->
+                    <select name="category" class="border-gray-300 rounded-lg text-sm focus:ring-blue-500 focus:border-blue-500" style="height: 32px; width: 140px !important; padding-right: 2.5rem; background-image: url('data:image/svg+xml;charset=UTF-8,%3csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'currentColor\' stroke-width=\'2\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3e%3cpolyline points=\'6,9 12,15 18,9\'%3e%3c/polyline%3e%3c/svg%3e'); background-repeat: no-repeat; background-position: right 0.7rem center; background-size: 1.2em;">
+                        <option value="">{% trans "All Categories" %}</option>
+                        {% for category in categories %}
+                        <option value="{{ category.id }}" {% if category_filter == category.id|stringformat:"s" %}selected{% endif %}>{{ category.category_name }}</option>
+                        {% endfor %}
+                    </select>
+                    
+                    <!-- Brand Filter -->
+                    <select name="brand" class="border-gray-300 rounded-lg text-sm focus:ring-blue-500 focus:border-blue-500" style="height: 32px; width: 110px !important; padding-right: 2.5rem; background-image: url('data:image/svg+xml;charset=UTF-8,%3csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'currentColor\' stroke-width=\'2\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3e%3cpolyline points=\'6,9 12,15 18,9\'%3e%3c/polyline%3e%3c/svg%3e'); background-repeat: no-repeat; background-position: right 0.7rem center; background-size: 1.2em;">
+                        <option value="">{% trans "All Brands" %}</option>
+                        {% for brand in brands %}
+                        <option value="{{ brand.id }}" {% if brand_filter == brand.id|stringformat:"s" %}selected{% endif %}>{{ brand.name }}</option>
+                        {% endfor %}
+                    </select>
+                    
+                    <!-- Status Filter -->
+                    <select name="in_used" class="border-gray-300 rounded-lg text-sm focus:ring-blue-500 focus:border-blue-500" style="height: 32px; width: 100px !important; padding-right: 2.5rem; background-image: url('data:image/svg+xml;charset=UTF-8,%3csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'currentColor\' stroke-width=\'2\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3e%3cpolyline points=\'6,9 12,15 18,9\'%3e%3c/polyline%3e%3c/svg%3e'); background-repeat: no-repeat; background-position: right 0.7rem center; background-size: 1.2em;">
+                        <option value="">{% trans "All Status" %}</option>
+                        <option value="false" {% if in_used_filter == "false" %}selected{% endif %}>{% trans "Available" %}</option>
+                        <option value="true" {% if in_used_filter == "true" %}selected{% endif %}>{% trans "In Use" %}</option>
+                    </select>
+                </form>
+            </div>
+            
+            <!-- Action Buttons -->
+            <div class="flex items-center gap-2">
+                <!-- Search and Clear Buttons -->
+                <div class="flex gap-2">
+                    <button type="submit" form="search-form" 
+                            class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-1.5 rounded-lg text-sm font-medium transition-colors"
+                            style="height: 32px; line-height: 1;">
+                        {% trans 'Search' %}
+                    </button>
+                    {% if search_query or category_filter or brand_filter or in_used_filter %}
+                    <a href="?" 
+                       class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-1.5 rounded-lg text-sm font-medium transition-colors inline-flex items-center"
+                       style="height: 32px; line-height: 1;">
+                        {% trans 'Clear' %}
+                    </a>
+                    {% endif %}
+                </div>
+                
+                <!-- Add New Item Button -->
+                {% if perms.item_master.add_inventoryitem %}
+                <a href="{% url 'item-master:inventory_item_create' %}" 
+                   class="bg-green-600 hover:bg-green-700 text-white px-4 py-1.5 rounded-lg text-sm font-medium transition-colors inline-flex items-center gap-2 ml-2"
+                   style="height: 32px; line-height: 1;">
+                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 4v16m8-8H4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <span>{% trans "Add New Item" %}</span>
+                </a>
+                {% endif %}
+                
+                <!-- Show All Items Button -->
+                {% if selected_item_master %}
+                <a href="{% url 'item-master:inventory_item_list' %}" 
+                   class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-1.5 rounded-lg text-sm font-medium transition-colors inline-flex items-center gap-2"
+                   style="height: 32px; line-height: 1;">
+                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path d="M10 19l-7-7m0 0l7-7m-7 7h18" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <span>{% trans "Show All Items" %}</span>
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Items Table -->
+    <div class="bg-white rounded-lg shadow-lg border border-gray-200">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h3 class="text-lg font-semibold text-gray-900 flex items-center">
+                <svg class="w-5 h-5 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10"></path>
+                </svg>
+                {% trans "Inventory Items" %} 
+                {% if selected_item_master %}
+                    - {{ selected_item_master.name }} 
+                {% endif %}
+                ({{ total_items }} {% trans "total" %})
+            </h3>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Image" %}</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-48">{% trans "Item" %}</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Category" %}</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Attributes" %}</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Status" %}</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Actions" %}</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for item in items %}
+                    <tr class="hover:bg-gray-50 transition-colors duration-200">
+                        <td class="px-6 py-4 text-center">
+                            <div class="flex justify-center">
+                                <div class="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                                    {% if item.name.images.first %}
+                                        <img src="{{ item.name.images.first.url.url }}" alt="{{ item.name.name }}" class="w-12 h-12 rounded-lg object-cover">
+                                    {% else %}
+                                        <svg class="h-6 w-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        </svg>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-4 py-4 w-48">
+                            <div>
+                                <div class="text-sm font-medium text-gray-900 truncate">
+                                    <a href="{% url 'item-master:inventory_item_detail' item.pk %}" class="hover:text-blue-600 transition-colors" title="{{ item.name.name }}">
+                                        {{ item.name.name }}
+                                    </a>
+                                </div>
+                                <div class="text-xs text-gray-500">{{ item.name.shortcode }}</div>
+                                <div class="text-xs text-gray-400 mt-1">
+                                    <code class="bg-gray-100 px-1.5 py-0.5 rounded">{{ item.serial_no }}</code>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-4 py-4">
+                            <div class="text-sm text-gray-900">{{ item.name.category.category_name|default:"-" }}</div>
+                            {% if item.name.brand_name %}
+                            <div class="text-xs text-gray-500">{{ item.name.brand_name.name }}</div>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4">
+                            {% if item.attributes.all %}
+                                <div class="space-y-1">
+                                    {% for attribute in item.attributes.all|slice:":1" %}
+                                        <div class="text-xs">
+                                            <span class="font-medium text-gray-600">{{ attribute.attribute_type.name }}:</span>
+                                            <span class="text-gray-800">{{ attribute.value }}</span>
+                                            {% if attribute.unit %}<span class="text-gray-500">{{ attribute.unit.symbol }}</span>{% endif %}
+                                        </div>
+                                    {% endfor %}
+                                    {% if item.attributes.count > 1 %}
+                                        <div class="text-xs text-blue-500 font-medium">+{{ item.attributes.count|add:"-1" }} more</div>
+                                    {% endif %}
+                                </div>
+                            {% else %}
+                                <span class="text-xs text-gray-400">{% trans "No attributes" %}</span>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4">
+                            {% if item.in_used %}
+                                <span class="inline-block bg-orange-100 text-orange-800 px-2 py-0.5 rounded text-xs font-semibold">{% trans "In Use" %}</span>
+                            {% else %}
+                                <span class="inline-block bg-green-100 text-green-800 px-2 py-0.5 rounded text-xs font-semibold">{% trans "Available" %}</span>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-3 border-b bg-white text-right">
+                            <div class="flex items-center justify-end space-x-2">
+                                <a href="{% url 'item-master:inventory_item_detail' item.pk %}" class="inline-flex items-center px-2 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded text-xs font-semibold transition" title="{% trans 'View Details' %}">
+                                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M1.5 12s4-7 10.5-7 10.5 7 10.5 7-4 7-10.5 7S1.5 12 1.5 12z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="12" r="3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                </a>
+                                {% if perms.item_master.change_inventoryitem %}
+                                <a href="{% url 'item-master:inventory_item_update' item.pk %}" class="inline-flex items-center px-2 py-1.5 bg-blue-600 hover:bg-blue-800 text-white rounded text-xs font-semibold transition" title="{% trans 'Edit' %}">
+                                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                </a>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center py-8 text-gray-500">
+                            <div class="flex flex-col items-center space-y-2">
+                                <svg class="h-12 w-12 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                <p class="text-sm">{% trans "No inventory items found" %}</p>
+                                <a href="{% url 'item-master:item_master_create' %}" class="text-blue-600 hover:text-blue-800 text-sm">{% trans "Add first inventory item" %}</a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
     {% include 'partials/inventory_pagination.html' %}
 </div>
 

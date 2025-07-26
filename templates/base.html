@@ -91,12 +91,15 @@
             body { font-family: 'Inter', sans-serif; }
         </style>
         <div x-data="{ 
-        sidebarOpen: window.innerWidth >= 640, 
-        profileDropdownOpen: false,
+        sidebarOpen: window.innerWidth >= 1024, 
         init() {
-            // Responsive kontrolü
+            // Responsive kontrolü - laptop ve daha büyük ekranlarda sidebar açık
             window.addEventListener('resize', () => {
-                this.sidebarOpen = window.innerWidth >= 640;
+                if (window.innerWidth >= 1024) {
+                    this.sidebarOpen = true;
+                } else if (window.innerWidth < 640) {
+                    this.sidebarOpen = false;
+                }
             });
         }
     }" class="flex h-full">
@@ -116,74 +119,52 @@
         {% include 'components/sidebar.html' %}
 
         <!-- Main Content -->
-        <div class="flex-1 flex flex-col" :class="{ 'sm:ml-64': sidebarOpen }">
-            <!-- Navbar -->
-            <header class="bg-white border-b border-gray-200 dark:bg-gray-800 dark:border-gray-700 sticky top-0 z-10">
-                <div class="flex items-center justify-between px-6 py-3">
-                    <!-- Sidebar Toggle (Desktop) -->
-                    <button @click="sidebarOpen = !sidebarOpen" class="hidden sm:block text-gray-500 dark:text-gray-400 hover:text-gray-600 dark:hover:text-white">
-                        <i class="fas fa-bars"></i>
-                    </button>
-
-                    <!-- Profile Dropdown and Language Switcher -->
-                    <div class="flex flex-row items-center gap-2 h-full whitespace-nowrap">
-                        <div x-data="{ open: false }" class="relative">
-                            <form action="{% url 'set_language' %}" method="post" class="m-0 p-0">
-                                {% csrf_token %}
-                                <input name="next" type="hidden" value="{{ request.path }}" />
-                                <button type="button" @click="open = !open" class="rounded border-gray-300 text-sm px-2 py-1 align-middle h-8 flex items-center gap-2 focus:ring focus:ring-primary-500 focus:outline-none"
-                                    :class="{'bg-primary-600 text-white': open, 'bg-white text-gray-700': !open}">
-                                    <i class="fas fa-globe"></i>
-                                    <span>
-                                        {% get_current_language as LANGUAGE_CODE %}
-                                        {% if LANGUAGE_CODE == 'tr' %}{% trans "Turkish" %}{% elif LANGUAGE_CODE == 'en' %}{% trans "English" %}{% else %}{{ LANGUAGE_CODE }}{% endif %}
-                                    </span>
-                                    <i class="fas fa-chevron-down text-xs"></i>
-                                </button>
-                                <div x-show="open" @click.away="open = false" class="absolute left-0 mt-2 w-32 bg-white rounded-md shadow-lg py-1 z-20 dark:bg-gray-700 border border-gray-200 dark:border-gray-600">
-                                    <button type="submit" name="language" value="en" class="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-600"
-                                        :class="{'font-bold text-primary-600': '{{ LANGUAGE_CODE }}' === 'en'}">
-                                        {% trans "English" %}
-                                    </button>
-                                    <button type="submit" name="language" value="tr" class="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-600"
-                                        :class="{'font-bold text-primary-600': '{{ LANGUAGE_CODE }}' === 'tr'}">
-                                        {% trans "Turkish" %}
-                                    </button>
-                                </div>
-                            </form>
-                        </div>
-                
-                        <div class="relative">
-                            <button 
-                                @click="profileDropdownOpen = !profileDropdownOpen"
-                                class="flex items-center space-x-2 focus:outline-none"
-                            >
-                                <div class="w-8 h-8 rounded-full bg-primary-600 flex items-center justify-center text-white">
-                                    <i class="fas fa-user"></i>
-                                </div>
-                                <span class="text-gray-700 dark:text-gray-300">{% trans 'Profile' %}</span>
-                                <i class="fas fa-chevron-down text-xs transition-transform" :class="{ 'rotate-180': profileDropdownOpen }"></i>
+        <div class="flex-1 flex flex-col transition-all duration-300" :class="{ 
+            'sm:ml-64': sidebarOpen, 
+            'sm:ml-16': !sidebarOpen && window.innerWidth >= 640,
+            'ml-0': window.innerWidth < 640
+        }">
+            <!-- Modern Clean Navbar with Sticky Top -->
+            <div class="sticky top-0 z-50 bg-white shadow-sm border-b border-gray-200 dark:bg-gray-800 dark:border-gray-700">
+                <div class="max-w-full mx-auto px-6 sm:px-8 lg:px-12">
+                    <div class="flex items-center py-6">
+                        <!-- Mobile Sidebar Toggle - Left Side -->
+                        <div class="flex items-center sm:hidden">
+                            <button @click="sidebarOpen = true" 
+                                type="button" 
+                                class="inline-flex items-center p-2 text-sm text-gray-500 rounded-lg hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600 mr-4">
+                                <span class="sr-only">{% trans "Open sidebar" %}</span>
+                                <svg class="w-6 h-6" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                    <path clip-rule="evenodd" fill-rule="evenodd" d="M2 4.75A.75.75 0 012.75 4h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 4.75zm0 10.5a.75.75 0 01.75-.75h7.5a.75.75 0 010 1.5h-7.5a.75.75 0 01-.75-.75zM2 10a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 10z"></path>
+                                </svg>
                             </button>
-                            <div 
-                                x-show="profileDropdownOpen"
-                                @click.away="profileDropdownOpen = false"
-                                class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-20 dark:bg-gray-700"
-                                style="display: none;"
-                            >
-                                <a href="{% url 'profile' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-200 dark:text-gray-300 dark:hover:bg-gray-600 transition-all">
-                                    <i class="fas fa-user mr-2"></i> {% trans 'View Profile' %}
-                                </a>
-                                <form method="post" action="{% url 'logout' %}" style="margin:0;">
-                                    {% csrf_token %}
-                                    <button type="submit" class="w-full text-left block px-4 py-2 text-sm text-gray-700 hover:bg-gray-200 dark:text-gray-300 dark:hover:bg-gray-600 transition-all">
-                                        <i class="fas fa-sign-out-alt mr-2"></i> {% trans 'Sign Out' %}
-                                    </button>
-                                </form>
+                            
+                            <!-- Logo and Title (visible on mobile) -->
+                            <a href="{% url 'dashboard:home' %}" class="flex items-center">
+                                <img src="{% static 'konnektom-logo.png' %}" class="h-10 mr-3" alt="{% trans 'Company Logo' %}" />
+                                <span class="text-2xl font-bold text-gray-900 dark:text-white">GVS</span>
+                            </a>
+                        </div>
+                        
+                        <!-- Centered Page Title Section for larger screens -->
+                        <div class="hidden sm:flex sm:flex-1 sm:justify-center">
+                            <div class="text-center">
+                                <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
+                                    {% block page_title %}{% endblock %}
+                                </h1>
+                                <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                                    {% block page_description %}{% endblock %}
+                                </p>
                             </div>
+                        </div>
+                        
+                        <!-- Right side - can be used for future features -->
+                        <div class="hidden sm:flex items-center space-x-4">
+                            <!-- Space for future quick actions, breadcrumbs, etc. -->
                         </div>
                     </div>
                 </div>
-            </header>
+            </div>
             <!-- Page Content -->
             <main class="flex-1 p-6 overflow-y-auto">
                 {% block content %}{% endblock content %}

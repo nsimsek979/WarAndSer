@@ -121,59 +121,27 @@ def inventory_item_list(request):
         except ItemMaster.DoesNotExist:
             pass
     
-    # Get stats - apply same filtering logic for distributor and sales manager users
-    if hasattr(user, 'role') and user.role in ['manager_distributor', 'service_distributor']:
-        # For distributor users, stats should only include their accessible items
-        if hasattr(user, 'company') and user.company:
-            from warranty_and_services.utils import get_user_accessible_companies
-            accessible_company_ids = get_user_accessible_companies(user)
-            
-            from warranty_and_services.models import Installation
-            installed_item_ids = Installation.objects.filter(
-                customer_id__in=accessible_company_ids
-            ).values_list('inventory_item_id', flat=True)
-            
-            stats_queryset = InventoryItem.objects.filter(id__in=installed_item_ids)
-            total_items = stats_queryset.count()
-            in_use_items = stats_queryset.filter(in_used=True).count()
-            available_items = stats_queryset.filter(in_used=False).count()
-        else:
-            total_items = 0
-            in_use_items = 0
-            available_items = 0
-    elif hasattr(user, 'role') and user.role == 'sales_manager':
-        # For sales manager, stats should include available items + accessible in-use items
-        if hasattr(user, 'company') and user.company:
-            from warranty_and_services.utils import get_user_accessible_companies
-            accessible_company_ids = get_user_accessible_companies(user)
-            
-            from warranty_and_services.models import Installation
-            accessible_in_use_item_ids = Installation.objects.filter(
-                customer_id__in=accessible_company_ids
-            ).values_list('inventory_item_id', flat=True)
-            
-            # Calculate stats for accessible items
-            all_available_items = InventoryItem.objects.filter(in_used=False).count()
-            accessible_in_use_items = InventoryItem.objects.filter(
-                id__in=accessible_in_use_item_ids,
-                in_used=True
-            ).count()
-            
-            total_items = all_available_items + accessible_in_use_items
-            in_use_items = accessible_in_use_items
-            available_items = all_available_items
-        else:
-            # If sales manager has no company, show only available items
-            all_items = InventoryItem.objects.all()
-            total_items = all_items.count()
-            in_use_items = all_items.filter(in_used=True).count()
-            available_items = all_items.filter(in_used=False).count()
-    else:
-        # For main company users, show all items
-        total_items = InventoryItem.objects.count()
-        in_use_items = InventoryItem.objects.filter(in_used=True).count()
-        available_items = InventoryItem.objects.filter(in_used=False).count()
+    # Calculate stats based on filtered items (before pagination)
+    total_items = items.count()
+    in_use_items = items.filter(in_used=True).count()
+    available_items = items.filter(in_used=False).count()
     
+    # Add low stock calculation (optional)
+    low_stock_items = 0  # This would need business logic definition
+    
+    # Order by creation date (newest first) AFTER stats calculation
+    items = items.order_by('-created_at')
+    
+    # Pagination
+    paginator = Paginator(items, 15)  # Show 15 items per page
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
+    # Get filter options
+    categories = Category.objects.all().order_by('category_name')
+    brands = Brand.objects.all().order_by('name')
+    stock_types = StockType.objects.all().order_by('name')
+
     context = {
         'items': page_obj,
         'search_query': search_query,
@@ -191,6 +159,7 @@ def inventory_item_list(request):
         'total_items': total_items,
         'in_use_items': in_use_items,
         'available_items': available_items,
+        'low_stock_items': low_stock_items,
     }
     return render(request, 'pages/inventory/inventory-item-list.html', context)
 

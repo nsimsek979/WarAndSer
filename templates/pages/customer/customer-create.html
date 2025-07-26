@@ -2,6 +2,10 @@
 {% load i18n %}
 
 {% block title %}{% trans 'Create Customer' %}{% endblock %}
+
+{% block page_title %}{% trans "Create Customer" %}{% endblock %}
+{% block page_description %}{% trans "Add a new customer to the system" %}{% endblock %}
+
 {% block content %}
 <div x-data="customerForm()" x-init="init()" class="max-w-5xl mx-auto mt-8 bg-white rounded-xl shadow p-8">
   {# Inject JSON data for Alpine.js initialization #}

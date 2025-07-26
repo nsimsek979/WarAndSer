@@ -4,6 +4,10 @@
 {% load humanize %}
 
 {% block title %}{{ item.name.name }} ({{ item.serial_no }}) - {% trans 'Inventory Item Detail' %}{% endblock %}
+
+{% block page_title %}{{ item.name.name }} ({{ item.serial_no }}){% endblock %}
+{% block page_description %}{% trans "Inventory item details and information" %}{% endblock %}
+
 {% block content %}
 <div class="pl-8 pr-8 space-y-6">
     <!-- Header -->
