@@ -24,6 +24,7 @@ urlpatterns = [
     path('api/items/search-by-serial/', views.api_search_by_serial, name='api_search_by_serial'),
     path('api/customers/search/', views.api_customer_search, name='api_customer_search'),
     path('api/customers/create/', views.api_customer_create, name='api_customer_create'),
+    path('api/customers/<int:customer_id>/addresses/', views.api_customer_addresses, name='api_customer_addresses'),
     path('api/installation/create/', views.api_installation_create, name='api_installation_create'),
     
     # API Endpoints for Maintenance

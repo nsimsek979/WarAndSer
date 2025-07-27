@@ -925,6 +925,68 @@ def api_customer_create(request):
 
 @login_required
 @csrf_exempt
+@require_http_methods(["GET"])
+def api_customer_addresses(request, customer_id):
+    """Get customer addresses API endpoint"""
+    print(f"Customer addresses API called by user: {request.user} for customer: {customer_id}")
+    
+    try:
+        from customer.models import Company, Address
+        
+        # Get customer
+        customer = Company.objects.get(id=customer_id)
+        
+        # Get all addresses for this customer
+        addresses = Address.objects.filter(company=customer).select_related('city', 'county', 'district', 'country')
+        
+        addresses_data = []
+        for address in addresses:
+            address_data = {
+                'id': address.id,
+                'name': address.name,
+                'address': address.address,
+                'zipcode': address.zipcode,
+                'full_address': address.address
+            }
+            
+            # Build full address string
+            address_parts = []
+            if address.address:
+                address_parts.append(address.address)
+            if address.district:
+                address_parts.append(address.district.name)
+            if address.county:
+                address_parts.append(address.county.name)
+            if address.city:
+                address_parts.append(address.city.name)
+            if address.country:
+                address_parts.append(address.country.name)
+                
+            address_data['full_address'] = ', '.join(address_parts)
+            addresses_data.append(address_data)
+        
+        return JsonResponse({
+            'success': True,
+            'addresses': addresses_data
+        })
+        
+    except Company.DoesNotExist:
+        return JsonResponse({
+            'success': False,
+            'message': 'Müşteri bulunamadı'
+        })
+    except Exception as e:
+        print(f"Customer addresses error: {e}")
+        import traceback
+        traceback.print_exc()
+        return JsonResponse({
+            'success': False,
+            'message': f'Adresler getirilirken bir hata oluştu: {str(e)}'
+        })
+
+
+@login_required
+@csrf_exempt
 @require_http_methods(["POST"])
 def api_installation_create(request):
     """Installation creation API endpoint with file uploads"""
@@ -1003,6 +1065,33 @@ def api_installation_create(request):
                 'message': 'Kurulum tarihi bugünden ileri olamaz'
             })
         
+        # Handle address selection
+        location_address = ''
+        if data.get('selected_address_id'):
+            # Use selected customer address
+            try:
+                from customer.models import Address
+                selected_address = Address.objects.get(id=data['selected_address_id'], company=customer)
+                # Build full address string
+                address_parts = []
+                if selected_address.address:
+                    address_parts.append(selected_address.address)
+                if selected_address.district:
+                    address_parts.append(selected_address.district.name)
+                if selected_address.county:
+                    address_parts.append(selected_address.county.name)
+                if selected_address.city:
+                    address_parts.append(selected_address.city.name)
+                if selected_address.country:
+                    address_parts.append(selected_address.country.name)
+                location_address = ', '.join(address_parts)
+            except Address.DoesNotExist:
+                # Fallback to manual address
+                location_address = data.get('setup_location', '').strip()
+        else:
+            # Use manual address
+            location_address = data.get('setup_location', '').strip()
+        
         # Create installation
         installation = Installation.objects.create(
             user=request.user,
@@ -1011,7 +1100,7 @@ def api_installation_create(request):
             customer=customer,
             location_latitude=data.get('latitude'),  # Fixed field name
             location_longitude=data.get('longitude'),  # Fixed field name
-            location_address=data.get('setup_location', '').strip(),  # Fixed field name
+            location_address=location_address,  # Use processed address
             installation_notes=data.get('installation_notes', '').strip()
         )
         

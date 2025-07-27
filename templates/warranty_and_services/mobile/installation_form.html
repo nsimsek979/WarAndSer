@@ -97,6 +97,8 @@
                 customerSearch: '',
                 customerResults: [],
                 selectedCustomer: null,
+                customerAddresses: [],
+                selectedAddress: null,
                 showNewCustomerForm: false,
                 showCustomerResults: false,
                 
@@ -198,6 +200,9 @@
                     this.customerResults = [];
                     this.showCustomerResults = false;
                     this.showNewCustomerForm = false;
+                    
+                    // Fetch customer addresses
+                    this.fetchCustomerAddresses(customer.id);
                 },
 
                 clearCustomer() {
@@ -205,6 +210,50 @@
                     this.customerSearch = '';
                     this.customerResults = [];
                     this.showCustomerResults = false;
+                    this.customerAddresses = [];
+                    this.selectedAddress = null;
+                },
+
+                async fetchCustomerAddresses(customerId) {
+                    console.log('🏠 Fetching addresses for customer:', customerId);
+                    
+                    try {
+                        const response = await fetch(`/warranty-services/api/customers/${customerId}/addresses/`, {
+                            method: 'GET',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRFToken': this.getCsrfToken()
+                            }
+                        });
+
+                        console.log('Addresses API Response status:', response.status);
+                        const data = await response.json();
+                        console.log('Addresses API Response data:', data);
+                        
+                        if (data.success) {
+                            this.customerAddresses = data.addresses;
+                            console.log('Found addresses:', data.addresses.length);
+                            
+                            // Auto-select first address if only one exists
+                            if (data.addresses.length === 1) {
+                                this.selectedAddress = data.addresses[0];
+                                this.installation.location_address = data.addresses[0].full_address;
+                                console.log('Auto-selected single address:', data.addresses[0].name);
+                            }
+                        } else {
+                            this.customerAddresses = [];
+                            console.log('API returned error:', data.message);
+                        }
+                    } catch (error) {
+                        console.error('Customer addresses fetch error:', error);
+                        this.customerAddresses = [];
+                    }
+                },
+
+                selectAddress(address) {
+                    this.selectedAddress = address;
+                    this.installation.location_address = address.full_address;
+                    console.log('Selected address:', address.name, '-', address.full_address);
                 },
 
                 showNewCustomerFormToggle() {
@@ -595,9 +644,14 @@
                         formData.append('item_id', this.item.id);
                         formData.append('customer_id', this.selectedCustomer.id);
                         formData.append('setup_date', this.installation.setup_date);
-                        formData.append('setup_location', this.installation.setup_location || '');
+                        formData.append('setup_location', this.installation.location_address || '');
                         formData.append('installation_notes', this.installation.installation_notes || '');
                         formData.append('technician_notes', this.installation.technician_notes || '');
+                        
+                        // Selected address ID if available
+                        if (this.selectedAddress && this.selectedAddress.id) {
+                            formData.append('selected_address_id', this.selectedAddress.id);
+                        }
                         
                         // Location data
                         if (this.installation.latitude && this.installation.longitude) {
@@ -966,6 +1020,44 @@
                 </div>
             </div>
 
+            <!-- Customer Address Selection -->
+            <div x-show="selectedCustomer && customerAddresses.length > 0" class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <h2 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                    <i class="fas fa-map-marker-alt text-purple-600 mr-2"></i>
+                    Kurulum Adresi Seçimi
+                </h2>
+                
+                <div class="space-y-3">
+                    <template x-for="address in customerAddresses" :key="address.id">
+                        <div @click="selectAddress(address)" 
+                             :class="selectedAddress?.id === address.id ? 'border-purple-500 bg-purple-50' : 'border-gray-200 hover:bg-gray-50'"
+                             class="p-4 border rounded-lg cursor-pointer transition-colors">
+                            <div class="flex items-center justify-between">
+                                <div class="flex-1">
+                                    <div class="font-medium text-gray-900" x-text="address.name"></div>
+                                    <div class="text-sm text-gray-600 mt-1" x-text="address.full_address"></div>
+                                    <div x-show="address.zipcode" class="text-xs text-gray-500 mt-1">
+                                        Posta Kodu: <span x-text="address.zipcode"></span>
+                                    </div>
+                                </div>
+                                <div x-show="selectedAddress?.id === address.id" class="ml-3">
+                                    <i class="fas fa-check-circle text-purple-600"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+                    
+                    <!-- Manual Address Entry Option -->
+                    <div class="border-t pt-3 mt-4">
+                        <button @click="selectedAddress = null; installation.location_address = ''" 
+                                class="text-sm text-blue-600 hover:text-blue-800 flex items-center">
+                            <i class="fas fa-edit mr-2"></i>
+                            Farklı adres gir
+                        </button>
+                    </div>
+                </div>
+            </div>
+
             <!-- Installation Details -->
             <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                 <h2 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
@@ -995,13 +1087,21 @@
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">
                             Kurulum Adresi
+                            <span x-show="selectedAddress" class="text-xs text-purple-600 ml-2">
+                                (Seçili: <span x-text="selectedAddress?.name"></span>)
+                            </span>
                         </label>
                         <textarea 
                             x-model="installation.location_address"
-                            placeholder="Kurulum yapılacak adres..."
+                            :placeholder="selectedAddress ? 'Seçili adres otomatik dolduruldu...' : 'Kurulum yapılacak adres...'"
+                            :class="selectedAddress ? 'bg-purple-50 border-purple-200' : 'border-gray-300'"
                             rows="3"
-                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            class="w-full px-4 py-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                         ></textarea>
+                        <div x-show="!selectedAddress && selectedCustomer && customerAddresses.length > 0" 
+                             class="text-xs text-blue-600 mt-1">
+                            💡 Yukarıdan müşteri adreslerinden birini seçebilirsiniz
+                        </div>
                     </div>
 
                     <!-- GPS Location -->
