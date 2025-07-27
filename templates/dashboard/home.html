@@ -307,7 +307,7 @@
             </h2>
         </div>
         <div class="p-6">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <a href="{% url 'warranty_and_services:warranty_tracking_list' %}" 
                    class="group relative rounded-lg p-6 bg-white hover:bg-gray-50 border border-gray-300 hover:border-indigo-300 transition-all duration-200">
                     <div>
@@ -376,6 +376,32 @@
                         </h3>
                         <p class="mt-2 text-sm text-gray-500">
                             View all installations and check their warranty/service statuses.
+                        </p>
+                    </div>
+                    <span class="pointer-events-none absolute top-6 right-6 text-gray-300 group-hover:text-gray-400" aria-hidden="true">
+                        <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M20 4h1a1 1 0 00-1-1v1zm-1 12a1 1 0 102 0h-2zM8 3a1 1 0 000 2V3zM3.293 19.293a1 1 0 101.414 1.414l-1.414-1.414zM19 4v12h2V4h-2zm1-1H8v2h12V3zm-.707.293l-16 16 1.414 1.414 16-16-1.414-1.414z"></path>
+                        </svg>
+                    </span>
+                </a>
+
+                <a href="{% url 'warranty_and_services:installation_map' %}" 
+                   class="group relative rounded-lg p-6 bg-white hover:bg-gray-50 border border-gray-300 hover:border-purple-300 transition-all duration-200">
+                    <div>
+                        <span class="rounded-lg inline-flex p-3 bg-purple-50 text-purple-600 ring-4 ring-white">
+                            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                            </svg>
+                        </span>
+                    </div>
+                    <div class="mt-8">
+                        <h3 class="text-lg font-medium text-gray-900">
+                            <span class="absolute inset-0" aria-hidden="true"></span>
+                            Kurulum Haritası
+                        </h3>
+                        <p class="mt-2 text-sm text-gray-500">
+                            View installations on map with location data and details.
                         </p>
                     </div>
                     <span class="pointer-events-none absolute top-6 right-6 text-gray-300 group-hover:text-gray-400" aria-hidden="true">

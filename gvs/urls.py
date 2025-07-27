@@ -33,6 +33,8 @@ urlpatterns = [
     path('item-master/', include('item_master.urls')),
     path('customer/', include('customer.urls')),
     path('warranty-services/', include('warranty_and_services.urls')),
+    # API endpoints for mobile app
+    path('api/', include('api.urls')),
 ]
 
 # Serve static and media files from development server if DEBUG is True

@@ -2004,19 +2004,24 @@ def item_service_history(request, installation_id):
         return redirect('warranty_and_services:service_tracking_list')
 7
 
+@login_required
 def installation_map_view(request):
     """
     Display installations on a Google Map
+    Only shows installations that the user has access to based on company permissions
     """
     print("=== MAP VIEW DEBUG ===")
     try:
-        # Get all installations with location data
+        # Get company filter based on user permissions
+        company_filter = get_user_accessible_companies_filter(request.user, 'installation')
+        
+        # Get all installations with location data that user can access
         installations = Installation.objects.filter(
             location_latitude__isnull=False,
             location_longitude__isnull=False
-        ).select_related('customer', 'inventory_item', 'inventory_item__name')
+        ).filter(company_filter).select_related('customer', 'inventory_item', 'inventory_item__name')
         
-        print(f"Found {installations.count()} installations with coordinates")
+        print(f"Found {installations.count()} installations with coordinates for user: {request.user}")
         
         markers = []
         for installation in installations:
