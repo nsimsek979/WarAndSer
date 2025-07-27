@@ -91,14 +91,27 @@
             body { font-family: 'Inter', sans-serif; }
         </style>
         <div x-data="{ 
-        sidebarOpen: window.innerWidth >= 1024, 
+        sidebarOpen: JSON.parse(localStorage.getItem('sidebarOpen') ?? 'true'), 
         init() {
-            // Responsive kontrolü - laptop ve daha büyük ekranlarda sidebar açık
+            // LocalStorage'dan sidebar durumunu oku
+            const saved = localStorage.getItem('sidebarOpen');
+            if (saved !== null) {
+                this.sidebarOpen = JSON.parse(saved);
+            } else {
+                // İlk kez açılıyorsa, responsive kontrolü
+                this.sidebarOpen = window.innerWidth >= 1024;
+            }
+            
+            // Sidebar durumu değiştiğinde localStorage'a kaydet
+            this.$watch('sidebarOpen', value => {
+                localStorage.setItem('sidebarOpen', JSON.stringify(value));
+            });
+            
+            // Responsive kontrolü - sadece mobile'da kapanmasını sağla
             window.addEventListener('resize', () => {
-                if (window.innerWidth >= 1024) {
-                    this.sidebarOpen = true;
-                } else if (window.innerWidth < 640) {
+                if (window.innerWidth < 640) {
                     this.sidebarOpen = false;
+                    localStorage.setItem('sidebarOpen', 'false');
                 }
             });
         }
@@ -119,11 +132,9 @@
         {% include 'components/sidebar.html' %}
 
         <!-- Main Content -->
-        <div class="flex-1 flex flex-col transition-all duration-300" :class="{ 
-            'sm:ml-64': sidebarOpen, 
-            'sm:ml-16': !sidebarOpen && window.innerWidth >= 640,
-            'ml-0': window.innerWidth < 640
-        }">
+        <div class="flex-1 flex flex-col transition-all duration-300" 
+             x-bind:class="sidebarOpen ? 'ml-64' : 'ml-16'"
+             x-show="true">
             <!-- Modern Clean Navbar with Sticky Top -->
             <div class="sticky top-0 z-50 bg-white shadow-sm border-b border-gray-200 dark:bg-gray-800 dark:border-gray-700">
                 <div class="max-w-full mx-auto px-6 sm:px-8 lg:px-12">
@@ -166,7 +177,7 @@
                 </div>
             </div>
             <!-- Page Content -->
-            <main class="flex-1 p-6 overflow-y-auto">
+            <main class="flex-1 p-8 overflow-y-auto">
                 {% block content %}{% endblock content %}
             </main>
         </div>

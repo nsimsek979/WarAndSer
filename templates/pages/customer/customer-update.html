@@ -1,12 +1,10 @@
 {% extends "base.html" %}
 {% load i18n %}
 
-{  <!-- Form -->
-  <form method="post" id="customer-update-form">
-    {% csrf_token %}{% block title %}{% trans 'Update Customer' %}{% endblock %}
+{% block title %}{% trans 'Update Customer' %}- {{ company.name }}{% endblock %}
 
 {% block page_title %}{% trans "Update Customer" %}{% endblock %}
-{% block page_description %}{% trans "Edit customer information" %}{% endblock %}
+{% block page_description %}{{ company.name }}{% endblock %}
 
 {% block content %}
 <div x-data="customerForm()" x-init="init()" class="max-w-5xl mx-auto mt-8 bg-white rounded-xl shadow p-8">
@@ -52,19 +50,6 @@
     }
     {% endif %}
   </script>
-    <div class="bg-gray-25 pl-2 pr-8 border-b border-gray-200 mb-2">
-        <div class="flex justify-between items-center p-0">
-            <div>
-                <h2 class="text-2xl font-bold mb-6">{% trans 'Update Customer' %}</h2>
-                <p class="text-gray-600 mt-0.5 text-sm">{% trans "Customer Management" %}</p>
-            </div>
-            <div class="flex space-x-2">
-                <a href="{% url 'customer:customer_detail' company.pk %}" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded text-sm">
-                    {% trans 'Cancel' %}
-                </a>
-            </div>
-        </div>
-    </div>
 
   <!-- Form -->
   <form method="post" id="customer-update-form" @submit="confirmUpdate">
@@ -78,7 +63,7 @@
     <input type="hidden" name="related_manager" x-model="form.related_manager">
     <input type="hidden" name="email" x-model="form.email">
     <input type="hidden" name="telephone" x-model="form.telephone">
-    <input type="hidden" name="active" :value="form.active ? '1' : '0'">>
+    <input type="hidden" name="active" :value="form.active ? '1' : '0'">
     
     <!-- Dynamic contact fields -->
     <template x-for="(contact, index) in form.contacts" :key="index">
@@ -110,28 +95,39 @@
 
     <!-- Tab Navigation -->
     <div class="border-b border-gray-200 mb-6">
-      <nav class="-mb-px flex space-x-8">
-        <button type="button" @click="activeTab = 'general'" 
-                :class="activeTab === 'general' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
-                class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
-          {% trans 'General Information' %}
-        </button>
-        <button type="button" @click="activeTab = 'contacts'" 
-                :class="activeTab === 'contacts' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
-                class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
-          {% trans 'Contacts' %} <span x-text="`(${form.contacts.length})`" class="text-xs"></span>
-        </button>
-        <button type="button" @click="activeTab = 'addresses'" 
-                :class="activeTab === 'addresses' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
-                class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
-          {% trans 'Addresses' %} <span x-text="`(${form.addresses.length})`" class="text-xs"></span>
-        </button>
-        <button type="button" @click="activeTab = 'working_hours'" 
-                :class="activeTab === 'working_hours' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
-                class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
-          {% trans 'Working Hours' %}
-        </button>
-      </nav>
+      <div class="flex justify-between items-center">
+        <nav class="-mb-px flex space-x-8">
+          <button type="button" @click="activeTab = 'general'" 
+                  :class="activeTab === 'general' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
+                  class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
+            {% trans 'General Information' %}
+          </button>
+          <button type="button" @click="activeTab = 'contacts'" 
+                  :class="activeTab === 'contacts' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
+                  class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
+            {% trans 'Contacts' %} <span x-text="`(${form.contacts.length})`" class="text-xs"></span>
+          </button>
+          <button type="button" @click="activeTab = 'addresses'" 
+                  :class="activeTab === 'addresses' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
+                  class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
+            {% trans 'Addresses' %} <span x-text="`(${form.addresses.length})`" class="text-xs"></span>
+          </button>
+          <button type="button" @click="activeTab = 'working_hours'" 
+                  :class="activeTab === 'working_hours' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
+                  class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
+            {% trans 'Working Hours' %}
+          </button>
+        </nav>
+        <div class="pb-4">
+          <a href="{% url 'customer:customer_detail' company.pk %}" class="inline-flex items-center space-x-2
+                   bg-gray-100 text-gray-700 border border-gray-200 px-3 py-1.5 rounded-md hover:bg-gray-200 text-sm">
+              <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path d="M6 18L18 6M6 6l12 12" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <span>{% trans "Cancel" %}</span>
+          </a>
+        </div>
+      </div>
     </div>
 
     <!-- General Information Tab -->
@@ -214,8 +210,7 @@
 
     <!-- Contacts Tab -->
     <div x-show="activeTab === 'contacts'" class="space-y-4">
-      <div class="flex justify-between items-center">
-        <h3 class="text-lg font-medium">{% trans 'Contact Persons' %}</h3>
+      <div class="flex justify-end items-center">
         <button type="button" @click="addContact()" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded text-sm">
           {% trans 'Add Contact' %}
         </button>
@@ -257,8 +252,7 @@
 
     <!-- Addresses Tab -->
     <div x-show="activeTab === 'addresses'" class="space-y-4">
-      <div class="flex justify-between items-center">
-        <h3 class="text-lg font-medium">{% trans 'Addresses' %}</h3>
+      <div class="flex justify-end items-center">
         <button type="button" @click="addAddress()" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded text-sm">
           {% trans 'Add Address' %}
         </button>

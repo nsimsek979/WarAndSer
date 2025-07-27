@@ -895,23 +895,63 @@ class ServiceFollowUp(models.Model):
         status = "✓" if self.is_completed else "⏳"
         return f"{status} {self.installation} - {self.get_service_type_display()} ({self.next_service_date.strftime('%d.%m.%Y')})"
 
+    @property
+    def service_status_priority(self):
+        """
+        Return priority number for service status ordering:
+        1 = Overdue (geçmiş)
+        2 = Due Soon (yakında)  
+        3 = Pending (beklemede)
+        4 = Done (tamamlanmış)
+        """
+        if self.is_completed:
+            return 4  # Done
+        
+        today = timezone.now().date()
+        service_date = self.next_service_date.date()
+        days_until_service = (service_date - today).days
+        
+        if days_until_service < 0:
+            return 1  # Overdue
+        elif days_until_service <= 30:  # Due within 30 days
+            return 2  # Due Soon
+        else:
+            return 3  # Pending
+
+    @property
+    def service_status_display(self):
+        """Return human-readable service status"""
+        priority = self.service_status_priority
+        if priority == 1:
+            return "Overdue"
+        elif priority == 2:
+            return "Due Soon"
+        elif priority == 3:
+            return "Pending"
+        else:
+            return "Done"
+
     def save(self, *args, **kwargs):
         """Calculate service date before saving"""
         if not self.next_service_date:
             self.next_service_date = self.calculate_next_service_date()
         super().save(*args, **kwargs)
 
-    def calculate_next_service_date(self):
+    def calculate_next_service_date(self, from_date=None):
         """
         Calculate next service date based on service type and customer working hours.
+        
+        Args:
+            from_date: Date to calculate from (default: installation setup date)
         """
-        setup_date = self.installation.setup_date
+        # Use provided date or default to setup date
+        base_date = from_date if from_date else self.installation.setup_date
         
         if self.service_type == 'time_term':
-            # Time-based service: setup_date + months
+            # Time-based service: base_date + months
             months = int(self.service_value)
-            end_date = setup_date + timedelta(days=months * 30)  # Approximate month calculation
-            self.calculation_notes = f"Time-term service: {months} month(s) from setup date"
+            end_date = base_date + timedelta(days=months * 30)  # Approximate month calculation
+            self.calculation_notes = f"Time-term service: {months} month(s) from {base_date.strftime('%d.%m.%Y')}"
             
         elif self.service_type == 'working_hours':
             # Working hours-based service
@@ -924,10 +964,10 @@ class ServiceFollowUp(models.Model):
                 if weekly_hours > 0:
                     weeks_needed = service_hours / weekly_hours
                     days_needed = weeks_needed * 7
-                    end_date = setup_date + timedelta(days=days_needed)
+                    end_date = base_date + timedelta(days=days_needed)
                     
                     self.calculation_notes = (
-                        f"Working hours service: {service_hours} hours, "
+                        f"Working hours service: {service_hours} hours from {base_date.strftime('%d.%m.%Y')}, "
                         f"Weekly working hours: {weekly_hours}, "
                         f"Calculated duration: {weeks_needed:.1f} weeks ({days_needed:.0f} days)"
                     )
@@ -935,10 +975,10 @@ class ServiceFollowUp(models.Model):
                     # Fallback
                     weeks_needed = service_hours / 40
                     days_needed = weeks_needed * 7
-                    end_date = setup_date + timedelta(days=days_needed)
+                    end_date = base_date + timedelta(days=days_needed)
                     
                     self.calculation_notes = (
-                        f"Working hours service: {service_hours} hours, "
+                        f"Working hours service: {service_hours} hours from {base_date.strftime('%d.%m.%Y')}, "
                         f"Default 40 hours/week used, "
                         f"Calculated duration: {weeks_needed:.1f} weeks ({days_needed:.0f} days)"
                     )
@@ -947,18 +987,18 @@ class ServiceFollowUp(models.Model):
                 # Customer has no working hours configured
                 weeks_needed = service_hours / 40
                 days_needed = weeks_needed * 7
-                end_date = setup_date + timedelta(days=days_needed)
+                end_date = base_date + timedelta(days=days_needed)
                 
                 self.calculation_notes = (
-                    f"Working hours service: {service_hours} hours, "
+                    f"Working hours service: {service_hours} hours from {base_date.strftime('%d.%m.%Y')}, "
                     f"Default 40 hours/week used (no working hours configured), "
                     f"Calculated duration: {weeks_needed:.1f} weeks ({days_needed:.0f} days)"
                 )
         
         else:
             # Default fallback
-            end_date = setup_date + timedelta(days=90)  # 3 months default
-            self.calculation_notes = "Default 3 month service interval applied"
+            end_date = base_date + timedelta(days=90)  # 3 months default
+            self.calculation_notes = f"Default 3 month service interval applied from {base_date.strftime('%d.%m.%Y')}"
         
         return end_date
 

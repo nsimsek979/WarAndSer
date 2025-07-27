@@ -449,126 +449,23 @@
 
         <!-- Service Tracking Tab -->
         <div id="content-services" class="tab-content hidden">
-          {% if service_trackings %}
-            <div class="overflow-hidden rounded-lg border border-gray-200">
-              <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200">
-                  <thead class="bg-gray-50">
-                    <tr>
-                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-48">{% trans 'Customer' %}</th>
-                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans 'Product' %}</th>
-                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-32">{% trans 'Service Date' %}</th>
-                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-40">{% trans 'Maintenance Type' %}</th>
-                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-32">{% trans 'Status' %}</th>
-                      <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider w-24">{% trans 'Actions' %}</th>
-                    </tr>
-                  </thead>
-                  <tbody class="bg-white divide-y divide-gray-200">
-                    {% for service in service_trackings %}
-                    <tr class="hover:bg-gray-50 transition-colors">
-                      <td class="px-4 py-4 whitespace-nowrap">
-                        <div>
-                          <div class="text-sm font-medium text-gray-900">{{ service.installation.customer.name }}</div>
-                          {% if service.installation.customer.phone %}
-                          <div class="text-sm text-gray-500">{{ service.installation.customer.phone }}</div>
-                          {% endif %}
-                        </div>
-                      </td>
-                      <td class="px-4 py-4 whitespace-nowrap">
-                        <div>
-                          <div class="text-sm font-medium text-gray-900">{{ service.installation.inventory_item.name.name }}</div>
-                          {% if service.installation.inventory_item.name.brand_name %}
-                          <div class="text-sm text-gray-500">{{ service.installation.inventory_item.name.brand_name }}</div>
-                          {% endif %}
-                          <div class="text-xs text-gray-500 mt-1">
-                            SN: {{ service.installation.inventory_item.serial_no|default:"N/A" }}
-                          </div>
-                        </div>
-                      </td>
-                      <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {{ service.next_service_date|date:"d.m.Y" }}
-                      </td>
-                      <td class="px-4 py-4 whitespace-nowrap">
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
-                          {% if service.service_type == 'time_term' %}bg-blue-100 text-blue-800
-                          {% elif service.service_type == 'working_hours' %}bg-green-100 text-green-800
-                          {% else %}bg-gray-100 text-gray-800{% endif %}">
-                          {{ service.get_service_type_display }}
-                        </span>
-                      </td>
-                      <td class="px-4 py-4 whitespace-nowrap">
-                        {% if service.is_completed %}
-                          <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                            ✓ {% trans 'Done' %}
-                          </span>
-                        {% elif service.service_status_priority == 1 %}
-                          <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                            ⚠️ {% trans 'Overdue' %}
-                          </span>
-                        {% elif service.service_status_priority == 2 %}
-                          <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
-                            ⏰ {% trans 'Due Soon' %}
-                          </span>
-                        {% else %}
-                          <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                            ⏳ {% trans 'Pending' %}
-                          </span>
-                        {% endif %}
-                      </td>
-                      <td class="px-4 py-4 whitespace-nowrap text-center text-sm font-medium">
-                        <div class="flex items-center justify-center space-x-2">
-                          <a href="{% url 'warranty_and_services:service_detail' service.id %}" 
-                             class="inline-flex items-center px-2 py-1 border border-gray-300 shadow-sm text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 transition-colors"
-                             title="{% trans 'View Service Detail' %}">
-                            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                            </svg>
-                          </a>
-                          <a href="{% url 'warranty_and_services:item_service_history' service.installation.id %}" 
-                             class="inline-flex items-center px-2 py-1 border border-gray-300 shadow-sm text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 transition-colors"
-                             title="{% trans 'View Service History' %}">
-                            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                            </svg>
-                          </a>
-                        </div>
-                      </td>
-                    </tr>
-                    {% endfor %}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-            
-            <!-- Show more link if there are more services -->
-            <div class="mt-4 text-center">
-              <a href="{% url 'warranty_and_services:service_tracking_list' %}" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded text-sm inline-flex items-center gap-2">
-                <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                </svg>
-                {% trans 'View All Services' %}
-              </a>
-            </div>
-          {% else %}
-            <div class="bg-gray-50 border border-gray-200 rounded-lg p-6 text-center">
-              <svg class="h-12 w-12 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+          <div class="text-center py-8">
+            <svg class="h-12 w-12 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+            </svg>
+            <div class="text-gray-500 mb-4">{% trans 'Service tracking will be implemented here.' %}</div>
+            <p class="text-sm text-gray-400 mb-4">{% trans 'This tab will show service records filtered by this customer and child companies (if distributor).' %}</p>
+            {% if company.company_type == 'distributor' %}
+              <p class="text-sm text-blue-600 mb-4">{% trans 'As a distributor, this will include services for all related end-user companies.' %}</p>
+            {% endif %}
+            <a href="{% url 'warranty_and_services:service_tracking_list' %}" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded text-sm inline-flex items-center gap-2">
+              <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
               </svg>
-              <div class="text-gray-500 mb-4">{% trans 'No service records found for this customer.' %}</div>
-              {% if company.company_type == 'distributor' %}
-                <p class="text-sm text-gray-400 mb-4">{% trans 'This view shows service records for this distributor and all related end-user companies.' %}</p>
-              {% endif %}
-              <a href="{% url 'warranty_and_services:service_tracking_list' %}" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded text-sm inline-flex items-center gap-2">
-                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
-                </svg>
-                {% trans 'View All Services' %}
-              </a>
-            </div>
-          {% endif %}
+              {% trans 'View All Services' %}
+            </a>
+          </div>
         </div>
 
       </div>

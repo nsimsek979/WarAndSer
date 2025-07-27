@@ -354,6 +354,12 @@ class InventoryItem(models.Model):
             File(qr_buffer),
             save=False
         )
+        # filename = f"{self.serial_no}_qr.png"
+        # self.qr_code_image.save(
+        #     filename,
+        #     File(qr_buffer),
+        #     save=False
+        # )
     
     def save(self, *args, **kwargs):
         if not self.serial_no:

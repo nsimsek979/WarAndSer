@@ -1627,10 +1627,9 @@ def api_maintenance_submit(request):
         # Get form data
         maintenance_type = request.POST.get('maintenance_type')
         breakdown_reason = request.POST.get('breakdown_reason', '')
-        notes = request.POST.get('work_performed', '')
         service_date = request.POST.get('service_date')
         
-        # Validate required fields
+        # Simple validation - only check required fields
         if not maintenance_type:
             return JsonResponse({
                 'success': False,
@@ -1643,20 +1642,14 @@ def api_maintenance_submit(request):
                 'message': 'Bakım tarihi zorunludur'
             })
         
-        if maintenance_type == 'breakdown' and not breakdown_reason:
-            return JsonResponse({
-                'success': False,
-                'message': 'Arıza bakımı için arıza sebebi zorunludur'
-            })
-        
-        # Find an existing incomplete service follow-up or create one
-        service_followup = ServiceFollowUp.objects.filter(
+        # Find ALL existing incomplete service follow-ups for this installation
+        service_followups = ServiceFollowUp.objects.filter(
             installation=installation,
             is_completed=False
-        ).first()
+        )
         
-        if not service_followup:
-            # Create a new service follow-up
+        if not service_followups.exists():
+            # Create a default service follow-up if none exists
             from datetime import timedelta
             next_service_date = timezone.now() + timedelta(days=180)  # 6 months default
             
@@ -1667,17 +1660,19 @@ def api_maintenance_submit(request):
                 next_service_date=next_service_date,
                 calculation_notes='Created automatically for maintenance record'
             )
+            service_followups = [service_followup]
+        else:
+            service_followups = list(service_followups)
         
         # Import the new models
         from .models import MaintenanceRecord, MaintenancePhoto, MaintenanceDocument
         
-        # Create MaintenanceRecord
+        # Create MaintenanceRecord with the first service followup
         maintenance_record = MaintenanceRecord.objects.create(
-            service_followup=service_followup,
+            service_followup=service_followups[0],
             maintenance_type=maintenance_type,
             technician=request.user,
             breakdown_reason=breakdown_reason,
-            notes=notes,
             service_date=service_date
         )
         
@@ -1737,11 +1732,42 @@ def api_maintenance_submit(request):
         except:
             pass
         
-        # Mark service follow-up as completed
-        service_followup.is_completed = True
-        service_followup.completed_date = timezone.now()
-        service_followup.completion_notes = f"Maintenance completed - {maintenance_type}"
-        service_followup.save()
+        # Parse service date
+        from datetime import datetime
+        service_date_obj = datetime.strptime(service_date, '%Y-%m-%d').date()
+        
+        # Handle service follow-ups based on maintenance type
+        if maintenance_type == 'periodic':
+            # PERIODIC: Mark ALL service follow-ups as completed and create new ones
+            for service_followup in service_followups:
+                # Mark current service as completed
+                service_followup.is_completed = True
+                service_followup.completed_date = timezone.now()
+                service_followup.completion_notes = f"Periodic maintenance completed on {service_date_obj.strftime('%d.%m.%Y')}"
+                service_followup.save()
+                
+                # Create new service follow-up with same parameters but recalculated date from maintenance date
+                ServiceFollowUp.objects.create(
+                    installation=installation,
+                    service_type=service_followup.service_type,
+                    service_value=service_followup.service_value,
+                    next_service_date=service_followup.calculate_next_service_date(from_date=service_date_obj),
+                    calculation_notes=f"Created after periodic maintenance completion on {service_date_obj.strftime('%d.%m.%Y')}"
+                )
+        
+        elif maintenance_type == 'breakdown':
+            # BREAKDOWN: Only add notes to service follow-ups, do NOT complete them or create new ones
+            for service_followup in service_followups:
+                # Add breakdown info to existing service follow-up notes, but keep it incomplete
+                existing_notes = service_followup.calculation_notes or ""
+                breakdown_info = f"Breakdown maintenance performed on {service_date_obj.strftime('%d.%m.%Y')}: {breakdown_reason}"
+                
+                if existing_notes:
+                    service_followup.calculation_notes = f"{existing_notes}\n{breakdown_info}"
+                else:
+                    service_followup.calculation_notes = breakdown_info
+                    
+                service_followup.save()
         
         # Send notification email
         try:

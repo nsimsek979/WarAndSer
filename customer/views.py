@@ -45,7 +45,7 @@ def customer_detail(request, pk):
 	installations = Installation.objects.filter(customer=company)
 	
 	# If this company is a distributor, also include installations from related end users
-	if company.company_type == 'distributor':
+	if company.company_type.lower() == 'distributor':
 		related_endusers = Company.objects.filter(related_company=company)
 		installations = Installation.objects.filter(
 			models.Q(customer=company) | models.Q(customer__in=related_endusers)
@@ -62,6 +62,56 @@ def customer_detail(request, pk):
 		next_service_date=Min('service_followups__next_service_date')
 	).order_by('-setup_date')
 	
+	# Get service tracking records for this customer
+	from warranty_and_services.models import ServiceFollowUp
+	
+	# Filtreleme mantığını düzelt:
+	# 1. Eğer görüntülenen company bir distributor ise, hem kendisinin hem de related_company olarak onu gören enduser'ların service'lerini göster
+	# 2. Eğer görüntülenen company bir enduser ise, sadece o company'nin service'lerini göster
+	
+	if company.company_type.lower() == 'distributor':
+		# Distributor case: kendi service'leri + related enduser'ların service'leri
+		related_endusers = Company.objects.filter(related_company=company)
+		service_trackings = ServiceFollowUp.objects.filter(
+			models.Q(installation__customer=company) | 
+			models.Q(installation__customer__in=related_endusers)
+		)
+	else:
+		# Enduser case: sadece o company'nin service'leri
+		service_trackings = ServiceFollowUp.objects.filter(installation__customer=company)
+	
+	service_trackings = service_trackings.select_related(
+		'installation__customer',
+		'installation',
+		'installation__inventory_item__name',
+		'installation__user'
+	)
+	
+	# Convert to list and sort by status priority (overdue, due soon, pending, done)
+	service_trackings = list(service_trackings)
+	service_trackings.sort(key=lambda x: (x.service_status_priority, x.next_service_date))
+	service_trackings = service_trackings[:20]  # Latest 20 service records
+	
+	# Get warranty tracking records for this customer
+	from warranty_and_services.models import WarrantyFollowUp
+	
+	# Base warranty trackings for this company
+	warranty_trackings = WarrantyFollowUp.objects.filter(installation__customer=company)
+	
+	# If this company is a distributor, also include warranty trackings from related end users
+	if company.company_type.lower() == 'distributor':
+		related_endusers = Company.objects.filter(related_company=company)
+		warranty_trackings = WarrantyFollowUp.objects.filter(
+			models.Q(installation__customer=company) | 
+			models.Q(installation__customer__in=related_endusers)
+		)
+	
+	warranty_trackings = warranty_trackings.select_related(
+		'installation__customer',
+		'installation',
+		'installation__inventory_item__name'
+	).order_by('-end_of_warranty_date')[:20]  # Latest 20 warranty records
+	
 	# Pagination for installations
 	paginator = Paginator(installations, 10)  # 10 installations per page
 	page_number = request.GET.get('page')
@@ -70,6 +120,8 @@ def customer_detail(request, pk):
 	context = {
 		'company': company,
 		'installations': page_obj,
+		'service_trackings': service_trackings,
+		'warranty_trackings': warranty_trackings,
 		'page_obj': page_obj,
 		'is_paginated': page_obj.has_other_pages(),
 	}

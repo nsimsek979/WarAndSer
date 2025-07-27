@@ -233,7 +233,7 @@
 
                 <!-- Breakdown Reason (only for breakdown maintenance) -->
                 <div x-show="formData.maintenance_type === 'breakdown'" x-transition>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">{% trans "Breakdown Reason" %} *</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">{% trans "Breakdown Reason" %}</label>
                     <textarea x-model="formData.breakdown_reason" 
                               placeholder="{% trans 'Please explain the reason for the breakdown in detail...' %}"
                               rows="3"
@@ -242,7 +242,7 @@
 
                 <!-- Work Performed (only for periodic maintenance) -->
                 <div x-show="formData.maintenance_type === 'periodic'" x-transition>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">{% trans "Work Performed" %} *</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">{% trans "Work Performed" %}</label>
                     <textarea x-model="formData.work_performed" 
                               placeholder="{% trans 'Describe the work performed as part of periodic maintenance...' %}"
                               rows="3"
@@ -614,12 +614,11 @@
                 // Methods
                 isFormValid() {
                     const hasMaintenanceType = this.formData.maintenance_type;
-                    const hasRequiredField = this.formData.maintenance_type === 'breakdown' 
-                        ? this.formData.breakdown_reason 
-                        : this.formData.work_performed;
                     const hasDate = this.formData.service_date;
                     
-                    return hasMaintenanceType && hasRequiredField && hasDate;
+                    // Only maintenance_type and service_date are required now
+                    // breakdown_reason and work_performed are optional
+                    return hasMaintenanceType && hasDate;
                 },
 
                 // Service form methods

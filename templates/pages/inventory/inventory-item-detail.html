@@ -25,6 +25,14 @@
                             </svg>
                             <span>{% trans "Back to List" %}</span>
                         </a>
+                        <a href="{% url 'item-master:item_master_detail' item.name.pk %}" class="inline-flex items-center space-x-1
+                                 bg-blue-100 text-blue-700 border border-blue-200 px-2 py-1 rounded-md hover:bg-blue-200 text-xs">
+                            <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path d="M1.5 12s4-7 10.5-7 10.5 7 10.5 7-4 7-10.5 7S1.5 12 1.5 12z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <circle cx="12" cy="12" r="3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            <span>{% trans "View Item Master" %}</span>
+                        </a>
                         {% if perms.item_master.change_inventoryitem %}
                         <a href="{% url 'item-master:inventory_item_update' item.id %}" class="inline-flex items-center space-x-1
                                  bg-green-100 text-green-700 border border-green-200 px-2 py-1 rounded-md hover:bg-green-200 text-xs">
@@ -360,13 +368,19 @@
                         <div class="flex items-center space-x-3">
                             <code class="text-xs bg-white px-2 py-1 rounded border">{{ related_item.serial_no }}</code>
                             <div>
-                                <p class="text-sm font-medium text-gray-900">{% trans "Quantity" %}: {{ related_item.quantity }}</p>
                                 <p class="text-xs text-gray-500">{% trans "Created" %}: {{ related_item.created_at|date:"M d, Y" }}</p>
                             </div>
                         </div>
                         <div class="flex items-center space-x-2">
                             {% if related_item.in_used %}
-                                <span class="inline-block bg-orange-100 text-orange-800 px-2 py-0.5 rounded text-xs font-semibold">{% trans "In Use" %}</span>
+                                <div class="text-right">
+                                    <span class="inline-block bg-orange-100 text-orange-800 px-2 py-0.5 rounded text-xs font-semibold">{% trans "In Use" %}</span>
+                                    {% with related_item.installation_set.first as installation %}
+                                        {% if installation %}
+                                            <p class="text-xs text-gray-500 mt-1">{{ installation.customer.name }}</p>
+                                        {% endif %}
+                                    {% endwith %}
+                                </div>
                             {% else %}
                                 <span class="inline-block bg-green-100 text-green-800 px-2 py-0.5 rounded text-xs font-semibold">{% trans "Available" %}</span>
                             {% endif %}
@@ -406,6 +420,68 @@
 
         <!-- Sidebar -->
         <div class="space-y-6">
+            <!-- Company Detail -->
+            <div class="bg-white rounded-xl border border-gray-200 p-6">
+                <div class="flex justify-between items-center mb-4 pb-2 border-b border-gray-200">
+                    <h3 class="text-md font-semibold text-gray-700">{% trans "Company Detail" %}</h3>
+                    {% if item.in_used %}
+                        {% with item.installation_set.first as installation %}
+                            {% if installation %}
+                                <a href="{% url 'customer:customer_detail' installation.customer.pk %}" class="inline-flex items-center space-x-1
+                                         bg-blue-100 text-blue-700 border border-blue-200 px-2 py-1 rounded-md hover:bg-blue-200 text-xs">
+                                    <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path d="M1.5 12s4-7 10.5-7 10.5 7 10.5 7-4 7-10.5 7S1.5 12 1.5 12z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <circle cx="12" cy="12" r="3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                    <span>{% trans "View Customer" %}</span>
+                                </a>
+                            {% endif %}
+                        {% endwith %}
+                    {% endif %}
+                </div>
+                {% if item.in_used %}
+                    {% with item.installation_set.first as installation %}
+                        {% if installation %}
+                            <div class="space-y-3">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-500 mb-1">{% trans "Company Name" %}</label>
+                                    <p class="text-sm text-gray-900">{{ installation.customer.name }}</p>
+                                </div>
+                                {% if installation.customer.telephone %}
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-500 mb-1">{% trans "Phone" %}</label>
+                                    <p class="text-sm text-gray-900">{{ installation.customer.telephone }}</p>
+                                </div>
+                                {% endif %}
+                                {% if installation.customer.email %}
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-500 mb-1">{% trans "Email" %}</label>
+                                    <p class="text-sm text-gray-900">{{ installation.customer.email }}</p>
+                                </div>
+                                {% endif %}
+                                {% if installation.customer.related_company %}
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-500 mb-1">{% trans "Distributor" %}</label>
+                                    <p class="text-sm text-gray-900">{{ installation.customer.related_company.name }}</p>
+                                </div>
+                                {% endif %}
+                            </div>
+                        {% else %}
+                            <p class="text-sm text-gray-500 text-center py-4">{% trans "Installation information not available" %}</p>
+                        {% endif %}
+                    {% endwith %}
+                {% else %}
+                    <div class="text-center py-4">
+                        <div class="inline-flex items-center px-3 py-2 bg-green-100 text-green-800 rounded-lg text-sm font-medium">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            {% trans "Available for Installation" %}
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+            
             <!-- QR Code -->
             {% if item.qr_code_image %}
             <div class="bg-white rounded-xl border border-gray-200 p-6">

@@ -171,8 +171,10 @@ def core_business_report(request):
         # Get user's accessible companies filter
         installation_filter = get_user_accessible_companies_filter(request.user, 'installation')
         
-        # Get date filter parameter
+        # Get filter parameters
         date_filter = request.GET.get('period', 'all')
+        core_business_filter = request.GET.get('core_business', 'all')
+        chart_type_filter = request.GET.get('chart_type', 'category')  # 'category' or 'item'
         
         # Calculate date range based on filter
         end_date = timezone.now()
@@ -193,6 +195,10 @@ def core_business_report(request):
         if start_date:
             base_queryset = base_queryset.filter(setup_date__gte=start_date)
         
+        # Apply core business filter if specified
+        if core_business_filter != 'all':
+            base_queryset = base_queryset.filter(customer__core_business__id=core_business_filter)
+        
         # Core Business Installation Statistics - Full data for report
         core_business_stats = base_queryset.values(
             'customer__core_business__name'
@@ -202,7 +208,7 @@ def core_business_report(request):
             customer__core_business__name__isnull=False
         ).order_by('-installation_count')
         
-        # Prepare chart data - Top 9 + Others
+        # Prepare chart data - Top 9 + Others for Core Business Chart
         chart_businesses = list(core_business_stats[:9])
         others_count = sum(item['installation_count'] for item in core_business_stats[9:])
         
@@ -212,7 +218,7 @@ def core_business_report(request):
                 'installation_count': others_count
             })
         
-        # Prepare data for charts (limited to top 9 + others)
+        # Prepare data for Core Business charts (limited to top 9 + others)
         core_business_labels = []
         core_business_data = []
         core_business_colors = [
@@ -230,6 +236,67 @@ def core_business_report(request):
             'labels': json.dumps(core_business_labels),
             'data': json.dumps(core_business_data),
             'colors': json.dumps(core_business_colors[:len(core_business_data)])
+        }
+        
+        # Distribution Overview Chart Data (Categories or Items based on filter)
+        distribution_queryset = base_queryset
+        
+        if chart_type_filter == 'category':
+            # Category distribution
+            distribution_stats = distribution_queryset.values(
+                'inventory_item__name__category__category_name'
+            ).annotate(
+                installation_count=Count('id')
+            ).filter(
+                inventory_item__name__category__category_name__isnull=False
+            ).order_by('-installation_count')
+            
+            chart_title = 'Installation Distribution by Category'
+            field_name = 'inventory_item__name__category__category_name'
+        else:
+            # Item Master distribution
+            distribution_stats = distribution_queryset.values(
+                'inventory_item__name__name'
+            ).annotate(
+                installation_count=Count('id')
+            ).filter(
+                inventory_item__name__name__isnull=False
+            ).order_by('-installation_count')
+            
+            chart_title = 'Installation Distribution by Item'
+            field_name = 'inventory_item__name__name'
+        
+        # Prepare distribution chart data - Top 19 + Others
+        chart_distribution = list(distribution_stats[:19])
+        others_distribution_count = sum(item['installation_count'] for item in distribution_stats[19:])
+        
+        if others_distribution_count > 0:
+            chart_distribution.append({
+                field_name: 'Others',
+                'installation_count': others_distribution_count
+            })
+        
+        # Prepare data for Distribution charts
+        distribution_labels = []
+        distribution_data = []
+        distribution_colors = [
+            '#F59E0B', '#10B981', '#8B5CF6', '#06B6D4', '#EF4444',
+            '#EC4899', '#84CC16', '#6366F1', '#F97316', '#64748B',
+            '#F472B6', '#A3A3A3', '#FB7185', '#34D399', '#FBBF24',
+            '#60A5FA', '#A78BFA', '#F87171', '#4ADE80', '#22D3EE'
+        ]
+        
+        for i, stat in enumerate(chart_distribution):
+            if stat[field_name]:
+                name = stat[field_name]
+                distribution_labels.append(name)
+                distribution_data.append(stat['installation_count'])
+        
+        context['distribution_chart_data'] = {
+            'labels': json.dumps(distribution_labels),
+            'data': json.dumps(distribution_data),
+            'colors': json.dumps(distribution_colors[:len(distribution_data)]),
+            'title': chart_title
         }
         
         # Total core businesses with installations for the selected period
@@ -263,15 +330,32 @@ def core_business_report(request):
         # Business details for table with pagination
         context['all_businesses'] = paginated_businesses
         
-        # Add current filter to context
+        # Add current filters to context
         context['current_period'] = date_filter
+        context['current_core_business'] = core_business_filter
+        context['current_chart_type'] = chart_type_filter
         
-        # Period options for the dropdown
+        # Filter options
         context['period_options'] = [
             {'value': 'all', 'label': 'All Time'},
             {'value': '1year', 'label': 'Last 1 Year'},
             {'value': '1quarter', 'label': 'Last Quarter (3 months)'},
             {'value': '1month', 'label': 'Last Month'},
+        ]
+        
+        # Core Business options for filter
+        core_businesses = CoreBusiness.objects.all().order_by('name')
+        context['core_business_options'] = [{'value': 'all', 'label': 'All Core Businesses'}]
+        for cb in core_businesses:
+            context['core_business_options'].append({
+                'value': str(cb.id),
+                'label': cb.name
+            })
+        
+        # Chart type options
+        context['chart_type_options'] = [
+            {'value': 'category', 'label': 'By Category'},
+            {'value': 'item', 'label': 'By Item Master'},
         ]
 
     return render(request, 'dashboard/core_business_report.html', context)
@@ -287,8 +371,12 @@ def distributor_report(request):
         # Get user's accessible companies filter
         installation_filter = get_user_accessible_companies_filter(request.user, 'installation')
         
-        # Get date filter parameter
+        # Get filter parameters
         date_filter = request.GET.get('period', 'all')
+        distributor_filter = request.GET.get('distributor', 'all')
+        chart_type = request.GET.get('chart_type', 'category')
+        
+        print(f"Debug Distributor Report: period={date_filter}, distributor={distributor_filter}, chart_type={chart_type}")
         
         # Calculate date range based on filter
         end_date = timezone.now()
@@ -308,6 +396,11 @@ def distributor_report(request):
         # Apply date filter if specified
         if start_date:
             base_queryset = base_queryset.filter(setup_date__gte=start_date)
+        
+        # Apply distributor filter if specified
+        if distributor_filter != 'all':
+            base_queryset = base_queryset.filter(customer__related_company__id=distributor_filter)
+            print(f"Debug Distributor Report: Filtered by distributor {distributor_filter}, result count: {base_queryset.count()}")
         
         # Distributor Installation Statistics - Full data for report
         distributor_stats = base_queryset.values(
@@ -348,6 +441,66 @@ def distributor_report(request):
             'colors': json.dumps(distributor_colors[:len(distributor_data)])
         }
         
+        # Distribution Statistics - Category vs Item Master
+        if chart_type == 'category':
+            distribution_stats = base_queryset.values(
+                'inventory_item__name__category__category_name'
+            ).annotate(
+                installation_count=Count('id')
+            ).filter(
+                inventory_item__name__category__category_name__isnull=False
+            ).order_by('-installation_count')
+        else:  # item master
+            distribution_stats = base_queryset.values(
+                'inventory_item__name__name'
+            ).annotate(
+                installation_count=Count('id')
+            ).filter(
+                inventory_item__name__name__isnull=False
+            ).order_by('-installation_count')
+        
+        # Prepare distribution chart data - Top 19 + Others
+        chart_distributions = list(distribution_stats[:19])
+        others_count = sum(item['installation_count'] for item in distribution_stats[19:])
+        
+        if others_count > 0:
+            if chart_type == 'category':
+                chart_distributions.append({
+                    'inventory_item__name__category__category_name': 'Others',
+                    'installation_count': others_count
+                })
+            else:
+                chart_distributions.append({
+                    'inventory_item__name__name': 'Others',
+                    'installation_count': others_count
+                })
+        
+        # Prepare data for distribution pie chart
+        distribution_labels = []
+        distribution_data = []
+        distribution_colors = [
+            '#8B5CF6', '#06B6D4', '#10B981', '#F59E0B', '#EF4444',
+            '#EC4899', '#84CC16', '#6366F1', '#F97316', '#64748B',
+            '#0EA5E9', '#14B8A6', '#A855F7', '#F97316', '#EF4444',
+            '#22C55E', '#3B82F6', '#F59E0B', '#EC4899', '#6B7280'
+        ]
+        
+        for stat in chart_distributions:
+            if chart_type == 'category':
+                name = stat['inventory_item__name__category__category_name']
+            else:
+                name = stat['inventory_item__name__name']
+            
+            if name:
+                distribution_labels.append(name)
+                distribution_data.append(stat['installation_count'])
+        
+        context['distribution_chart_data'] = {
+            'labels': json.dumps(distribution_labels),
+            'data': json.dumps(distribution_data),
+            'colors': json.dumps(distribution_colors[:len(distribution_data)])
+        }
+        
         # Total distributors with installations for the selected period
         total_distributors_with_installations = base_queryset.filter(
             customer__related_company__isnull=False
@@ -385,6 +538,8 @@ def distributor_report(request):
         
         # Add current filter to context
         context['current_period'] = date_filter
+        context['current_distributor'] = distributor_filter
+        context['current_chart_type'] = chart_type
         
         # Period options for the dropdown
         context['period_options'] = [
@@ -392,6 +547,21 @@ def distributor_report(request):
             {'value': '1year', 'label': 'Last 1 Year'},
             {'value': '1quarter', 'label': 'Last Quarter (3 months)'},
             {'value': '1month', 'label': 'Last Month'},
+        ]
+        
+        # Distributor options (companies with type distributor)
+        from customer.models import Company
+        distributor_companies = Company.objects.filter(company_type='distributor').order_by('name')
+        context['distributor_options'] = [{'value': 'all', 'label': 'All Distributors'}]
+        context['distributor_options'].extend([
+            {'value': str(company.id), 'label': company.name} 
+            for company in distributor_companies
+        ])
+        
+        # Chart type options for distribution chart
+        context['chart_type_options'] = [
+            {'value': 'category', 'label': 'By Category'},
+            {'value': 'item', 'label': 'By Item Master'},
         ]
 
     return render(request, 'dashboard/distributor_report.html', context)
