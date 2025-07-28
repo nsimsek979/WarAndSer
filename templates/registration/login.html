@@ -59,6 +59,13 @@
             <button type="submit" class="w-full bg-blue-400 hover:bg-blue-600 text-white font-bold py-3 px-4 rounded-lg focus:outline-none focus:shadow-outline transition duration-200">
               {% trans 'Login' %}
             </button>
+            
+            <!-- Forgot Password Link -->
+            <div class="text-center mt-4">
+              <a href="{% url 'password_reset' %}" class="text-sm text-blue-600 hover:text-blue-800">
+                {% trans 'Forgot your password?' %}
+              </a>
+            </div>
           </form>
         </div>
       </div>

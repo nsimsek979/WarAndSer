@@ -12,14 +12,41 @@
 <div class="max-w-7xl mx-auto px-8 py-6">
   <div class="space-y-6">
 
-    <!-- Page Header -->
-    <div class="bg-white rounded-lg shadow-sm border border-gray-200 mb-6">
-      <div class="px-6 py-4 border-b border-gray-200">
-        <div class="flex justify-between items-center">
-          <div>
-            <h1 class="text-2xl font-bold text-gray-900">{{ company.name }}</h1>
-            <p class="text-sm text-gray-500 mt-1">{{ company.get_company_type_display }}</p>
-          </div>
+    <!-- Tab Navigation with Back Button -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+      <div class="border-b border-gray-200">
+        <div class="flex justify-between items-center px-6 py-2">
+          <nav class="-mb-px flex space-x-8" aria-label="Tabs">
+            <button onclick="showTab('general')" id="tab-general" class="tab-button border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm active">
+              <svg class="h-5 w-5 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+              </svg>
+              {% trans "General Information" %}
+            </button>
+            <button onclick="showTab('installations')" id="tab-installations" class="tab-button border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
+              <svg class="h-5 w-5 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+              </svg>
+              {% trans "Installations" %}
+            </button>
+            <button onclick="showTab('services')" id="tab-services" class="tab-button border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
+              <svg class="h-5 w-5 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+              </svg>
+              {% trans "Service Tracking" %}
+            </button>
+            {% if related_companies_page_obj.object_list %}
+            <button onclick="showTab('related-companies')" id="tab-related-companies" class="tab-button border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
+              <svg class="h-5 w-5 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+              </svg>
+              {% trans "Related Companies" %}
+              <span class="ml-1 bg-orange-100 text-orange-800 text-xs font-medium px-2 py-0.5 rounded">{{ company.company_set.count }}</span>
+            </button>
+            {% endif %}
+          </nav>
           <div class="flex space-x-2">
             {% if user|can_edit_customer:company %}
             <a href="{% url 'customer:customer_update' company.pk %}" class="inline-flex items-center px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-md text-sm font-medium transition-colors">
@@ -37,34 +64,6 @@
             </a>
           </div>
         </div>
-      </div>
-    </div>
-
-    <!-- Tab Navigation -->
-    <div class="bg-white rounded-lg shadow-sm border border-gray-200">
-      <div class="border-b border-gray-200">
-        <nav class="-mb-px flex space-x-8 px-6" aria-label="Tabs">
-          <button onclick="showTab('general')" id="tab-general" class="tab-button border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm active">
-            <svg class="h-5 w-5 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
-            </svg>
-            {% trans "General Information" %}
-          </button>
-          <button onclick="showTab('installations')" id="tab-installations" class="tab-button border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
-            <svg class="h-5 w-5 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-            </svg>
-            {% trans "Installations" %}
-          </button>
-          <button onclick="showTab('services')" id="tab-services" class="tab-button border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
-            <svg class="h-5 w-5 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-            </svg>
-            {% trans "Service Tracking" %}
-          </button>
-        </nav>
       </div>
 
       <!-- Tab Content -->
@@ -574,6 +573,143 @@
       </div>
     </div>
   </div>
+
+  <!-- Related Companies Tab -->
+  {% if related_companies_page_obj.object_list %}
+  <div id="content-related-companies" class="tab-content hidden">
+    <div class="overflow-hidden rounded-lg border border-gray-200">
+      <table class="min-w-full">
+        <thead class="bg-gray-50">
+          <tr class="border-b border-gray-200">
+            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Name" %}</th>
+            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Type" %}</th>
+            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "City" %}</th>
+            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Core Business" %}</th>
+            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Contact" %}</th>
+            <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Actions" %}</th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+          {% for related_company in related_companies %}
+          <tr class="hover:bg-gray-50 transition-colors">
+            <td class="px-4 py-4 whitespace-nowrap">
+              <div class="flex items-center">
+                {% if related_company.active %}
+                  <svg class="h-4 w-4 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                  </svg>
+                {% else %}
+                  <svg class="h-4 w-4 text-red-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                  </svg>
+                {% endif %}
+                <div class="text-sm font-medium text-gray-900">{{ related_company.name }}</div>
+              </div>
+            </td>
+            <td class="px-4 py-4 whitespace-nowrap">
+              <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
+                {{ related_company.get_company_type_display }}
+              </span>
+            </td>
+            <td class="px-4 py-4 whitespace-nowrap">
+              <div class="text-sm text-gray-900">{{ related_company.address.first.city.name|default:"-" }}</div>
+            </td>
+            <td class="px-4 py-4 whitespace-nowrap">
+              <div class="text-sm text-gray-900">{{ related_company.core_business.name|default:"-" }}</div>
+            </td>
+            <td class="px-4 py-4 whitespace-nowrap">
+              <div class="text-sm text-gray-900">
+                {% if related_company.email %}
+                  <a href="mailto:{{ related_company.email }}" class="text-blue-600 hover:text-blue-800">{{ related_company.email }}</a>
+                {% elif related_company.telephone %}
+                  <a href="tel:{{ related_company.telephone }}" class="text-blue-600 hover:text-blue-800">{{ related_company.telephone }}</a>
+                {% else %}
+                  -
+                {% endif %}
+              </div>
+            </td>
+            <td class="px-4 py-4 whitespace-nowrap text-right text-sm font-medium">
+              <div class="flex items-center justify-end space-x-2">
+                <a href="{% url 'customer:customer_detail' related_company.id %}" class="inline-flex items-center px-2 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded text-xs font-semibold transition" title="{% trans 'View' %}">
+                  <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path d="M1.5 12s4-7 10.5-7 10.5 7 10.5 7-4 7-10.5 7S1.5 12 1.5 12z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <circle cx="12" cy="12" r="3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </a>
+                {% if user|can_edit_customer:related_company %}
+                <a href="{% url 'customer:customer_update' related_company.id %}" class="inline-flex items-center px-2 py-1.5 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded text-xs font-semibold transition" title="{% trans 'Edit' %}">
+                  <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                  </svg>
+                </a>
+                {% endif %}
+              </div>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="6" class="px-4 py-8 text-center text-gray-500">
+              {% trans "No related companies found." %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    
+    <!-- Pagination for Related Companies -->
+    {% if related_companies_is_paginated %}
+    <div class="mt-4 flex items-center justify-between">
+        <div class="text-sm text-gray-700">
+            <span class="font-medium">{{ related_companies_page_obj.paginator.count }}</span> adet şirketten
+            <span class="font-medium">{{ related_companies_page_obj.start_index }}</span> ile
+            <span class="font-medium">{{ related_companies_page_obj.end_index }}</span> arası gösteriliyor.
+        </div>
+        <div class="flex space-x-2">
+            {% if related_companies_page_obj.has_previous %}
+                <a href="?related_page=1{% if request.GET.page %}&page={{ request.GET.page }}{% endif %}" 
+                   class="px-3 py-1 border rounded text-sm font-medium hover:bg-gray-50">
+                    &laquo; İlk
+                </a>
+                <a href="?related_page={{ related_companies_page_obj.previous_page_number }}{% if request.GET.page %}&page={{ request.GET.page }}{% endif %}" 
+                   class="px-3 py-1 border rounded text-sm font-medium hover:bg-gray-50">
+                    Önceki
+                </a>
+            {% endif %}
+
+            {% for num in related_companies_page_obj.paginator.page_range %}
+                {% if related_companies_page_obj.number == num %}
+                    <span class="px-3 py-1 border border-blue-500 bg-blue-500 text-white rounded text-sm font-medium">
+                        {{ num }}
+                    </span>
+                {% elif num > related_companies_page_obj.number|add:'-3' and num < related_companies_page_obj.number|add:'3' %}
+                    <a href="?related_page={{ num }}{% if request.GET.page %}&page={{ request.GET.page }}{% endif %}" 
+                       class="px-3 py-1 border rounded text-sm font-medium hover:bg-gray-50">
+                        {{ num }}
+                    </a>
+                {% endif %}
+            {% endfor %}
+
+            {% if related_companies_page_obj.has_next %}
+                <a href="?related_page={{ related_companies_page_obj.next_page_number }}{% if request.GET.page %}&page={{ request.GET.page }}{% endif %}" 
+                   class="px-3 py-1 border rounded text-sm font-medium hover:bg-gray-50">
+                    Sonraki
+                </a>
+                <a href="?related_page={{ related_companies_page_obj.paginator.num_pages }}{% if request.GET.page %}&page={{ request.GET.page }}{% endif %}" 
+                   class="px-3 py-1 border rounded text-sm font-medium hover:bg-gray-50">
+                    Son &raquo;
+                </a>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- Summary -->
+    <div class="mt-4 text-sm text-gray-500 text-center">
+      {% blocktrans count counter=related_companies_page_obj.paginator.count %}{{ counter }} related company found.{% plural %}{{ counter }} related companies found.{% endblocktrans %}
+    </div>
+  </div>
+  {% endif %}
 </div>
 
 <script>

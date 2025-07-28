@@ -2,14 +2,13 @@ from django.db import models
 from django.contrib.auth import get_user_model
 from django.utils.translation import gettext_lazy as _
 from django.core.exceptions import ValidationError
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 from decimal import Decimal
 from django.utils import timezone
 import os
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 from django.conf import settings
-import logging
 from io import BytesIO
 
 # PDF generation import with fallback
@@ -71,10 +70,10 @@ class Installation(models.Model):
         verbose_name=_("Installer User"),
         help_text=_("User who performed the installation")
     )
-    setup_date = models.DateTimeField(
-        default=timezone.now,
+    setup_date = models.DateField(
+        default=date.today,
         verbose_name=_("Setup Date"),
-        help_text=_("Date and time when the installation was completed")
+        help_text=_("Date when the installation was completed")
     )
     inventory_item = models.ForeignKey(
         'item_master.InventoryItem',
@@ -124,7 +123,8 @@ class Installation(models.Model):
         ordering = ['-setup_date']
 
     def __str__(self):
-        return f"{self.inventory_item} - {self.customer.name} ({self.setup_date.strftime('%d.%m.%Y')})"
+        date_str = self.setup_date.strftime('%d.%m.%Y') if self.setup_date else 'N/A'
+        return f"{self.inventory_item} - {self.customer.name} ({date_str})"
 
     def send_installation_notification(self):
         language = 'tr' if self.customer and self.customer.company_type == 'enduser' and self.customer.name.endswith('A.Ş.') else 'en'
@@ -214,7 +214,7 @@ class Installation(models.Model):
             
             email.send()
         except Exception as e:
-            logging.error(f"Kurulum bildirimi gönderilemedi: {e}")
+            print(f"Kurulum bildirimi gönderilemedi: {e}")
 
     def save(self, *args, **kwargs):
         """Mark inventory item as in use when installation is saved"""
@@ -356,7 +356,7 @@ class InstallationImage(models.Model):
         default='during',
         verbose_name=_("Image Type")
     )
-    captured_at = models.DateTimeField(
+    captured_at = models.DateField(
         auto_now_add=True,
         verbose_name=_("Captured At"),
         help_text=_("When the photo was taken")
@@ -514,7 +514,7 @@ class InstallationDocument(models.Model):
         default='report',
         verbose_name=_("Document Type")
     )
-    uploaded_at = models.DateTimeField(
+    uploaded_at = models.DateField(
         auto_now_add=True,
         verbose_name=_("Uploaded At")
     )
@@ -647,7 +647,7 @@ class WarrantyFollowUp(models.Model):
         verbose_name=_("Warranty Value"),
         help_text=_("Years for time-term warranty, Hours for working hours warranty")
     )
-    end_of_warranty_date = models.DateTimeField(
+    end_of_warranty_date = models.DateField(
         verbose_name=_("End of Warranty Date"),
         help_text=_("Calculated warranty end date")
     )
@@ -666,7 +666,8 @@ class WarrantyFollowUp(models.Model):
         unique_together = ['installation', 'warranty_type', 'warranty_value']
 
     def __str__(self):
-        return f"{self.installation} - {self.get_warranty_type_display()} ({self.end_of_warranty_date.strftime('%d.%m.%Y')})"
+        date_str = self.end_of_warranty_date.strftime('%d.%m.%Y') if self.end_of_warranty_date else 'N/A'
+        return f"{self.installation} - {self.get_warranty_type_display()} ({date_str})"
 
     def save(self, *args, **kwargs):
         """Calculate warranty end date before saving"""
@@ -683,7 +684,7 @@ class WarrantyFollowUp(models.Model):
         if self.warranty_type == 'time_term':
             # Time-based warranty: setup_date + years
             years = int(self.warranty_value)
-            end_date = setup_date + timedelta(days=years * 365)
+            end_date = setup_date.date() + timedelta(days=years * 365) if hasattr(setup_date, 'date') else setup_date + timedelta(days=years * 365)
             self.calculation_notes = f"Time-term warranty: {years} year(s) from setup date"
             
         elif self.warranty_type == 'working_hours':
@@ -699,7 +700,7 @@ class WarrantyFollowUp(models.Model):
                     weeks_needed = warranty_hours / weekly_hours
                     days_needed = weeks_needed * 7
                     
-                    end_date = setup_date + timedelta(days=days_needed)
+                    end_date = setup_date.date() + timedelta(days=days_needed) if hasattr(setup_date, 'date') else setup_date + timedelta(days=days_needed)
                     
                     self.calculation_notes = (
                         f"Working hours warranty: {warranty_hours} hours, "
@@ -711,7 +712,7 @@ class WarrantyFollowUp(models.Model):
                     # Assume 8 hours/day, 5 days/week = 40 hours/week
                     weeks_needed = warranty_hours / 40
                     days_needed = weeks_needed * 7
-                    end_date = setup_date + timedelta(days=days_needed)
+                    end_date = setup_date.date() + timedelta(days=days_needed) if hasattr(setup_date, 'date') else setup_date + timedelta(days=days_needed)
                     
                     self.calculation_notes = (
                         f"Working hours warranty: {warranty_hours} hours, "
@@ -724,7 +725,7 @@ class WarrantyFollowUp(models.Model):
                 # Fallback to default calculation
                 weeks_needed = warranty_hours / 40  # 40 hours per week default
                 days_needed = weeks_needed * 7
-                end_date = setup_date + timedelta(days=days_needed)
+                end_date = setup_date.date() + timedelta(days=days_needed) if hasattr(setup_date, 'date') else setup_date + timedelta(days=days_needed)
                 
                 self.calculation_notes = (
                     f"Working hours warranty: {warranty_hours} hours, "
@@ -734,7 +735,7 @@ class WarrantyFollowUp(models.Model):
         
         else:
             # Default fallback
-            end_date = setup_date + timedelta(days=365)
+            end_date = setup_date.date() + timedelta(days=365) if hasattr(setup_date, 'date') else setup_date + timedelta(days=365)
             self.calculation_notes = "Default 1 year warranty applied"
         
         return end_date
@@ -742,13 +743,13 @@ class WarrantyFollowUp(models.Model):
     @property
     def is_active(self):
         """Check if warranty is still active"""
-        return datetime.now() <= self.end_of_warranty_date.replace(tzinfo=None)
+        return self.end_of_warranty_date and datetime.now().date() <= self.end_of_warranty_date
 
     @property
     def days_remaining(self):
         """Get remaining warranty days"""
-        if self.is_active:
-            delta = self.end_of_warranty_date.replace(tzinfo=None) - datetime.now()
+        if self.is_active and self.end_of_warranty_date:
+            delta = self.end_of_warranty_date - datetime.now().date()
             return delta.days
         return 0
 
@@ -859,7 +860,7 @@ class ServiceFollowUp(models.Model):
         verbose_name=_("Service Value"),
         help_text=_("Months for time-term service, Hours for working hours service")
     )
-    next_service_date = models.DateTimeField(
+    next_service_date = models.DateField(
         verbose_name=_("Next Service Date"),
         help_text=_("Calculated next service date")
     )
@@ -868,7 +869,7 @@ class ServiceFollowUp(models.Model):
         verbose_name=_("Service Completed"),
         help_text=_("Mark as completed when service is done")
     )
-    completed_date = models.DateTimeField(
+    completed_date = models.DateField(
         null=True,
         blank=True,
         verbose_name=_("Completion Date")
@@ -893,7 +894,8 @@ class ServiceFollowUp(models.Model):
 
     def __str__(self):
         status = "✓" if self.is_completed else "⏳"
-        return f"{status} {self.installation} - {self.get_service_type_display()} ({self.next_service_date.strftime('%d.%m.%Y')})"
+        date_str = self.next_service_date.strftime('%d.%m.%Y') if self.next_service_date else 'N/A'
+        return f"{status} {self.installation} - {self.get_service_type_display()} ({date_str})"
 
     @property
     def service_status_priority(self):
@@ -907,8 +909,13 @@ class ServiceFollowUp(models.Model):
         if self.is_completed:
             return 4  # Done
         
+        # If no service date set, treat as pending
+        if not self.next_service_date:
+            return 3  # Pending
+        
         today = timezone.now().date()
-        service_date = self.next_service_date.date()
+        # next_service_date is already a DateField, no need to call .date()
+        service_date = self.next_service_date
         days_until_service = (service_date - today).days
         
         if days_until_service < 0:
@@ -947,11 +954,23 @@ class ServiceFollowUp(models.Model):
         # Use provided date or default to setup date
         base_date = from_date if from_date else self.installation.setup_date
         
+        # If no base date available, use today
+        if not base_date:
+            base_date = date.today()
+            
+        # Ensure we have a date object and convert datetime to date if needed
+        if hasattr(base_date, 'date'):
+            # It's a datetime object, extract date
+            base_date = base_date.date()
+        
+        # Now format the date string (base_date should definitely be a date object here)
+        base_date_str = base_date.strftime('%d.%m.%Y')
+        
         if self.service_type == 'time_term':
             # Time-based service: base_date + months
             months = int(self.service_value)
             end_date = base_date + timedelta(days=months * 30)  # Approximate month calculation
-            self.calculation_notes = f"Time-term service: {months} month(s) from {base_date.strftime('%d.%m.%Y')}"
+            self.calculation_notes = f"Time-term service: {months} month(s) from {base_date_str}"
             
         elif self.service_type == 'working_hours':
             # Working hours-based service
@@ -967,7 +986,7 @@ class ServiceFollowUp(models.Model):
                     end_date = base_date + timedelta(days=days_needed)
                     
                     self.calculation_notes = (
-                        f"Working hours service: {service_hours} hours from {base_date.strftime('%d.%m.%Y')}, "
+                        f"Working hours service: {service_hours} hours from {base_date_str}, "
                         f"Weekly working hours: {weekly_hours}, "
                         f"Calculated duration: {weeks_needed:.1f} weeks ({days_needed:.0f} days)"
                     )
@@ -978,7 +997,7 @@ class ServiceFollowUp(models.Model):
                     end_date = base_date + timedelta(days=days_needed)
                     
                     self.calculation_notes = (
-                        f"Working hours service: {service_hours} hours from {base_date.strftime('%d.%m.%Y')}, "
+                        f"Working hours service: {service_hours} hours from {base_date_str}, "
                         f"Default 40 hours/week used, "
                         f"Calculated duration: {weeks_needed:.1f} weeks ({days_needed:.0f} days)"
                     )
@@ -990,7 +1009,7 @@ class ServiceFollowUp(models.Model):
                 end_date = base_date + timedelta(days=days_needed)
                 
                 self.calculation_notes = (
-                    f"Working hours service: {service_hours} hours from {base_date.strftime('%d.%m.%Y')}, "
+                    f"Working hours service: {service_hours} hours from {base_date_str}, "
                     f"Default 40 hours/week used (no working hours configured), "
                     f"Calculated duration: {weeks_needed:.1f} weeks ({days_needed:.0f} days)"
                 )
@@ -998,27 +1017,27 @@ class ServiceFollowUp(models.Model):
         else:
             # Default fallback
             end_date = base_date + timedelta(days=90)  # 3 months default
-            self.calculation_notes = f"Default 3 month service interval applied from {base_date.strftime('%d.%m.%Y')}"
+            self.calculation_notes = f"Default 3 month service interval applied from {base_date_str}"
         
         return end_date
 
     @property
     def is_due(self):
         """Check if service is due"""
-        return datetime.now() >= self.next_service_date.replace(tzinfo=None) and not self.is_completed
+        return self.next_service_date and datetime.now().date() >= self.next_service_date and not self.is_completed
 
     @property
     def days_until_due(self):
         """Get days until service is due"""
-        if not self.is_completed:
-            delta = self.next_service_date.replace(tzinfo=None) - datetime.now()
+        if not self.is_completed and self.next_service_date:
+            delta = self.next_service_date - datetime.now().date()
             return delta.days
         return None
 
     def mark_completed(self):
         """Mark service as completed"""
         self.is_completed = True
-        self.completed_date = datetime.now()
+        self.completed_date = datetime.now().date()
         self.save()
 
     @classmethod
@@ -1102,7 +1121,7 @@ class MaintenanceRecord(models.Model):
         help_text="Date when maintenance was performed"
     )
     
-    maintenance_date = models.DateTimeField(
+    maintenance_date = models.DateField(
         auto_now_add=True,
         verbose_name="Maintenance Date"
     )
@@ -1118,8 +1137,9 @@ class MaintenanceRecord(models.Model):
     def __str__(self):
         maintenance_type_display = self.get_maintenance_type_display() if self.maintenance_type else "Unknown"
         technician_name = f"{self.technician.first_name} {self.technician.last_name}".strip() if self.technician else "Unknown"
+        date_str = self.maintenance_date.strftime('%d.%m.%Y') if self.maintenance_date else 'N/A'
         
-        return f"{maintenance_type_display} - {technician_name} ({self.maintenance_date.strftime('%d.%m.%Y')})"
+        return f"{maintenance_type_display} - {technician_name} ({date_str})"
 
     def clean(self):
         from django.core.exceptions import ValidationError
@@ -1153,7 +1173,7 @@ class MaintenanceRecord(models.Model):
         # Mark current service as completed
         current_service = self.service_followup
         current_service.is_completed = True
-        current_service.completed_date = timezone.now()
+        current_service.completed_date = timezone.now().date()
         current_service.completion_notes = f"Maintenance completed - {self.maintenance_type}"
         current_service.save()
         
@@ -1168,17 +1188,19 @@ class MaintenanceRecord(models.Model):
                 else:
                     service_date = self.service_date
                 
+                if not service_date:
+                    raise ValueError("No service date available")
+                
                 months = int(current_service.service_value)
-                next_service_date = timezone.make_aware(
-                    datetime.combine(service_date + timedelta(days=months * 30), datetime.min.time())
-                )
+                next_service_date = service_date + timedelta(days=months * 30)
                 
-                calculation_notes = f"Time-term service: {months} month(s) from last maintenance date ({service_date.strftime('%d.%m.%Y')})"
+                service_date_str = service_date.strftime('%d.%m.%Y') if service_date else 'N/A'
+                calculation_notes = f"Time-term service: {months} month(s) from last maintenance date ({service_date_str})"
                 
-            except Exception as e:
+            except Exception:
                 # Fallback to current date + months
                 months = int(current_service.service_value)
-                next_service_date = timezone.now() + timedelta(days=months * 30)
+                next_service_date = timezone.now().date() + timedelta(days=months * 30)
                 calculation_notes = f"Time-term service: {months} month(s) from current date (fallback)"
                 
         elif current_service.service_type == 'working_hours':
@@ -1198,25 +1220,27 @@ class MaintenanceRecord(models.Model):
                         service_date = datetime.strptime(self.service_date, '%Y-%m-%d').date()
                     else:
                         service_date = self.service_date
-                        
-                    next_service_date = timezone.make_aware(
-                        datetime.combine(service_date + timedelta(days=days_needed), datetime.min.time())
-                    )
                     
+                    if not service_date:
+                        raise ValueError("No service date available")
+                        
+                    next_service_date = service_date + timedelta(days=days_needed)
+                    
+                    service_date_str = service_date.strftime('%d.%m.%Y') if service_date else 'N/A'
                     calculation_notes = (
                         f"Working hours service: {service_hours} hours, "
                         f"Weekly working hours: {weekly_hours}, "
-                        f"From last maintenance: {service_date.strftime('%d.%m.%Y')}"
+                        f"From last maintenance: {service_date_str}"
                     )
                 else:
                     # Fallback: 6 months
-                    next_service_date = timezone.now() + timedelta(days=180)
-                    calculation_notes = f"Working hours service fallback: 6 months (no working hours data)"
+                    next_service_date = timezone.now().date() + timedelta(days=180)
+                    calculation_notes = "Working hours service fallback: 6 months (no working hours data)"
                     
-            except Exception as e:
+            except Exception:
                 # Fallback: 6 months from current date
-                next_service_date = timezone.now() + timedelta(days=180)
-                calculation_notes = f"Working hours service fallback: 6 months (calculation error: {e})"
+                next_service_date = timezone.now().date() + timedelta(days=180)
+                calculation_notes = "Working hours service fallback: 6 months (calculation error)"
         
         # Create new service follow-up
         ServiceFollowUp.objects.create(
@@ -1233,7 +1257,6 @@ class MaintenanceRecord(models.Model):
             from django.core.mail import EmailMultiAlternatives
             from django.template.loader import render_to_string
             from django.conf import settings
-            import logging
             
             # Mail content
             context = {
@@ -1302,7 +1325,8 @@ class MaintenanceRecord(models.Model):
                 
                 # PDF attachment - only if PDF was generated successfully
                 if pdf_buffer:
-                    filename = f"bakim_raporu_{self.service_followup.installation.inventory_item.serial_no}_{self.service_date.strftime('%d%m%Y')}.pdf"
+                    date_str = self.service_date.strftime('%d%m%Y') if self.service_date else 'unknown'
+                    filename = f"bakim_raporu_{self.service_followup.installation.inventory_item.serial_no}_{date_str}.pdf"
                     email.attach(filename, pdf_buffer.read(), 'application/pdf')
                 
                 email.send()

@@ -4,9 +4,10 @@ from django.core.files import File
 from item_master.models import (
     Category, Brand, StockType, Status, ItemMaster, ItemImage,
     WarrantyType, WarrantyValue, ServiceForm, ItemSparePart,
-    InventoryItem
+    InventoryItem, ServicePeriodType, ServicePeriodValue, MaintenanceSchedule
 )
 import os
+import random
 from django.conf import settings
 from django.contrib.auth import get_user_model
 
@@ -46,6 +47,7 @@ class Command(BaseCommand):
             spare_parts = self.get_spare_parts()
             warranties = self.get_warranties()
             service_forms = self.get_service_forms()
+            service_periods = self.get_service_periods()
             admin_user = self.get_admin_user()
         except Exception as e:
             self.stdout.write(
@@ -144,7 +146,7 @@ class Command(BaseCommand):
                         'brand_name': brand,
                         'stock_type': stock_type,
                         'status': status,
-                        'slug': slugify(item_data['name']),
+                        'slug': slugify(f"{item_data['code']}-{item_data['name']}"),
                         'description': f'{item_data["name"]} - {item_data["category"]}'
                     }
                 )
@@ -161,7 +163,7 @@ class Command(BaseCommand):
                     item_master.brand_name = brand
                     item_master.stock_type = stock_type
                     item_master.status = status
-                    item_master.slug = slugify(item_data['name'])
+                    item_master.slug = slugify(f"{item_data['code']}-{item_data['name']}")
                     item_master.description = f'{item_data["name"]} - {item_data["category"]}'
                     item_master.save()
                     updated_items += 1
@@ -170,7 +172,7 @@ class Command(BaseCommand):
                     )
 
                 # Add relationships
-                self.add_relationships(item_master, warranties, spare_parts, service_forms)
+                self.add_relationships(item_master, warranties, spare_parts, service_forms, service_periods)
                 
                 # Create inventory item with specified quantity
                 self.create_inventory_item(item_master, item_data['stock_qty'], admin_user)
@@ -229,29 +231,10 @@ class Command(BaseCommand):
             self.stdout.write(self.style.SUCCESS('Created status: Kullanımda'))
 
         # Create warranty types and values if they don't exist
-        warranty_types_data = [
-            {"type": "Standart Garanti", "value": 12.0},
-            {"type": "Uzatılmış Garanti", "value": 24.0}
-        ]
+        self.create_warranty_values()
         
-        for warranty_data in warranty_types_data:
-            warranty_type, created = WarrantyType.objects.get_or_create(
-                type=warranty_data["type"],
-                defaults={'type': warranty_data["type"]}
-            )
-            if created:
-                self.stdout.write(self.style.SUCCESS(f'Created warranty type: {warranty_data["type"]}'))
-            
-            warranty_value, created = WarrantyValue.objects.get_or_create(
-                warranty_type=warranty_type,
-                value=warranty_data["value"],
-                defaults={
-                    'warranty_type': warranty_type,
-                    'value': warranty_data["value"]
-                }
-            )
-            if created:
-                self.stdout.write(self.style.SUCCESS(f'Created warranty value: {warranty_data["type"]} - {warranty_data["value"]} months'))
+        # Create service period values if they don't exist  
+        self.create_service_period_values()
 
         # Create service forms if they don't exist
         service_forms_data = [
@@ -271,6 +254,88 @@ class Command(BaseCommand):
 
         self.stdout.write('\n--- Dependencies created successfully ---\n')
 
+    def create_warranty_values(self):
+        """Create warranty values with specific integer values"""
+        # Ay bazlı garanti values: 6, 12, 18, 24
+        try:
+            ay_warranty_type = WarrantyType.objects.get(type="Ay Bazlı Garanti")
+            ay_values = [6, 12, 18, 24]
+            
+            for value in ay_values:
+                warranty_value, created = WarrantyValue.objects.get_or_create(
+                    warranty_type=ay_warranty_type,
+                    value=value,
+                    defaults={
+                        'warranty_type': ay_warranty_type,
+                        'value': value
+                    }
+                )
+                if created:
+                    self.stdout.write(self.style.SUCCESS(f'Created ay warranty value: {value} months'))
+        except WarrantyType.DoesNotExist:
+            self.stdout.write(self.style.WARNING('Ay Bazlı Garanti type not found'))
+
+        # Saat bazlı garanti values: 1000, 2000, 3000, 4000  
+        try:
+            saat_warranty_type = WarrantyType.objects.get(type="Çalışma Saati Bazlı Garanti")
+            saat_values = [1000, 2000, 3000, 4000]
+            
+            for value in saat_values:
+                warranty_value, created = WarrantyValue.objects.get_or_create(
+                    warranty_type=saat_warranty_type,
+                    value=value,
+                    defaults={
+                        'warranty_type': saat_warranty_type,
+                        'value': value
+                    }
+                )
+                if created:
+                    self.stdout.write(self.style.SUCCESS(f'Created saat warranty value: {value} hours'))
+        except WarrantyType.DoesNotExist:
+            self.stdout.write(self.style.WARNING('Çalışma Saati Bazlı Garanti type not found'))
+
+    def create_service_period_values(self):
+        """Create service period values with specific integer values"""
+        # Ay bazlı servis values: 6, 12, 18, 24
+        try:
+            ay_service_type = ServicePeriodType.objects.get(type="Periyodik Bakım - Ay Bazlı")
+            ay_values = [6, 12, 18, 24]
+            
+            for value in ay_values:
+                service_value, created = ServicePeriodValue.objects.get_or_create(
+                    service_period_type=ay_service_type,
+                    value=value,
+                    defaults={
+                        'service_period_type': ay_service_type,
+                        'value': value,
+                        'description': f'{value} aylık periyodik bakım'
+                    }
+                )
+                if created:
+                    self.stdout.write(self.style.SUCCESS(f'Created ay service value: {value} months'))
+        except ServicePeriodType.DoesNotExist:
+            self.stdout.write(self.style.WARNING('Periyodik Bakım - Ay Bazlı type not found'))
+
+        # Saat bazlı servis values: 1000, 2000, 3000, 4000
+        try:
+            saat_service_type = ServicePeriodType.objects.get(type="Çalışma Bazlı Periyodik Bakım")
+            saat_values = [1000, 2000, 3000, 4000]
+            
+            for value in saat_values:
+                service_value, created = ServicePeriodValue.objects.get_or_create(
+                    service_period_type=saat_service_type,
+                    value=value,
+                    defaults={
+                        'service_period_type': saat_service_type,
+                        'value': value,
+                        'description': f'{value} saatlik periyodik bakım'
+                    }
+                )
+                if created:
+                    self.stdout.write(self.style.SUCCESS(f'Created saat service value: {value} hours'))
+        except ServicePeriodType.DoesNotExist:
+            self.stdout.write(self.style.WARNING('Çalışma Bazlı Periyodik Bakım type not found'))
+
     def get_spare_parts(self):
         """Get all spare parts (Yedek Parça stock type items)"""
         try:
@@ -281,12 +346,89 @@ class Command(BaseCommand):
             return ItemMaster.objects.none()
 
     def get_warranties(self):
-        """Get all warranty values"""
-        return WarrantyValue.objects.all()
+        """Get selected warranty values - 1 from each type"""
+        warranties = []
+        
+        # Get ay bazlı garanti (6-12-18-24 months from available ones)
+        try:
+            ay_warranty_type = WarrantyType.objects.get(type="Ay Bazlı Garanti")
+            ay_values = [6, 12, 18, 24]
+            available_ay_warranties = WarrantyValue.objects.filter(
+                warranty_type=ay_warranty_type,
+                value__in=ay_values
+            )
+            if available_ay_warranties.exists():
+                selected_ay_warranty = random.choice(available_ay_warranties)
+                warranties.append(selected_ay_warranty)
+                self.stdout.write(self.style.SUCCESS(f'Selected ay warranty: {selected_ay_warranty.value} months'))
+        except WarrantyType.DoesNotExist:
+            pass
+            
+        # Get saat bazlı garanti (1000-2000-3000-4000 hours from available ones)
+        try:
+            saat_warranty_type = WarrantyType.objects.get(type="Çalışma Saati Bazlı Garanti")
+            saat_values = [1000, 2000, 3000, 4000]
+            available_saat_warranties = WarrantyValue.objects.filter(
+                warranty_type=saat_warranty_type,
+                value__in=saat_values
+            )
+            if available_saat_warranties.exists():
+                selected_saat_warranty = random.choice(available_saat_warranties)
+                warranties.append(selected_saat_warranty)
+                self.stdout.write(self.style.SUCCESS(f'Selected saat warranty: {selected_saat_warranty.value} hours'))
+        except WarrantyType.DoesNotExist:
+            pass
+            
+        return warranties
 
     def get_service_forms(self):
-        """Get all service forms"""
-        return ServiceForm.objects.all()
+        """Get 5 random service forms from database"""
+        all_forms = list(ServiceForm.objects.all())
+        if len(all_forms) >= 5:
+            selected_forms = random.sample(all_forms, 5)
+            self.stdout.write(self.style.SUCCESS(f'Selected {len(selected_forms)} random service forms'))
+            for form in selected_forms:
+                self.stdout.write(f'  - {form.name}')
+            return selected_forms
+        else:
+            self.stdout.write(self.style.WARNING(f'Only {len(all_forms)} service forms available, using all'))
+            return all_forms
+
+    def get_service_periods(self):
+        """Get selected service period values - 1 from each type"""
+        service_periods = []
+        
+        # Get ay bazlı servis (6-12-18-24 months from available ones)
+        try:
+            ay_service_type = ServicePeriodType.objects.get(type="Periyodik Bakım - Ay Bazlı")
+            ay_values = [6, 12, 18, 24]
+            available_ay_services = ServicePeriodValue.objects.filter(
+                service_period_type=ay_service_type,
+                value__in=ay_values
+            )
+            if available_ay_services.exists():
+                selected_ay_service = random.choice(available_ay_services)
+                service_periods.append(selected_ay_service)
+                self.stdout.write(self.style.SUCCESS(f'Selected ay service: {selected_ay_service.value} months'))
+        except ServicePeriodType.DoesNotExist:
+            pass
+            
+        # Get saat bazlı servis (1000-2000-3000-4000 hours from available ones)
+        try:
+            saat_service_type = ServicePeriodType.objects.get(type="Çalışma Bazlı Periyodik Bakım")
+            saat_values = [1000, 2000, 3000, 4000]
+            available_saat_services = ServicePeriodValue.objects.filter(
+                service_period_type=saat_service_type,
+                value__in=saat_values
+            )
+            if available_saat_services.exists():
+                selected_saat_service = random.choice(available_saat_services)
+                service_periods.append(selected_saat_service)
+                self.stdout.write(self.style.SUCCESS(f'Selected saat service: {selected_saat_service.value} hours'))
+        except ServicePeriodType.DoesNotExist:
+            pass
+            
+        return service_periods
 
     def get_admin_user(self):
         """Get or create admin user for inventory items"""
@@ -316,16 +458,29 @@ class Command(BaseCommand):
             self.stdout.write(self.style.ERROR(f'Error getting admin user: {str(e)}'))
             return None
 
-    def add_relationships(self, item_master, warranties, spare_parts, service_forms):
-        """Add warranties, spare parts, and service forms to item master"""
+    def add_relationships(self, item_master, warranties, spare_parts, service_forms, service_periods):
+        """Add warranties, spare parts, service forms and service periods to item master"""
         
-        # Add all warranties
+        # Add selected warranties
         for warranty in warranties:
             item_master.warranties.add(warranty)
         
-        # Add all service forms
+        # Add selected service forms
         for service_form in service_forms:
             item_master.service_forms.add(service_form)
+        
+        # Add selected service periods through MaintenanceSchedule model
+        for service_period in service_periods:
+            maintenance_schedule, created = MaintenanceSchedule.objects.get_or_create(
+                item_master=item_master,
+                service_period_value=service_period,
+                defaults={
+                    'is_critical': True,
+                    'maintenance_description': f'Periyodik bakım - {service_period.value} {service_period.service_period_type.unit}'
+                }
+            )
+            if created:
+                self.stdout.write(self.style.SUCCESS(f'Added maintenance schedule: {service_period}'))
         
         # Add all spare parts through ItemSparePart model
         for spare_part in spare_parts:

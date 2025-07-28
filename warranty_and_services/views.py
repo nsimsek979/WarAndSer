@@ -387,7 +387,7 @@ def mobile_main(request):
     # Bugün yapılan kurulumlar
     todays_installations = Installation.objects.filter(
         company_filter,
-        setup_date__date=today
+        setup_date=today
     ).count()
     
     # Bugün yapılan bakım/servis işleri (buraya service modeli geldiğinde eklenecek)
@@ -398,7 +398,7 @@ def mobile_main(request):
     # Bu ay yapılan işler
     monthly_installations = Installation.objects.filter(
         company_filter,
-        setup_date__date__gte=start_of_month
+        setup_date__gte=start_of_month
     ).count()
     
     monthly_services = 0  # Service.objects.filter(...).count()
@@ -454,7 +454,7 @@ def mobile_maintenance_form(request):
                 'item_shortcode': installation.inventory_item.name.shortcode if installation.inventory_item.name else 'N/A',
                 'serial_no': installation.inventory_item.serial_no,
                 'customer_name': installation.customer.name,
-                'installation_date': installation.setup_date.strftime('%d.%m.%Y'),
+                'installation_date': installation.setup_date.strftime('%d.%m.%Y') if installation.setup_date else 'Tarih yok',
                 'installation_location': installation.location_address or 'Konum belirtilmemiş',
                 'last_maintenance_date': last_maintenance_date
             },
@@ -1047,10 +1047,13 @@ def api_installation_create(request):
         
         # Parse setup date
         try:
-            setup_date = datetime.fromisoformat(data['setup_date'].replace('Z', '+00:00'))
-            # Make timezone aware if it's naive
-            if setup_date.tzinfo is None:
-                setup_date = timezone.make_aware(setup_date)
+            from datetime import datetime
+            # Parse as date string (YYYY-MM-DD format)
+            setup_date_str = data['setup_date']
+            if 'T' in setup_date_str:
+                # Handle datetime-local format from old forms
+                setup_date_str = setup_date_str.split('T')[0]
+            setup_date = datetime.strptime(setup_date_str, '%Y-%m-%d').date()
         except ValueError:
             return JsonResponse({
                 'success': False,
@@ -1058,8 +1061,8 @@ def api_installation_create(request):
             })
         
         # Check if setup date is in the future
-        current_time = timezone.now()
-        if setup_date > current_time:
+        current_date = timezone.now().date()
+        if setup_date > current_date:
             return JsonResponse({
                 'success': False,
                 'message': 'Kurulum tarihi bugünden ileri olamaz'
@@ -1202,7 +1205,7 @@ def api_installation_create(request):
                 'id': installation.id,
                 'customer_name': installation.customer.name,
                 'item_name': installation.inventory_item.name.name if installation.inventory_item.name else 'N/A',
-                'setup_date': installation.setup_date.strftime('%d.%m.%Y %H:%M'),
+                'setup_date': installation.setup_date.strftime('%d.%m.%Y') if installation.setup_date else 'Tarih yok',
                 'photos': uploaded_photos,
                 'files': uploaded_files
             },
@@ -1281,7 +1284,7 @@ def api_installation_search_by_qr(request):
                     'customer_name': installation.customer.name,
                     'item_name': installation.inventory_item.name.name if installation.inventory_item.name else 'N/A',
                     'serial_number': installation.inventory_item.serial_no or 'N/A',
-                    'setup_date': installation.setup_date.strftime('%d.%m.%Y'),
+                    'setup_date': installation.setup_date.strftime('%d.%m.%Y') if installation.setup_date else 'Tarih yok',
                     'location_address': installation.location_address or '',
                 }
             })
@@ -1358,7 +1361,7 @@ def api_installation_search_by_serial(request):
                     'customer_name': installation.customer.name,
                     'item_name': installation.inventory_item.name.name if installation.inventory_item.name else 'N/A',
                     'serial_number': installation.inventory_item.serial_no or 'N/A',
-                    'setup_date': installation.setup_date.strftime('%d.%m.%Y'),
+                    'setup_date': installation.setup_date.strftime('%d.%m.%Y') if installation.setup_date else 'Tarih yok',
                     'location_address': installation.location_address or '',
                 }
             })
@@ -1587,7 +1590,7 @@ def api_maintenance_search(request):
                     'item_name': item.name.name if item.name else 'N/A',
                     'item_shortcode': item.name.shortcode if item.name else 'N/A',
                     'customer_name': installation.customer.name,
-                    'installation_date': installation.setup_date.strftime('%d.%m.%Y'),
+                    'installation_date': installation.setup_date.strftime('%d.%m.%Y') if installation.setup_date else 'Tarih yok',
                     'installation_location': installation.location_address or 'Konum belirtilmemiş',
                     'has_location': installation.has_location
                 })
@@ -1637,7 +1640,7 @@ def api_maintenance_item_detail(request):
             warranty_info.append({
                 'type': warranty.get_warranty_type_display(),
                 'value': warranty.warranty_value,
-                'end_date': warranty.end_of_warranty_date.strftime('%d.%m.%Y'),
+                'end_date': warranty.end_of_warranty_date.strftime('%d.%m.%Y') if warranty.end_of_warranty_date else 'Tarih yok',
                 'is_active': warranty.is_active,
                 'days_remaining': warranty.days_remaining
             })
@@ -1650,7 +1653,7 @@ def api_maintenance_item_detail(request):
                 'id': service.id,
                 'type': service.get_service_type_display(),
                 'value': service.service_value,
-                'next_date': service.next_service_date.strftime('%d.%m.%Y'),
+                'next_date': service.next_service_date.strftime('%d.%m.%Y') if service.next_service_date else 'Tarih yok',
                 'is_completed': service.is_completed,
                 'is_due': service.is_due,
                 'completion_notes': service.completion_notes
@@ -1670,7 +1673,7 @@ def api_maintenance_item_detail(request):
                 'item_name': installation.inventory_item.name.name if installation.inventory_item.name else 'N/A',
                 'item_shortcode': installation.inventory_item.name.shortcode if installation.inventory_item.name else 'N/A',
                 'serial_no': installation.inventory_item.serial_no,
-                'installation_date': installation.setup_date.strftime('%d.%m.%Y'),
+                'installation_date': installation.setup_date.strftime('%d.%m.%Y') if installation.setup_date else 'Tarih yok',
                 'installation_location': installation.location_address or 'Konum belirtilmemiş',
                 'has_location': installation.has_location,
                 'location_coordinates': {
@@ -1740,7 +1743,7 @@ def api_maintenance_submit(request):
         if not service_followups.exists():
             # Create a default service follow-up if none exists
             from datetime import timedelta
-            next_service_date = timezone.now() + timedelta(days=180)  # 6 months default
+            next_service_date = timezone.now().date() + timedelta(days=180)  # 6 months default
             
             service_followup = ServiceFollowUp.objects.create(
                 installation=installation,
@@ -1756,14 +1759,27 @@ def api_maintenance_submit(request):
         # Import the new models
         from .models import MaintenanceRecord, MaintenancePhoto, MaintenanceDocument
         
-        # Create MaintenanceRecord with the first service followup
-        maintenance_record = MaintenanceRecord.objects.create(
-            service_followup=service_followups[0],
-            maintenance_type=maintenance_type,
-            technician=request.user,
-            breakdown_reason=breakdown_reason,
-            service_date=service_date
-        )
+        # Check if a MaintenanceRecord already exists for the first service followup
+        target_service_followup = service_followups[0]
+        
+        # Try to get existing maintenance record or create a new one
+        try:
+            maintenance_record = MaintenanceRecord.objects.get(service_followup=target_service_followup)
+            # If exists, update it
+            maintenance_record.maintenance_type = maintenance_type
+            maintenance_record.technician = request.user
+            maintenance_record.breakdown_reason = breakdown_reason
+            maintenance_record.service_date = service_date
+            maintenance_record.save()
+        except MaintenanceRecord.DoesNotExist:
+            # Create new MaintenanceRecord
+            maintenance_record = MaintenanceRecord.objects.create(
+                service_followup=target_service_followup,
+                maintenance_type=maintenance_type,
+                technician=request.user,
+                breakdown_reason=breakdown_reason,
+                service_date=service_date
+            )
         
         # Handle multiple photos
         for key, file in request.FILES.items():
@@ -1831,7 +1847,7 @@ def api_maintenance_submit(request):
             for service_followup in service_followups:
                 # Mark current service as completed
                 service_followup.is_completed = True
-                service_followup.completed_date = timezone.now()
+                service_followup.completed_date = timezone.now().date()
                 service_followup.completion_notes = f"Periodic maintenance completed on {service_date_obj.strftime('%d.%m.%Y')}"
                 service_followup.save()
                 
@@ -2031,7 +2047,7 @@ def installation_map_view(request):
             next_service = "Belirtilmemiş"
             services = installation.service_followups.filter(is_completed=False).order_by('next_service_date')
             if services.exists():
-                next_service = services.first().next_service_date.strftime('%d.%m.%Y')
+                next_service = services.first().next_service_date.strftime('%d.%m.%Y') if services.first().next_service_date else 'Tarih yok'
             
             # Determine marker color based on service status
             color = '#10B981'  # Green default

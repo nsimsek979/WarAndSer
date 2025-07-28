@@ -82,6 +82,19 @@ class Company(models.Model):
 	def __str__(self):
 		return self.name
 
+	def save(self, *args, **kwargs):
+		"""
+		Auto-assign related_manager when company is end user and has related_company
+		"""
+		# If company is end user and has related_company, auto-assign related_manager
+		if (self.company_type == 'enduser' and 
+			self.related_company and 
+			self.related_company.related_manager and 
+			not self.related_manager):
+			self.related_manager = self.related_company.related_manager
+		
+		super().save(*args, **kwargs)
+
 	class Meta:
 		ordering = ["name"]
 		permissions = [

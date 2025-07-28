@@ -25,6 +25,21 @@ def api_managers(request):
 	return JsonResponse(data, safe=False)
 
 @login_required(login_url='login')
+def api_company_manager(request, company_id):
+	"""API endpoint to get related manager of a company"""
+	try:
+		company = get_object_or_404(Company, pk=company_id)
+		data = {
+			'related_manager_id': company.related_manager.id if company.related_manager else None,
+			'related_manager_name': f"{company.related_manager.first_name} {company.related_manager.last_name}".strip() if company.related_manager else None
+		}
+		return JsonResponse(data)
+	except Company.DoesNotExist:
+		return JsonResponse({'error': 'Company not found'}, status=404)
+	except Exception as e:
+		return JsonResponse({'error': str(e)}, status=500)
+
+@login_required(login_url='login')
 def customer_detail(request, pk):
 	from django.db.models import Min
 	from django.core.paginator import Paginator
@@ -117,6 +132,12 @@ def customer_detail(request, pk):
 	page_number = request.GET.get('page')
 	page_obj = paginator.get_page(page_number)
 	
+	# Pagination for related companies
+	related_companies = company.company_set.all().select_related('core_business').prefetch_related('address__city')
+	related_companies_paginator = Paginator(related_companies, 10)  # 10 related companies per page
+	related_companies_page_number = request.GET.get('related_page', 1)
+	related_companies_page_obj = related_companies_paginator.get_page(related_companies_page_number)
+	
 	context = {
 		'company': company,
 		'installations': page_obj,
@@ -124,6 +145,9 @@ def customer_detail(request, pk):
 		'warranty_trackings': warranty_trackings,
 		'page_obj': page_obj,
 		'is_paginated': page_obj.has_other_pages(),
+		'related_companies': related_companies_page_obj,
+		'related_companies_page_obj': related_companies_page_obj,
+		'related_companies_is_paginated': related_companies_page_obj.has_other_pages(),
 	}
 	return render(request, 'pages/customer/customer-detail.html', context)
 

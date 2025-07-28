@@ -7,6 +7,7 @@ urlpatterns = [
     path('', views.customer_list, name='customer_list'),
     path('create/', views.customer_create, name='customer_create'),
     path('<int:pk>/update/', views.customer_update, name='customer_update'),
+    path('api/companies/<int:company_id>/manager/', views.api_company_manager, name='api_company_manager'),
     path('api/countries/', views.api_countries, name='api_countries'),
     path('api/managers/', views.api_managers, name='api_managers'),
     path('api/core-businesses/', views.api_core_businesses, name='api_core_businesses'),

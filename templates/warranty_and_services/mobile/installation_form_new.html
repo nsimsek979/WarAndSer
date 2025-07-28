@@ -211,7 +211,7 @@
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">{% trans "Installation Date" %} *</label>
                         <input 
-                            type="datetime-local" 
+                            type="date" 
                             name="setup_date" 
                             class="form-input"
                             max=""
@@ -321,11 +321,11 @@
         document.addEventListener('DOMContentLoaded', function() {
             // Set max date to today
             const now = new Date();
-            now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
-            document.querySelector('input[name="setup_date"]').max = now.toISOString().slice(0, 16);
+            const today = now.toISOString().split('T')[0];
+            document.querySelector('input[name="setup_date"]').max = today;
             
-            // Set default date to current time
-            document.querySelector('input[name="setup_date"]').value = now.toISOString().slice(0, 16);
+            // Set default date to today
+            document.querySelector('input[name="setup_date"]').value = today;
             
             // Başlangıçta yeni müşteri formu gizli olduğu için required alanları devre dışı bırak
             enableNewCustomerRequiredFields(false);

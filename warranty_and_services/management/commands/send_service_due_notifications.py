@@ -52,7 +52,7 @@ class Command(BaseCommand):
         
         # Get installations with service due on target date
         installations = Installation.objects.filter(
-            service_followups__next_service_date__date=target_date,
+            service_followups__next_service_date=target_date,
             service_followups__is_completed=False
         ).distinct().select_related(
             'customer',

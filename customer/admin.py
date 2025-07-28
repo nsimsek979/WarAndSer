@@ -48,6 +48,21 @@ class CompanyAdmin(admin.ModelAdmin):
 		}),
 	)
 
+	class Media:
+		js = ('admin/js/company_related_manager.js',)
+
+	def get_form(self, request, obj=None, **kwargs):
+		form = super().get_form(request, obj, **kwargs)
+		
+		# If it's an end user company with related_company but no related_manager,
+		# try to auto-assign from related_company
+		if obj and obj.company_type == 'enduser' and obj.related_company and not obj.related_manager:
+			if obj.related_company.related_manager:
+				obj.related_manager = obj.related_company.related_manager
+				obj.save()
+		
+		return form
+
 @admin.register(Country)
 class CountryAdmin(admin.ModelAdmin):
     list_display = ("name", "code", "display_flag")

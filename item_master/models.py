@@ -82,9 +82,19 @@ class WarrantyType(models.Model):
 
 class WarrantyValue(models.Model):
     warranty_type = models.ForeignKey(WarrantyType, on_delete=models.CASCADE)
-    value = models.FloatField()
+    value = models.PositiveIntegerField(
+        help_text="Garanti değeri (maksimum 4 haneli pozitif sayı)"
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        constraints = [
+            models.CheckConstraint(
+                check=models.Q(value__lte=9999),
+                name='warranty_value_max_4_digits'
+            )
+        ]
 
     def __str__(self):
         return f"{self.warranty_type}: {self.value}"
@@ -106,7 +116,9 @@ class ServicePeriodType(models.Model):
 class ServicePeriodValue(models.Model):
     """Servis periyodu değerleri"""
     service_period_type = models.ForeignKey(ServicePeriodType, on_delete=models.CASCADE)
-    value = models.FloatField(help_text="Örn: 6 ay, 3000 saat, 10000 km")
+    value = models.PositiveIntegerField(
+        help_text="Servis periyodu değeri (maksimum 4 haneli pozitif sayı). Örn: 6, 3000, 9999"
+    )
     description = models.CharField(max_length=200, blank=True, help_text="Opsiyonel açıklama")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -114,6 +126,12 @@ class ServicePeriodValue(models.Model):
     class Meta:
         verbose_name = 'Servis Periyodu Değeri'
         verbose_name_plural = 'Servis Periyodu Değerleri'
+        constraints = [
+            models.CheckConstraint(
+                check=models.Q(value__lte=9999),
+                name='service_period_value_max_4_digits'
+            )
+        ]
 
     def __str__(self):
         return f"{self.value} {self.service_period_type.unit} - {self.service_period_type.type}"
@@ -398,12 +416,13 @@ class InventoryItemAttribute(models.Model):
         verbose_name = 'Item Attribute'
         verbose_name_plural = 'Item Attributes'
         ordering = ['attribute_type__name']
-        # Removed unique_together to prevent deletion issues
+        unique_together = ('inventory_item', 'attribute_type', 'unit')
 
     def clean(self):
-        """Validate that the unit is compatible with the selected attribute type"""
+        """Validate that the unit is compatible with the selected attribute type and prevent duplicates"""
         from django.core.exceptions import ValidationError
         
+        # Check unit compatibility
         if self.unit and self.attribute_type:
             # Check if there's a relationship between the attribute type and unit
             if not AttributeTypeUnit.objects.filter(
@@ -416,9 +435,36 @@ class InventoryItemAttribute(models.Model):
                 ).values_list('name', flat=True)
                 
                 raise ValidationError({
-                    'unit': f'Unit "{self.unit.name}" is not compatible with attribute type "{self.attribute_type.name}". '
-                           f'Available units: {", ".join(available_units) if available_units else "None"}'
+                    'unit': f'BİRİM UYUMSUZLUĞU: "{self.unit.name}" birimi "{self.attribute_type.name}" '
+                           f'özellik türü ile uyumlu değil. Uyumlu birimler: {", ".join(available_units) if available_units else "Hiçbiri"}'
                 })
+        
+        # Check for duplicate attributes (same inventory_item, attribute_type, unit combination)
+        if self.inventory_item and self.attribute_type and self.unit:
+            existing_attributes = InventoryItemAttribute.objects.filter(
+                inventory_item=self.inventory_item,
+                attribute_type=self.attribute_type,
+                unit=self.unit
+            )
+            
+            # If updating, exclude the current instance
+            if self.pk:
+                existing_attributes = existing_attributes.exclude(pk=self.pk)
+            
+            if existing_attributes.exists():
+                existing_attr = existing_attributes.first()
+                raise ValidationError({
+                    'attribute_type': f'ÇAKIŞMA HATASI: Bu ürün için "{self.attribute_type.name}" '
+                                    f'özelliği "{self.unit.name}" birimi ile zaten tanımlı. '
+                                    f'Mevcut değer: {existing_attr.value} {existing_attr.unit.symbol}. '
+                                    f'Çözüm: Mevcut kaydı güncelleyin veya farklı bir birim seçin.'
+                })
+        
+        # Check for required attributes
+        if self.attribute_type and self.attribute_type.is_required and not self.value:
+            raise ValidationError({
+                'value': f'ZORUNLU ALAN: "{self.attribute_type.name}" özelliği için değer girmeniz zorunludur.'
+            })
 
     def save(self, *args, **kwargs):
         # Only validate if both attribute_type and unit are set

@@ -3,7 +3,8 @@ from ...models import (
     InventoryItem,
     InventoryItemAttribute,
     AttributeType,
-    AttributeUnit
+    AttributeUnit,
+    AttributeTypeUnit
 )
 import random
 
@@ -27,7 +28,7 @@ class Command(BaseCommand):
             'power': {
                 'units': [
                     {'name': 'Kilowatt', 'symbol': 'kW', 'range': (4.0, 7.5)},
-                    {'name': 'Horsepower', 'symbol': 'HP', 'range': (3, 5)}
+                    {'name': 'HP', 'symbol': 'HPP', 'range': (3, 5)}
                 ],
                 'description': 'Motor power rating'
             },
@@ -39,19 +40,19 @@ class Command(BaseCommand):
             },
             'capacity': {
                 'units': [
-                    {'name': 'Cubic meter per minute', 'symbol': 'm³/min', 'range': (0.42, 0.62)}
+                    {'name': 'Litre/Dakika', 'symbol': 'lt/dak', 'range': (420, 620)}
                 ],
                 'description': 'Air flow capacity'
             },
             'tank_volume': {
                 'units': [
-                    {'name': 'Liter', 'symbol': 'L', 'range': (300, 500)}
+                    {'name': 'Litre', 'symbol': 'lt', 'range': (300, 500)}
                 ],
                 'description': 'Tank volume capacity'
             },
             'weight': {
                 'units': [
-                    {'name': 'Kilogram', 'symbol': 'kg', 'range': (245, 550)}
+                    {'name': 'Kilogram', 'symbol': 'Kg', 'range': (245, 550)}
                 ],
                 'description': 'Total weight'
             }
@@ -73,11 +74,26 @@ class Command(BaseCommand):
             # Create or get AttributeUnits
             for unit_config in config['units']:
                 unit, created = AttributeUnit.objects.get_or_create(
-                    symbol=unit_config['symbol'],
-                    defaults={'name': unit_config['name']}
+                    name=unit_config['name'],
+                    defaults={'symbol': unit_config['symbol']}
                 )
                 if created:
                     self.stdout.write(self.style.SUCCESS(f'Created AttributeUnit: {unit}'))
+                else:
+                    # Update symbol if it's different (in case of existing records)
+                    if unit.symbol != unit_config['symbol']:
+                        unit.symbol = unit_config['symbol']
+                        unit.save()
+                        self.stdout.write(self.style.WARNING(f'Updated AttributeUnit symbol: {unit}'))
+                
+                # Create relationship between AttributeType and AttributeUnit
+                type_unit, created = AttributeTypeUnit.objects.get_or_create(
+                    attribute_type=attr_type,
+                    attribute_unit=unit,
+                    defaults={'is_default': True}  # Make first unit default for each type
+                )
+                if created:
+                    self.stdout.write(self.style.SUCCESS(f'Created AttributeTypeUnit: {type_unit}'))
 
         # Get all inventory items
         inventory_items = InventoryItem.objects.all()
@@ -102,12 +118,12 @@ class Command(BaseCommand):
                 try:
                     # Get the AttributeType and AttributeUnit objects
                     attr_type = AttributeType.objects.get(name=attr_name)
-                    unit = AttributeUnit.objects.get(symbol=unit_config['symbol'])
+                    unit = AttributeUnit.objects.get(name=unit_config['name'])
                     
                     # Generate random value based on range
                     min_val, max_val = unit_config['range']
                     
-                    if attr_name in ['power', 'pressure', 'capacity']:
+                    if attr_name in ['power', 'pressure']:
                         # Float values with 1-2 decimal places
                         value = round(random.uniform(min_val, max_val), 2)
                     else:
