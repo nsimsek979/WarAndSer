@@ -298,22 +298,8 @@ class Installation(models.Model):
         # Create warranty follow-ups based on item master warranty values
         WarrantyFollowUp.create_warranty_followups(self)
         
-        # Create default service follow-ups
-        default_services = [
-            {'type': 'time_term', 'value': 6, 'note': 'Default 6 month service interval'},
-            {'type': 'working_hours', 'value': 1000, 'note': 'Default 1000 hours service interval'},
-        ]
-        
-        for service_config in default_services:
-            ServiceFollowUp.objects.get_or_create(
-                installation=self,
-                service_type=service_config['type'],
-                service_value=service_config['value'],
-                defaults={
-                    'calculation_notes': service_config['note'],
-                    'completion_notes': ''  # Empty string for new services
-                }
-            )
+        # Create service follow-ups based on item master maintenance schedules
+        ServiceFollowUp.create_service_followups(self)
 
 
 class InstallationImage(models.Model):
@@ -641,9 +627,7 @@ class WarrantyFollowUp(models.Model):
         choices=WARRANTY_TYPE_CHOICES,
         verbose_name=_("Warranty Type")
     )
-    warranty_value = models.DecimalField(
-        max_digits=10,
-        decimal_places=2,
+    warranty_value = models.PositiveIntegerField(
         verbose_name=_("Warranty Value"),
         help_text=_("Years for time-term warranty, Hours for working hours warranty")
     )
@@ -682,10 +666,10 @@ class WarrantyFollowUp(models.Model):
         setup_date = self.installation.setup_date
         
         if self.warranty_type == 'time_term':
-            # Time-based warranty: setup_date + years
-            years = int(self.warranty_value)
-            end_date = setup_date.date() + timedelta(days=years * 365) if hasattr(setup_date, 'date') else setup_date + timedelta(days=years * 365)
-            self.calculation_notes = f"Time-term warranty: {years} year(s) from setup date"
+            # Month-based warranty: setup_date + months * 30 days
+            months = int(self.warranty_value)
+            end_date = setup_date.date() + timedelta(days=months * 30) if hasattr(setup_date, 'date') else setup_date + timedelta(days=months * 30)
+            self.calculation_notes = f"Ay bazlı garanti: {months} ay ({months * 30} gün) kurulum tarihinden itibaren"
             
         elif self.warranty_type == 'working_hours':
             # Working hours-based warranty
@@ -703,9 +687,9 @@ class WarrantyFollowUp(models.Model):
                     end_date = setup_date.date() + timedelta(days=days_needed) if hasattr(setup_date, 'date') else setup_date + timedelta(days=days_needed)
                     
                     self.calculation_notes = (
-                        f"Working hours warranty: {warranty_hours} hours, "
-                        f"Weekly working hours: {weekly_hours}, "
-                        f"Calculated duration: {weeks_needed:.1f} weeks ({days_needed:.0f} days)"
+                        f"Çalışma saati bazlı garanti: {warranty_hours} saat, "
+                        f"Haftalık çalışma saati: {weekly_hours}, "
+                        f"Hesaplanan süre: {weeks_needed:.1f} hafta ({days_needed:.0f} gün)"
                     )
                 else:
                     # Fallback if no working hours defined
@@ -715,9 +699,9 @@ class WarrantyFollowUp(models.Model):
                     end_date = setup_date.date() + timedelta(days=days_needed) if hasattr(setup_date, 'date') else setup_date + timedelta(days=days_needed)
                     
                     self.calculation_notes = (
-                        f"Working hours warranty: {warranty_hours} hours, "
-                        f"Default 40 hours/week used (no working hours configured), "
-                        f"Calculated duration: {weeks_needed:.1f} weeks ({days_needed:.0f} days)"
+                        f"Çalışma saati bazlı garanti: {warranty_hours} saat, "
+                        f"Varsayılan 40 saat/hafta kullanıldı (çalışma saati tanımlı değil), "
+                        f"Hesaplanan süre: {weeks_needed:.1f} hafta ({days_needed:.0f} gün)"
                     )
                     
             except AttributeError:
@@ -728,15 +712,15 @@ class WarrantyFollowUp(models.Model):
                 end_date = setup_date.date() + timedelta(days=days_needed) if hasattr(setup_date, 'date') else setup_date + timedelta(days=days_needed)
                 
                 self.calculation_notes = (
-                    f"Working hours warranty: {warranty_hours} hours, "
-                    f"Default 40 hours/week used (customer has no working hours configured), "
-                    f"Calculated duration: {weeks_needed:.1f} weeks ({days_needed:.0f} days)"
+                    f"Çalışma saati bazlı garanti: {warranty_hours} saat, "
+                    f"Varsayılan 40 saat/hafta kullanıldı (müşteri çalışma saati yapılandırılmamış), "
+                    f"Hesaplanan süre: {weeks_needed:.1f} hafta ({days_needed:.0f} gün)"
                 )
         
         else:
-            # Default fallback
-            end_date = setup_date.date() + timedelta(days=365) if hasattr(setup_date, 'date') else setup_date + timedelta(days=365)
-            self.calculation_notes = "Default 1 year warranty applied"
+            # Default fallback - 6 ay garanti
+            end_date = setup_date.date() + timedelta(days=180) if hasattr(setup_date, 'date') else setup_date + timedelta(days=180)
+            self.calculation_notes = "Varsayılan 6 ay garanti uygulandı"
         
         return end_date
 
@@ -757,7 +741,7 @@ class WarrantyFollowUp(models.Model):
     def create_warranty_followups(cls, installation):
         """
         Create warranty follow-ups based on item master warranty values.
-        Bu method bir ürün için birden fazla garanti süresi (hem yıl bazlı hem çalışma saati) 
+        Bu method bir ürün için birden fazla garanti süresi (hem ay bazlı hem çalışma saati) 
         kayıt edilmesini destekler.
         """
         item_master = installation.inventory_item.name  # name is the ItemMaster FK
@@ -767,23 +751,23 @@ class WarrantyFollowUp(models.Model):
         created_warranties = []
         
         if warranty_values.exists():
-            print(f"ItemMaster '{item_master.name}' için {warranty_values.count()} garanti süresi bulundu:")
+            print(f"Ana ürün '{item_master.name}' için {warranty_values.count()} garanti süresi bulundu:")
             
             for warranty_value in warranty_values:
-                # Determine warranty type based on warranty type name
+                # Use database warranty type name directly
                 warranty_type_name = warranty_value.warranty_type.type.lower()
                 
                 # Map warranty type names to warranty follow-up types
-                if 'yıl' in warranty_type_name or 'year' in warranty_type_name:
+                if 'ay' in warranty_type_name or 'month' in warranty_type_name:
                     warranty_type = 'time_term'
-                    type_description = "Yıl bazlı garanti"
+                    type_description = "Ay bazlı garanti"
                 elif 'hour' in warranty_type_name or 'saat' in warranty_type_name:
                     warranty_type = 'working_hours'
                     type_description = "Çalışma saati bazlı garanti"
                 else:
-                    # Default to time_term if type is unclear
-                    warranty_type = 'time_term'
-                    type_description = "Varsayılan yıl bazlı garanti"
+                    # Default to working_hours if type is unclear
+                    warranty_type = 'working_hours'
+                    type_description = "Çalışma saati bazlı garanti (varsayılan)"
                 
                 print(f"  - {warranty_value.warranty_type.type}: {warranty_value.value} ({type_description})")
                 
@@ -803,31 +787,23 @@ class WarrantyFollowUp(models.Model):
                 else:
                     print(f"    → Garanti takibi zaten mevcut: {warranty_followup}")
         else:
-            print(f"ItemMaster '{item_master.name}' için garanti süresi tanımlı değil, varsayılan garantiler oluşturuluyor:")
+            print(f"ItemMaster '{item_master.name}' için garanti süresi tanımlı değil, varsayılan garanti oluşturuluyor:")
             
-            # Create default warranty follow-ups if no specific warranties defined
-            default_warranties = [
-                {'type': 'time_term', 'value': 1, 'note': 'Varsayılan 1 yıl garanti (ürün için garanti tanımlı değil)', 'desc': 'Yıl bazlı'},
-                {'type': 'working_hours', 'value': 2000, 'note': 'Varsayılan 2000 saat garanti (ürün için garanti tanımlı değil)', 'desc': 'Çalışma saati bazlı'},
-            ]
+            # Create default warranty (ay bazlı garanti, 6 ay)
+            warranty_followup, created = cls.objects.get_or_create(
+                installation=installation,
+                warranty_type='time_term',
+                warranty_value=6,
+                defaults={
+                    'calculation_notes': 'Varsayılan 6 ay garanti (ürün için garanti tanımlı değil)'
+                }
+            )
             
-            for warranty_config in default_warranties:
-                print(f"  - Varsayılan {warranty_config['desc']}: {warranty_config['value']}")
-                
-                warranty_followup, created = cls.objects.get_or_create(
-                    installation=installation,
-                    warranty_type=warranty_config['type'],
-                    warranty_value=warranty_config['value'],
-                    defaults={
-                        'calculation_notes': warranty_config['note']
-                    }
-                )
-                
-                if created:
-                    created_warranties.append(warranty_followup)
-                    print(f"    ✓ Varsayılan garanti takibi oluşturuldu: {warranty_followup}")
-                else:
-                    print(f"    → Varsayılan garanti takibi zaten mevcut: {warranty_followup}")
+            if created:
+                created_warranties.append(warranty_followup)
+                print("    ✓ Varsayılan garanti takibi oluşturuldu: 6 ay garanti")
+            else:
+                print(f"    → Varsayılan garanti takibi zaten mevcut: {warranty_followup}")
         
         print(f"Toplam {len(created_warranties)} yeni garanti takibi oluşturuldu.")
         return created_warranties
@@ -854,9 +830,7 @@ class ServiceFollowUp(models.Model):
         choices=SERVICE_TYPE_CHOICES,
         verbose_name=_("Service Type")
     )
-    service_value = models.DecimalField(
-        max_digits=10,
-        decimal_places=2,
+    service_value = models.PositiveIntegerField(
         verbose_name=_("Service Value"),
         help_text=_("Months for time-term service, Hours for working hours service")
     )
@@ -1048,26 +1022,48 @@ class ServiceFollowUp(models.Model):
         """
         item_master = installation.inventory_item.name  # name is the ItemMaster FK
         
-        # Get all service values for this item (assuming similar structure to warranty)
-        # You may need to adjust this based on your actual item_master service configuration
-        # service_values = item_master.servicevalue_set.all()
+        # Get all maintenance schedules for this item from the database
+        maintenance_schedules = item_master.maintenance_schedules.all()
         
-        # For now, create default service intervals
-        # This can be enhanced later when service configuration is added to item_master
-        default_services = [
-            {'type': 'time_term', 'value': 6},  # 6 months
-            {'type': 'working_hours', 'value': 1000},  # 1000 hours
-        ]
-        
-        for service_config in default_services:
-            cls.objects.get_or_create(
-                installation=installation,
-                service_type=service_config['type'],
-                service_value=service_config['value'],
-                defaults={
-                    'calculation_notes': f"Default service interval: {service_config['value']} {service_config['type']}"
+        if maintenance_schedules.exists():
+            # Create service follow-ups based on database values
+            for schedule in maintenance_schedules:
+                # Map database service types to model choices
+                service_type_map = {
+                    'Periyodik Bakım - Ay Bazlı': 'time_term',
+                    'Çalışma Bazlı Periyodik Bakım': 'working_hours',
+                    'Ay Bazlı': 'time_term',
+                    'Saat Bazlı': 'working_hours'
                 }
-            )
+                
+                period_type = schedule.service_period_value.service_period_type.type
+                service_type = service_type_map.get(period_type, 'time_term')
+                service_value = schedule.service_period_value.value
+                
+                cls.objects.get_or_create(
+                    installation=installation,
+                    service_type=service_type,
+                    service_value=service_value,
+                    defaults={
+                        'calculation_notes': f"Database service interval: {service_value} {schedule.service_period_value.service_period_type.unit} ({period_type})"
+                    }
+                )
+        else:
+            # Fallback to default service intervals if no database values
+            default_services = [
+                {'type': 'time_term', 'value': 6, 'type_name': 'Ay'},  # 6 months
+                {'type': 'working_hours', 'value': 1000, 'type_name': 'Çalışma Saati'},  # 1000 hours
+            ]
+            
+            for service_config in default_services:
+                cls.objects.get_or_create(
+                    installation=installation,
+                    service_type=service_config['type'],
+                    service_value=service_config['value'],
+                    defaults={
+                        'calculation_notes': f"Default service interval: {service_config['value']} {service_config['type_name']} (veritabanında service tanımı bulunamadı)"
+                    }
+                )
 
 
 class MaintenanceRecord(models.Model):

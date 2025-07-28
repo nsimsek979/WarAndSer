@@ -134,13 +134,20 @@ def service_status(service):
 @register.filter
 def days_until(date_value):
     """Calculate days until a date"""
-    from datetime import datetime
+    from datetime import datetime, date as date_type
     
     if not date_value:
         return None
     
-    now = datetime.now()
-    target_date = date_value.replace(tzinfo=None) if hasattr(date_value, 'replace') else date_value
+    now = datetime.now().date()
+    
+    # Handle different date types
+    if isinstance(date_value, datetime):
+        target_date = date_value.date()  # Convert datetime to date
+    elif isinstance(date_value, date_type):
+        target_date = date_value  # Already a date
+    else:
+        return None
     
     delta = target_date - now
     return delta.days
