@@ -612,7 +612,7 @@ class WarrantyFollowUp(models.Model):
     Supports both time-based and working hours-based warranty calculations.
     """
     WARRANTY_TYPE_CHOICES = [
-        ('time_term', _('Time-Term Warranty (Year Based)')),
+        ('time_term', _('Time-Term Warranty (Month Based)')),
         ('working_hours', _('Working Hours Warranty')),
     ]
 
@@ -736,6 +736,19 @@ class WarrantyFollowUp(models.Model):
             delta = self.end_of_warranty_date - datetime.now().date()
             return delta.days
         return 0
+
+    @property
+    def is_expired(self):
+        """Check if warranty has expired"""
+        return not self.is_active
+
+    @property
+    def is_expiring_soon(self):
+        """Check if warranty is expiring within 30 days"""
+        if self.is_active and self.end_of_warranty_date:
+            days_left = self.days_remaining
+            return 0 < days_left <= 30
+        return False
 
     @classmethod
     def create_warranty_followups(cls, installation):

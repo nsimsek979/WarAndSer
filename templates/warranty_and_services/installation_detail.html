@@ -38,25 +38,25 @@
                     <div class="p-6">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
-                                <h4 class="text-sm font-medium text-gray-900 mb-3">Installation Information</h4>
+                                <h4 class="text-sm font-medium text-gray-900 mb-3">{% trans "Installation Information" %}</h4>
                                 <dl class="space-y-2">
                                     <div class="flex justify-between">
-                                        <dt class="text-sm text-gray-500">Setup Date:</dt>
+                                        <dt class="text-sm text-gray-500">{% trans "Setup Date" %}:</dt>
                                         <dd class="text-sm text-gray-900">{{ installation.setup_date|date:"d.m.Y" }}</dd>
                                     </div>
                                     <div class="flex justify-between">
-                                        <dt class="text-sm text-gray-500">Installer:</dt>
+                                        <dt class="text-sm text-gray-500">{% trans "Installer" %}:</dt>
                                         <dd class="text-sm text-gray-900">{{ installation.user.get_full_name|default:installation.user.username }}</dd>
                                     </div>
                                     {% if installation.location_address %}
                                     <div class="flex justify-between">
-                                        <dt class="text-sm text-gray-500">Address:</dt>
+                                        <dt class="text-sm text-gray-500">{% trans "Address" %}:</dt>
                                         <dd class="text-sm text-gray-900">{{ installation.location_address|truncatechars:50 }}</dd>
                                     </div>
                                     {% endif %}
                                     {% if installation.has_location %}
                                     <div class="flex justify-between">
-                                        <dt class="text-sm text-gray-500">GPS:</dt>
+                                        <dt class="text-sm text-gray-500">{% trans "GPS" %}:</dt>
                                         <dd class="text-sm text-gray-900">{{ installation.location_display }}</dd>
                                     </div>
                                     {% endif %}
@@ -64,27 +64,27 @@
                             </div>
                             
                             <div>
-                                <h4 class="text-sm font-medium text-gray-900 mb-3">Equipment Information</h4>
+                                <h4 class="text-sm font-medium text-gray-900 mb-3">{% trans "Equipment Information" %}</h4>
                                 <dl class="space-y-2">
                                     <div class="flex justify-between">
-                                        <dt class="text-sm text-gray-500">Product:</dt>
+                                        <dt class="text-sm text-gray-500">{% trans "Product" %}:</dt>
                                         <dd class="text-sm text-gray-900">{{ inventory_item.name.name }}</dd>
                                     </div>
                                     {% if inventory_item.name.brand_name %}
                                     <div class="flex justify-between">
-                                        <dt class="text-sm text-gray-500">Brand:</dt>
+                                        <dt class="text-sm text-gray-500">{% trans "Brand" %}:</dt>
                                         <dd class="text-sm text-gray-900">{{ inventory_item.name.brand_name }}</dd>
                                     </div>
                                     {% endif %}
                                     {% if inventory_item.serial_no %}
                                     <div class="flex justify-between">
-                                        <dt class="text-sm text-gray-500">Serial No:</dt>
+                                        <dt class="text-sm text-gray-500">{% trans "Serial No" %}:</dt>
                                         <dd class="text-sm text-gray-900">{{ inventory_item.serial_no }}</dd>
                                     </div>
                                     {% endif %}
                                     {% if inventory_item.name.category %}
                                     <div class="flex justify-between">
-                                        <dt class="text-sm text-gray-500">Category:</dt>
+                                        <dt class="text-sm text-gray-500">{% trans "Category" %}:</dt>
                                         <dd class="text-sm text-gray-900">{{ inventory_item.name.category.name }}</dd>
                                     </div>
                                     {% endif %}
@@ -262,9 +262,9 @@
                             <svg class="w-5 h-5 text-purple-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.031 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
                             </svg>
-                            <h3 class="text-lg font-semibold text-gray-900">Warranty Information</h3>
+                            <h3 class="text-lg font-semibold text-gray-900">{% trans "Warranty Information" %}</h3>
                             <span class="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
-                                {{ warranties.count }} warrant{{ warranties.count|pluralize:"y,ies" }}
+                                {{ warranties.count }} {% trans "warrant" %}{{ warranties.count|pluralize:"y,ies" }}
                             </span>
                         </div>
                     </div>
@@ -277,42 +277,42 @@
                                         <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium 
                                                    {% if warranty.warranty_type == 'time_term' %}bg-blue-100 text-blue-800{% else %}bg-gray-100 text-gray-800{% endif %}">
                                             {% if warranty.warranty_type == 'time_term' %}
-                                                {{ warranty.warranty_value|floatformat:"0" }} yıl
+                                                {{ warranty.warranty_value|floatformat:"0" }} {% trans "ay" %}
                                             {% else %}
-                                                {{ warranty.warranty_value|humanize_number }} saat
+                                                {{ warranty.warranty_value|humanize_number }} {% trans "saat" %}
                                             {% endif %}
                                         </span>
                                         {% if warranty.is_expired %}
                                             <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                                                Expired
+                                                {% trans "Expired" %}
                                             </span>
                                         {% elif warranty.is_expiring_soon %}
                                             <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-                                                Expiring Soon
+                                                {% trans "Expiring Soon" %}
                                             </span>
                                         {% else %}
                                             <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                                Active
+                                                {% trans "Active" %}
                                             </span>
                                         {% endif %}
                                     </div>
                                 </div>
                                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                                     <div>
-                                        <span class="text-gray-500">Type:</span>
+                                        <span class="text-gray-500">{% trans "Type" %}:</span>
                                         <span class="ml-1 text-gray-900">{{ warranty.get_warranty_type_display }}</span>
                                     </div>
                                     <div>
-                                        <span class="text-gray-500">Start:</span>
-                                        <span class="ml-1 text-gray-900">{{ warranty.start_of_warranty_date|date:"d.m.Y" }}</span>
+                                        <span class="text-gray-500">{% trans "Start" %}:</span>
+                                        <span class="ml-1 text-gray-900">{{ warranty.installation.setup_date|date:"d.m.Y" }}</span>
                                     </div>
                                     <div>
-                                        <span class="text-gray-500">End:</span>
+                                        <span class="text-gray-500">{% trans "End" %}:</span>
                                         <span class="ml-1 text-gray-900">{{ warranty.end_of_warranty_date|date:"d.m.Y" }}</span>
                                     </div>
                                     <div>
-                                        <span class="text-gray-500">Days Left:</span>
-                                        <span class="ml-1 text-gray-900">{{ warranty.days_until_expiry|default:"Expired" }}</span>
+                                        <span class="text-gray-500">{% trans "Days Left" %}:</span>
+                                        <span class="ml-1 text-gray-900">{{ warranty.end_of_warranty_date|days_until|default:"Expired" }}</span>
                                     </div>
                                 </div>
                             </div>
@@ -491,7 +491,7 @@
                 <!-- Quick Actions -->
                 <div class="bg-white rounded-lg shadow-sm border border-gray-200">
                     <div class="px-6 py-4 border-b border-gray-200">
-                        <h3 class="text-lg font-semibold text-gray-900">Quick Actions</h3>
+                        <h3 class="text-lg font-semibold text-gray-900">{% trans "Quick Actions" %}</h3>
                     </div>
                     <div class="p-6 space-y-3">
                         <a href="{% url 'warranty_and_services:item_service_history' installation.id %}" 
@@ -499,14 +499,14 @@
                             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                             </svg>
-                            View Service History
+                            {% trans "View Service History" %}
                         </a>
                         <a href="{% url 'warranty_and_services:warranty_tracking_list' %}" 
                            class="w-full inline-flex items-center justify-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
                             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.031 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
                             </svg>
-                            View All Warranties
+                            {% trans "View All Warranties" %}
                         </a>
                         <a href="{% url 'warranty_and_services:service_tracking_list' %}" 
                            class="w-full inline-flex items-center justify-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
@@ -514,7 +514,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
                             </svg>
-                            View All Services
+                            {% trans "View All Services" %}
                         </a>
                     </div>
                 </div>

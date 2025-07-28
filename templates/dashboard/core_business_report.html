@@ -1,9 +1,10 @@
 <!DOCTYPE html>
+{% load i18n %}
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Core Business Installation Report</title>
+    <title>{% trans "Core Business Installation Report" %}</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
@@ -14,7 +15,7 @@
 </head>
 <body class="bg-gray-50">
     <!-- Header -->
-    <div class="bg-white shadow-sm border-b border-gray-200 no-print">
+    <div class="sticky top-0 z-50 bg-white shadow-sm border-b border-gray-200 no-print">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center py-4">
                 <div class="flex items-center">
@@ -24,9 +25,9 @@
                         </svg>
                     </a>
                     <div>
-                        <h1 class="text-2xl font-bold text-gray-900">Core Business Installation Report</h1>
+                        <h1 class="text-2xl font-bold text-gray-900">{% trans "Core Business Installation Report" %}</h1>
                         <p class="text-sm text-gray-500 mt-1">
-                            Detailed analysis of installations by core business categories
+                            {% trans "Detailed analysis of installations by core business categories" %}
                             {% if current_period != 'all' %}
                             <span class="inline-flex items-center px-2 py-1 ml-2 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">
                                 {% for option in period_options %}
