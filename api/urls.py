@@ -6,7 +6,11 @@ from .views import (
     CustomTokenObtainPairView, UserViewSet, CustomerViewSet, CustomerAddressViewSet,
     ItemMasterViewSet, InventoryItemViewSet, InstallationViewSet,
     ServiceFollowUpViewSet, MaintenanceRecordViewSet,
-    dashboard_stats, search, api_info
+    dashboard_stats, search, api_info,
+    # Mobile compatibility endpoints
+    mobile_customer_search, mobile_customer_addresses, mobile_installation_create,
+    mobile_service_form_create, mobile_customer_create, mobile_installation_service_forms,
+    mobile_installation_spare_parts, mobile_installation_scan_qr, mobile_installation_create_with_qr
 )
 
 # Create router for viewsets
@@ -31,6 +35,17 @@ urlpatterns = [
     # Special endpoints
     path('dashboard-stats/', dashboard_stats, name='dashboard_stats'),
     path('search/', search, name='search'),
+    
+    # Mobile compatibility endpoints (for existing web templates)
+    path('customers/search/', mobile_customer_search, name='mobile_customer_search'),
+    path('customers/<int:customer_id>/addresses/', mobile_customer_addresses, name='mobile_customer_addresses'),
+    path('installation/create/', mobile_installation_create, name='mobile_installation_create'),
+    path('installation/scan-qr/', mobile_installation_scan_qr, name='mobile_installation_scan_qr'),
+    path('installation/create-with-qr/', mobile_installation_create_with_qr, name='mobile_installation_create_with_qr'),
+    path('service-form/create/', mobile_service_form_create, name='mobile_service_form_create'),
+    path('customers/create/', mobile_customer_create, name='mobile_customer_create'),
+    path('installation/<int:installation_id>/service-forms/', mobile_installation_service_forms, name='mobile_installation_service_forms'),
+    path('installation/<int:installation_id>/spare-parts/', mobile_installation_spare_parts, name='mobile_installation_spare_parts'),
     
     # ViewSet URLs
     path('', include(router.urls)),

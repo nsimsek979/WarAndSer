@@ -17,6 +17,9 @@ urlpatterns = [
     path('inventory/<int:pk>/edit/', views.inventory_item_update, name='inventory_item_update'),
     path('inventory/<int:pk>/delete/', views.inventory_item_delete, name='inventory_item_delete'),
     
+    # API endpoints
+    path('search/', views.inventory_search_api, name='inventory_search_api'),
+    
     # AJAX views
     path('ajax/get-attribute-units/', views.get_attribute_units, name='get_attribute_units'),
 ]

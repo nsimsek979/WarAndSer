@@ -1,10 +1,10 @@
 from django.contrib import admin
 from django.urls import path
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, JsonResponse
 from django.template.response import TemplateResponse
 from django.contrib import messages
-from django.contrib.admin import AdminSite
 from django.apps import apps
+from django.contrib.admin import AdminSite
 import subprocess
 
 
@@ -19,8 +19,13 @@ class GarantiVeServisAdminSite(AdminSite):
         custom_urls = [
             path('populate-turkish-locations/', self.admin_view(self.populate_locations_view), name='populate-turkish-locations'),
             path('populate-core-business/', self.admin_view(self.populate_core_business_view), name='populate-core-business'),
+            path('toggle_sidebar/', self.admin_view(self.toggle_sidebar_view), name='toggle_sidebar'),
         ]
         return custom_urls + urls
+    
+    def toggle_sidebar_view(self, request):
+        """Handle sidebar toggle for unfold admin theme"""
+        return JsonResponse({'status': 'ok'})
     
     def populate_locations_view(self, request):
         if request.method == 'POST':

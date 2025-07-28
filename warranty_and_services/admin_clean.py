@@ -41,9 +41,18 @@ class InstallationAdminForm(forms.ModelForm):
     class Meta:
         model = Installation
         fields = '__all__'
+        widgets = {
+            'setup_date': forms.DateInput(attrs={'type': 'date'}),
+        }
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        
+        # Set default date to today if creating new installation
+        if not self.instance.pk and 'setup_date' in self.fields:
+            from django.utils import timezone
+            self.fields['setup_date'].initial = timezone.now().date()
+        
         # Improve inventory item queryset and display
         if 'inventory_item' in self.fields:
             from item_master.models import InventoryItem

@@ -117,7 +117,7 @@
                 
                 // Installation location data
                 installation: {
-                    setup_date: '',
+                    setup_date: new Date().toISOString().split('T')[0], // Today's date as default
                     setup_location: '',
                     location_address: '',
                     installation_notes: '',
@@ -402,12 +402,6 @@
 
                 getCsrfToken() {
                     return document.querySelector('[name=csrfmiddlewaretoken]')?.value || '';
-                },
-
-                getCurrentDateTime() {
-                    const now = new Date();
-                    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
-                    return now.toISOString().slice(0, 16);
                 },
 
                 createCustomer() {
@@ -1072,9 +1066,9 @@
                             Kurulum Tarihi *
                         </label>
                         <input 
-                            type="datetime-local" 
+                            type="date" 
                             x-model="installation.setup_date"
-                            :max="getCurrentDateTime()"
+                            :max="new Date().toISOString().split('T')[0]"
                             class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                             required
                         >

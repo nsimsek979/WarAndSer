@@ -210,7 +210,18 @@
                     barcode: qrData
                 })
             })
-            .then(response => response.json())
+            .then(response => {
+                console.log('QR API response status:', response.status);
+                // 401 Unauthorized kontrolü
+                if (response.status === 401) {
+                    showError('Oturum süreniz dolmuş. Giriş sayfasına yönlendiriliyorsunuz...');
+                    setTimeout(() => {
+                        window.location.href = '/accounts/login/';
+                    }, 2000);
+                    return Promise.reject('Authentication required');
+                }
+                return response.json();
+            })
             .then(data => {
                 if (data.success) {
                     showMessage(`QR kod okundu: ${data.item.name} (${data.item.brand})`, 'success');
@@ -224,7 +235,15 @@
                     // Display item details
                     displayItemDetails(data.item);
                 } else {
-                    showError(data.message || 'QR kod ile eşleşen kuruluma hazır ekipman bulunamadı');
+                    // Authentication error kontrolü
+                    if (data.error_code === 'AUTH_REQUIRED') {
+                        showError('Oturum süreniz dolmuş. Giriş sayfasına yönlendiriliyorsunuz...');
+                        setTimeout(() => {
+                            window.location.href = '/accounts/login/';
+                        }, 2000);
+                    } else {
+                        showError(data.message || 'QR kod ile eşleşen kuruluma hazır ekipman bulunamadı');
+                    }
                 }
             })
             .catch(error => {
@@ -250,7 +269,14 @@
                     serial_number: serialNumber
                 })
             })
-            .then(response => response.json())
+            .then(response => {
+                if (response.status === 401) {
+                    // Handle authentication error
+                    window.location.href = '{% url "custom_user:login" %}';
+                    return Promise.reject('Authentication required');
+                }
+                return response.json();
+            })
             .then(data => {
                 if (data.success) {
                     showMessage(`Ekipman bulundu: ${data.item.name} (${data.item.brand})`, 'success');
@@ -258,6 +284,11 @@
                     // Fill form with item data or redirect to installation form
                     displayItemDetails(data.item);
                 } else {
+                    // Check for authentication error in response
+                    if (data.error_code === 'AUTH_REQUIRED') {
+                        window.location.href = '{% url "custom_user:login" %}';
+                        return;
+                    }
                     showError(data.message || 'Ekipman bulunamadı');
                 }
             })

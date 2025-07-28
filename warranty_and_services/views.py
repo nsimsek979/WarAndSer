@@ -387,7 +387,7 @@ def mobile_main(request):
     # Bugün yapılan kurulumlar
     todays_installations = Installation.objects.filter(
         company_filter,
-        setup_date__date=today
+        setup_date=today
     ).count()
     
     # Bugün yapılan bakım/servis işleri (buraya service modeli geldiğinde eklenecek)
@@ -398,7 +398,7 @@ def mobile_main(request):
     # Bu ay yapılan işler
     monthly_installations = Installation.objects.filter(
         company_filter,
-        setup_date__date__gte=start_of_month
+        setup_date__gte=start_of_month
     ).count()
     
     monthly_services = 0  # Service.objects.filter(...).count()
@@ -418,7 +418,7 @@ def mobile_maintenance_scanner(request):
     Mobil bakım scanner sayfası
     """
     
-    return render(request, 'warranty_and_services/mobile/maintenance_scanner.html')
+    return render(request, 'warranty_and_services/mobile/mobile_maintenance_scanner.html')
 
 
 @login_required  
@@ -454,7 +454,7 @@ def mobile_maintenance_form(request):
                 'item_shortcode': installation.inventory_item.name.shortcode if installation.inventory_item.name else 'N/A',
                 'serial_no': installation.inventory_item.serial_no,
                 'customer_name': installation.customer.name,
-                'installation_date': installation.setup_date.strftime('%d.%m.%Y'),
+                'installation_date': installation.setup_date.strftime('%d.%m.%Y') if installation.setup_date else 'Tarih belirtilmemiş',
                 'installation_location': installation.location_address or 'Konum belirtilmemiş',
                 'last_maintenance_date': last_maintenance_date
             },
@@ -475,7 +475,7 @@ def mobile_installation_scanner(request):
     """
     Mobil kurulum scanner sayfası
     """
-    return render(request, 'warranty_and_services/mobile/installation_scanner.html')
+    return render(request, 'warranty_and_services/mobile/mobile_installation_scanner.html')
 
 
 @login_required  
@@ -507,6 +507,14 @@ def api_search_by_barcode(request):
     """
     QR kod ile ürün arama API endpoint'i
     """
+    # Authentication kontrolü - JSON error döndür
+    if not request.user.is_authenticated:
+        return JsonResponse({
+            'success': False,
+            'message': 'Bu işlem için giriş yapmanız gerekiyor',
+            'error_code': 'AUTH_REQUIRED'
+        }, status=401)
+    
     try:
         data = json.loads(request.body)
         qr_code = data.get('barcode', '').strip()  # Frontend'den 'barcode' olarak geliyor ama QR code
@@ -546,31 +554,32 @@ def api_search_by_barcode(request):
             inventory_item = InventoryItem.objects.select_related('name', 'name__brand_name', 'name__category').filter(
                 serial_no=qr_code, in_used=False
             ).first()
-            if not inventory_item:
-                return JsonResponse({
-                    'success': False,
-                    'message': 'Bu QR kodu ile eşleşen kuruluma hazır ürün bulunamadı'
-                })
             
-            # Check if item is already installed/in use
-            is_installed = Installation.objects.filter(inventory_item=inventory_item).exists()
-            
-            # Item bilgilerini dön
+        if not inventory_item:
             return JsonResponse({
-                'success': True,
-                'item': {
-                    'id': inventory_item.id,
-                    'name': inventory_item.name.name if inventory_item.name else 'N/A',
-                    'model': inventory_item.name.name if inventory_item.name else 'N/A',  # ItemMaster'da model field yok
-                    'brand': inventory_item.name.brand_name.name if inventory_item.name and inventory_item.name.brand_name else 'N/A',
-                    'category': inventory_item.name.category.category_name if inventory_item.name and inventory_item.name.category else 'N/A',
-                    'serial_number': inventory_item.serial_no or 'N/A',
-                    'is_installed': is_installed,
-                    'in_used': inventory_item.in_used,
-                    'qr_code': qr_code,
-                    'image': inventory_item.qr_code_image.url if inventory_item.qr_code_image else None,
-                }
+                'success': False,
+                'message': 'Bu QR kodu ile eşleşen kuruluma hazır ürün bulunamadı'
             })
+            
+        # Check if item is already installed/in use
+        is_installed = Installation.objects.filter(inventory_item=inventory_item).exists()
+        
+        # Item bilgilerini dön
+        return JsonResponse({
+            'success': True,
+            'item': {
+                'id': inventory_item.id,
+                'name': inventory_item.name.name if inventory_item.name else 'N/A',
+                'model': inventory_item.name.name if inventory_item.name else 'N/A',  # ItemMaster'da model field yok
+                'brand': inventory_item.name.brand_name.name if inventory_item.name and inventory_item.name.brand_name else 'N/A',
+                'category': inventory_item.name.category.category_name if inventory_item.name and inventory_item.name.category else 'N/A',
+                'serial_number': inventory_item.serial_no or 'N/A',
+                'is_installed': is_installed,
+                'in_used': inventory_item.in_used,
+                'qr_code': qr_code,
+                'image': inventory_item.qr_code_image.url if inventory_item.qr_code_image else None,
+            }
+        })
             
     except json.JSONDecodeError:
         return JsonResponse({
@@ -590,6 +599,75 @@ def api_search_by_serial(request):
     """
     Seri numarası ile ürün arama API endpoint'i
     """
+    # Authentication kontrolü - JSON error döndür
+    if not request.user.is_authenticated:
+        return JsonResponse({
+            'success': False,
+            'message': 'Bu işlem için giriş yapmanız gerekiyor',
+            'error_code': 'AUTH_REQUIRED'
+        }, status=401)
+    
+    try:
+        data = json.loads(request.body)
+        serial_number = data.get('serial_number', '').strip()
+        
+        if not serial_number:
+            return JsonResponse({
+                'success': False,
+                'message': 'Seri numarası gerekli'
+            })
+        
+        # Item_master modülünden InventoryItem'ı bul
+        from item_master.models import InventoryItem
+        
+        inventory_item = InventoryItem.objects.select_related('name', 'name__brand_name', 'name__category').filter(
+            serial_no=serial_number, in_used=False
+        ).first()
+        
+        if not inventory_item:
+            return JsonResponse({
+                'success': False,
+                'message': 'Bu seri numarası ile eşleşen kuruluma hazır ürün bulunamadı'
+            })
+        
+        # Check if item is already installed/in use
+        is_installed = Installation.objects.filter(inventory_item=inventory_item).exists()
+        
+        # Item bilgilerini dön
+        return JsonResponse({
+            'success': True,
+            'item': {
+                'id': inventory_item.id,
+                'name': inventory_item.name.name if inventory_item.name else 'N/A',
+                'model': inventory_item.name.name if inventory_item.name else 'N/A',  # ItemMaster'da model field yok
+                'brand': inventory_item.name.brand_name.name if inventory_item.name and inventory_item.name.brand_name else 'N/A',
+                'category': inventory_item.name.category.category_name if inventory_item.name and inventory_item.name.category else 'N/A',
+                'serial_number': inventory_item.serial_no or 'N/A',
+                'is_installed': is_installed,
+                'in_used': inventory_item.in_used,
+                'qr_code': f"ID:{inventory_item.id}|SERIAL:{inventory_item.serial_no}",
+                'image': inventory_item.qr_code_image.url if inventory_item.qr_code_image else None,
+            }
+        })
+            
+    except json.JSONDecodeError:
+        return JsonResponse({
+            'success': False,
+            'message': 'Geçersiz JSON formatı'
+        })
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'message': f'Arama sırasında bir hata oluştu: {str(e)}'
+        })
+    # Authentication kontrolü - JSON error döndür
+    if not request.user.is_authenticated:
+        return JsonResponse({
+            'success': False,
+            'message': 'Bu işlem için giriş yapmanız gerekiyor',
+            'error_code': 'AUTH_REQUIRED'
+        }, status=401)
+    
     try:
         data = json.loads(request.body)
         serial_number = data.get('serial_number', '').strip()
@@ -683,43 +761,20 @@ def api_search_by_serial(request):
 
 
 # Mobile Installation Views
-def mobile_installation_scanner(request):
-    """Mobile installation scanner page"""
-    return render(request, 'warranty_and_services/mobile/installation_scanner.html')
-
-
-def mobile_installation_form(request):
-    """Mobile installation form page"""
-    item_id = request.GET.get('item_id')
-    if not item_id:
-        return redirect('warranty_and_services:mobile_installation_scanner')
-    
-    # Get the item
-    from item_master.models import InventoryItem
-    try:
-        item = InventoryItem.objects.select_related('name').get(id=item_id)
-    except InventoryItem.DoesNotExist:
-        return redirect('warranty_and_services:mobile_installation_scanner')
-    
-    # Check if item is already installed
-    is_already_installed = Installation.objects.filter(inventory_item=item).exists()
-    
-    # If item is already installed, redirect back to scanner with error
-    if is_already_installed or item.in_used:
-        messages.error(request, 'Bu ürün zaten kurulmuş veya kullanımda. Kurulum yapılamaz.')
-        return redirect('warranty_and_services:mobile_installation_scanner')
-    
-    context = {
-        'item': item
-    }
-    return render(request, 'warranty_and_services/mobile/installation_form.html', context)
-
 
 # Customer API Endpoints
 @csrf_exempt
 @require_http_methods(["POST"])
 def api_customer_search(request):
     """Customer search API endpoint - searches in user's company hierarchy"""
+    # Authentication kontrolü - JSON error döndür
+    if not request.user.is_authenticated:
+        return JsonResponse({
+            'success': False,
+            'message': 'Bu işlem için giriş yapmanız gerekiyor',
+            'error_code': 'AUTH_REQUIRED'
+        }, status=401)
+    
     try:
         data = json.loads(request.body)
         search_query = data.get('search', '').strip()
@@ -1229,6 +1284,14 @@ def api_installation_search_by_qr(request):
     """
     QR kod ile kurulmuş ürün arama API endpoint'i
     """
+    # Authentication kontrolü - JSON error döndür
+    if not request.user.is_authenticated:
+        return JsonResponse({
+            'success': False,
+            'message': 'Bu işlem için giriş yapmanız gerekiyor',
+            'error_code': 'AUTH_REQUIRED'
+        }, status=401)
+    
     try:
         data = json.loads(request.body)
         qr_code = data.get('qr_code', '').strip()
@@ -1310,6 +1373,14 @@ def api_installation_search_by_serial(request):
     """
     Seri numarası ile kurulmuş ürün arama API endpoint'i
     """
+    # Authentication kontrolü - JSON error döndür
+    if not request.user.is_authenticated:
+        return JsonResponse({
+            'success': False,
+            'message': 'Bu işlem için giriş yapmanız gerekiyor',
+            'error_code': 'AUTH_REQUIRED'
+        }, status=401)
+    
     try:
         data = json.loads(request.body)
         serial_number = data.get('serial_number', '').strip()
@@ -1387,6 +1458,14 @@ def api_maintenance_create(request):
     """
     Maintenance kaydı oluşturma API endpoint'i
     """
+    # Authentication kontrolü - JSON error döndür
+    if not request.user.is_authenticated:
+        return JsonResponse({
+            'success': False,
+            'message': 'Bu işlem için giriş yapmanız gerekiyor',
+            'error_code': 'AUTH_REQUIRED'
+        }, status=401)
+    
     try:
         # Handle both JSON and FormData
         if request.content_type and 'application/json' in request.content_type:
@@ -1524,27 +1603,21 @@ def api_maintenance_create(request):
         })
 
 
-# Mobile Views
-@login_required
-def mobile_installation_scanner(request):
-    """Mobile Installation Scanner sayfası"""
-    return render(request, 'warranty_and_services/mobile/mobile_installation_scanner.html')
-
-
-@login_required
-def mobile_maintenance_scanner(request):
-    """Mobile Maintenance Scanner sayfası"""
-    return render(request, 'warranty_and_services/mobile/mobile_maintenance_scanner.html')
-
-
 # Maintenance API endpoints
 @csrf_exempt
 @require_http_methods(["POST"])
-@login_required
 def api_maintenance_search(request):
     """
     Bakım için kurulumu yapılmış (in_used=True) itemları ara
     """
+    # Authentication kontrolü - JSON error döndür
+    if not request.user.is_authenticated:
+        return JsonResponse({
+            'success': False,
+            'message': 'Bu işlem için giriş yapmanız gerekiyor',
+            'error_code': 'AUTH_REQUIRED'
+        }, status=401)
+    
     try:
         data = json.loads(request.body)
         search_term = data.get('search_term', '').strip()
@@ -1587,7 +1660,7 @@ def api_maintenance_search(request):
                     'item_name': item.name.name if item.name else 'N/A',
                     'item_shortcode': item.name.shortcode if item.name else 'N/A',
                     'customer_name': installation.customer.name,
-                    'installation_date': installation.setup_date.strftime('%d.%m.%Y'),
+                    'installation_date': installation.setup_date.strftime('%d.%m.%Y') if installation.setup_date else 'Tarih belirtilmemiş',
                     'installation_location': installation.location_address or 'Konum belirtilmemiş',
                     'has_location': installation.has_location
                 })
@@ -1613,11 +1686,20 @@ def api_maintenance_search(request):
 
 @csrf_exempt
 @require_http_methods(["POST"])
-@login_required
+@csrf_exempt
+@require_http_methods(["POST"])
 def api_maintenance_item_detail(request):
     """
     Seçilen kurulumu yapılmış item'in detaylarını ve servis geçmişini getir
     """
+    # Authentication kontrolü - JSON error döndür
+    if not request.user.is_authenticated:
+        return JsonResponse({
+            'success': False,
+            'message': 'Bu işlem için giriş yapmanız gerekiyor',
+            'error_code': 'AUTH_REQUIRED'
+        }, status=401)
+    
     try:
         data = json.loads(request.body)
         installation_id = data.get('installation_id')
@@ -1670,7 +1752,7 @@ def api_maintenance_item_detail(request):
                 'item_name': installation.inventory_item.name.name if installation.inventory_item.name else 'N/A',
                 'item_shortcode': installation.inventory_item.name.shortcode if installation.inventory_item.name else 'N/A',
                 'serial_no': installation.inventory_item.serial_no,
-                'installation_date': installation.setup_date.strftime('%d.%m.%Y'),
+                'installation_date': installation.setup_date.strftime('%d.%m.%Y') if installation.setup_date else 'Tarih belirtilmemiş',
                 'installation_location': installation.location_address or 'Konum belirtilmemiş',
                 'has_location': installation.has_location,
                 'location_coordinates': {

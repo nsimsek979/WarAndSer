@@ -6,6 +6,12 @@ from django.core.paginator import Paginator
 from django.db.models import Q
 from django.http import JsonResponse
 from .models import ItemMaster, Category, Brand, StockType, InventoryItem, InventoryItemAttribute, AttributeType, AttributeUnit, AttributeTypeUnit, Status
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_http_methods
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework import status
 
 @login_required(login_url='login')
 def inventory_item_list(request):
@@ -1149,6 +1155,61 @@ def get_attribute_units(request):
         return JsonResponse({'units': units_list})
     except Exception as e:
         return JsonResponse({'units': [], 'error': str(e)})
+
+
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def inventory_search_api(request):
+    """
+    QR kod ile ekipman arama API'si - warranty_and_services mantığı
+    """
+    try:
+        qr_code = request.GET.get('qr_code', '').strip()
+        serial_no = request.GET.get('serial_no', '').strip()
+        
+        # QR kod veya seri no ile arama
+        search_term = qr_code or serial_no
+        
+        if not search_term:
+            return Response({
+                'success': False,
+                'message': 'QR kod veya seri numarası gerekli'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Ekipman ara - sadece kullanılmayan (in_used=False) olanlar arasından
+        try:
+            item = InventoryItem.objects.select_related(
+                'name', 
+                'name__category', 
+                'name__brand_name'
+            ).get(serial_no=search_term, in_used=False)
+            
+            # Basit response - warranty_and_services tarzı
+            return Response({
+                'success': True,
+                'message': 'Ekipman Bulundu',
+                'equipment': {
+                    'name': item.name.name if item.name else 'Bilinmiyor',
+                    'brand': item.name.brand_name.name if item.name and item.name.brand_name else 'Bilinmiyor',
+                    'category': item.name.category.category_name if item.name and item.name.category else 'Bilinmiyor',
+                    'serial_no': item.serial_no or 'Seri No Yok',
+                    'in_use': item.in_used
+                }
+            }, status=status.HTTP_200_OK)
+            
+        except InventoryItem.DoesNotExist:
+            return Response({
+                'success': False,
+                'message': 'Bu seri numarası ile kullanılabilir ekipman bulunamadı'
+            }, status=status.HTTP_404_NOT_FOUND)
+        
+    except Exception as e:
+        return Response({
+            'success': False,
+            'message': f'Arama hatası: {str(e)}'
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 # Create your views here.

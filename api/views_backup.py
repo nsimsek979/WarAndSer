@@ -87,9 +87,8 @@ class ItemMasterViewSet(viewsets.ReadOnlyModelViewSet):
     
     def get_queryset(self):
         # Filter items based on companies user can access
-        # allowed_companies = get_company_queryset_for_user(self.request.user, Company.objects.all())
-        # return ItemMaster.objects.filter(company__in=allowed_companies)
-        return ItemMaster.objects.all()
+        allowed_companies = get_company_queryset_for_user(self.request.user, Company.objects.all())
+        return ItemMaster.objects.filter(company__in=allowed_companies)
 
 
 class InventoryItemViewSet(viewsets.ReadOnlyModelViewSet):
@@ -98,11 +97,10 @@ class InventoryItemViewSet(viewsets.ReadOnlyModelViewSet):
     
     def get_queryset(self):
         # Filter inventory items based on companies user can access
-        # allowed_companies = get_company_queryset_for_user(self.request.user, Company.objects.all())
-        # return InventoryItem.objects.filter(
-        #     name__company__in=allowed_companies
-        # ).select_related('name')
-        return InventoryItem.objects.all().select_related('name')
+        allowed_companies = get_company_queryset_for_user(self.request.user, Company.objects.all())
+        return InventoryItem.objects.filter(
+            name__company__in=allowed_companies
+        ).select_related('name')
 
 
 # Installation ViewSet
@@ -110,133 +108,16 @@ class InstallationViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     
     def get_queryset(self):
-        # Tüm installation'ları döndür (şimdilik permission kontrolü yok)
-        return Installation.objects.all().select_related('customer', 'inventory_item', 'user')
+        # Filter installations based on companies user can access
+        allowed_companies = get_company_queryset_for_user(self.request.user, Company.objects.all())
+        return Installation.objects.filter(
+            customer__in=allowed_companies
+        ).select_related('customer', 'inventory_item', 'user')
     
     def get_serializer_class(self):
         if self.action in ['create', 'update', 'partial_update']:
             return InstallationCreateSerializer
         return InstallationSerializer
-    
-    def perform_create(self, serializer):
-        """Automatically set user when creating installation"""
-        serializer.save(user=self.request.user)
-    
-    @action(detail=False, methods=['post'])
-    def scan_qr(self, request):
-        """
-        Scan QR code to get inventory item details for installation
-        POST /api/installations/scan_qr/
-        Body: {"qr_code": "scanned_qr_content"}
-        """
-        qr_code = request.data.get('qr_code', '')
-        if not qr_code:
-            return Response({'error': 'QR code is required'}, status=400)
-        
-        try:
-            # QR kod genellikle inventory item ID'si veya shortcode içerir
-            # Önce ID olarak deneyelim
-            if qr_code.isdigit():
-                inventory_item = InventoryItem.objects.get(id=int(qr_code))
-            else:
-                # QR kodda shortcode veya seri numarası olabilir
-                inventory_item = InventoryItem.objects.filter(
-                    Q(serial_no__iexact=qr_code) |
-                    Q(name__shortcode__iexact=qr_code)
-                ).first()
-                
-                if not inventory_item:
-                    return Response({'error': 'Item not found with this QR code'}, status=404)
-            
-            # Permission check - user can only access items from allowed companies
-            # allowed_companies = get_company_queryset_for_user(request.user, Company.objects.all())
-            # if inventory_item.name.company not in allowed_companies:
-            #     return Response({'error': 'Access denied to this item'}, status=403)
-            
-            # Return item details for installation form
-            serializer = InventoryItemSerializer(inventory_item)
-            return Response({
-                'success': True,
-                'inventory_item': serializer.data,
-                'message': 'QR code scanned successfully'
-            })
-            
-        except InventoryItem.DoesNotExist:
-            return Response({'error': 'Item not found with this QR code'}, status=404)
-        except Exception as e:
-            return Response({'error': str(e)}, status=500)
-    
-    @action(detail=False, methods=['post'])
-    def create_with_qr(self, request):
-        """
-        Create installation directly with QR code scan
-        POST /api/installations/create_with_qr/
-        Body: {
-            "qr_code": "scanned_qr_content",
-            "customer_id": 1,
-            "location_address": "Address",
-            "location_latitude": 40.123,
-            "location_longitude": 29.456,
-            "installation_notes": "Notes"
-        }
-        """
-        qr_code = request.data.get('qr_code', '')
-        if not qr_code:
-            return Response({'error': 'QR code is required'}, status=400)
-        
-        try:
-            # Find inventory item by QR code
-            if qr_code.isdigit():
-                inventory_item = InventoryItem.objects.get(id=int(qr_code))
-            else:
-                inventory_item = InventoryItem.objects.filter(
-                    Q(serial_no__iexact=qr_code) |
-                    Q(name__shortcode__iexact=qr_code)
-                ).first()
-                
-                if not inventory_item:
-                    return Response({'error': 'Item not found with this QR code'}, status=404)
-            
-            # Permission check
-            # allowed_companies = get_company_queryset_for_user(request.user, Company.objects.all())
-            # if inventory_item.name.company not in allowed_companies:
-            #     return Response({'error': 'Access denied to this item'}, status=403)
-            
-            # Get customer
-            customer_id = request.data.get('customer_id')
-            if not customer_id:
-                return Response({'error': 'Customer ID is required'}, status=400)
-            
-            customer = Company.objects.get(id=customer_id)
-            # if customer not in allowed_companies:
-            #     return Response({'error': 'Access denied to this customer'}, status=403)
-            
-            # Create installation
-            installation_data = {
-                'inventory_item': inventory_item.id,
-                'customer': customer.id,
-                'location_address': request.data.get('location_address', ''),
-                'location_latitude': request.data.get('location_latitude'),
-                'location_longitude': request.data.get('location_longitude'),
-                'installation_notes': request.data.get('installation_notes', ''),
-            }
-            
-            serializer = InstallationCreateSerializer(data=installation_data)
-            if serializer.is_valid():
-                installation = serializer.save(user=request.user)
-                return Response({
-                    'success': True,
-                    'installation_id': installation.id,
-                    'message': 'Installation created successfully with QR scan',
-                    'installation': InstallationSerializer(installation).data
-                })
-            else:
-                return Response({'error': serializer.errors}, status=400)
-            
-        except (InventoryItem.DoesNotExist, Company.DoesNotExist) as e:
-            return Response({'error': str(e)}, status=404)
-        except Exception as e:
-            return Response({'error': str(e)}, status=500)
 
 
 # Service ViewSet
@@ -254,10 +135,6 @@ class ServiceFollowUpViewSet(viewsets.ModelViewSet):
         if self.action in ['create', 'update', 'partial_update']:
             return ServiceFollowUpCreateSerializer
         return ServiceFollowUpSerializer
-    
-    def perform_create(self, serializer):
-        """Automatically set created by user"""
-        serializer.save()
 
 
 # Maintenance ViewSet
@@ -625,102 +502,3 @@ def mobile_installation_spare_parts(request, installation_id):
         
     except Installation.DoesNotExist:
         return Response({'error': 'Installation not found'}, status=404)
-
-
-@api_view(['POST'])
-@permission_classes([IsAuthenticated])
-def mobile_installation_scan_qr(request):
-    """
-    Mobile compatible QR scanner endpoint
-    Compatible with: /warranty-services/api/installation/scan-qr/
-    """
-    qr_code = request.data.get('qr_code', '')
-    if not qr_code:
-        return Response({'error': 'QR code is required'}, status=400)
-    
-    try:
-        # Find inventory item by QR code
-        if qr_code.isdigit():
-            inventory_item = InventoryItem.objects.get(id=int(qr_code))
-        else:
-            inventory_item = InventoryItem.objects.filter(
-                Q(serial_no__iexact=qr_code) |
-                Q(name__shortcode__iexact=qr_code)
-            ).first()
-            
-            if not inventory_item:
-                return Response({'error': 'Item not found with this QR code'}, status=404)
-        
-        # Return item details for installation form
-        result = {
-            'success': True,
-            'inventory_item': {
-                'id': inventory_item.id,
-                'name': inventory_item.name.name,
-                'shortcode': inventory_item.name.shortcode,
-                'serial_no': inventory_item.serial_no,
-                'brand_name': inventory_item.name.brand_name.name if inventory_item.name.brand_name else None,
-            },
-            'message': 'QR code scanned successfully'
-        }
-        
-        return Response(result)
-        
-    except InventoryItem.DoesNotExist:
-        return Response({'error': 'Item not found with this QR code'}, status=404)
-    except Exception as e:
-        return Response({'error': str(e)}, status=500)
-
-
-@api_view(['POST'])
-@permission_classes([IsAuthenticated])
-def mobile_installation_create_with_qr(request):
-    """
-    Mobile compatible installation creation with QR code
-    Compatible with: /warranty-services/api/installation/create-with-qr/
-    """
-    qr_code = request.data.get('qr_code', '')
-    if not qr_code:
-        return Response({'error': 'QR code is required'}, status=400)
-    
-    try:
-        # Find inventory item by QR code
-        if qr_code.isdigit():
-            inventory_item = InventoryItem.objects.get(id=int(qr_code))
-        else:
-            inventory_item = InventoryItem.objects.filter(
-                Q(serial_no__iexact=qr_code) |
-                Q(name__shortcode__iexact=qr_code)
-            ).first()
-            
-            if not inventory_item:
-                return Response({'error': 'Item not found with this QR code'}, status=404)
-        
-        # Get customer
-        customer_id = request.data.get('customer_id')
-        if not customer_id:
-            return Response({'error': 'Customer ID is required'}, status=400)
-        
-        customer = Company.objects.get(id=customer_id)
-        
-        # Create installation
-        installation = Installation.objects.create(
-            user=request.user,
-            inventory_item=inventory_item,
-            customer=customer,
-            location_latitude=request.data.get('location_latitude'),
-            location_longitude=request.data.get('location_longitude'),
-            location_address=request.data.get('location_address', ''),
-            installation_notes=request.data.get('installation_notes', ''),
-        )
-        
-        return Response({
-            'success': True,
-            'installation_id': installation.id,
-            'message': 'Installation created successfully with QR scan'
-        })
-        
-    except (InventoryItem.DoesNotExist, Company.DoesNotExist) as e:
-        return Response({'error': str(e)}, status=404)
-    except Exception as e:
-        return Response({'error': str(e)}, status=500)

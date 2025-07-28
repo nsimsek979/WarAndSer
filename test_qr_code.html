@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test QR Code</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .qr-code {
+            text-align: center;
+            margin: 20px 0;
+            padding: 20px;
+            border: 2px solid #ccc;
+            border-radius: 10px;
+        }
+        .qr-code img {
+            max-width: 300px;
+            height: auto;
+        }
+        .test-text {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>QR Code Test Sayfası</h1>
+    <p>Bu sayfadaki QR kodları installation scanner'ı test etmek için kullanabilirsiniz.</p>
+    
+    <div class="qr-code">
+        <h3>Test QR Code 1: Barcode</h3>
+        <div class="test-text">1234567890123</div>
+        <img src="https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=1234567890123" alt="Test QR Code 1">
+        <p>Bu QR kod, barcode "1234567890123" değerini içerir</p>
+    </div>
+    
+    <div class="qr-code">
+        <h3>Test QR Code 2: Serial Number</h3>
+        <div class="test-text">ABC123XYZ789</div>
+        <img src="https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=ABC123XYZ789" alt="Test QR Code 2">
+        <p>Bu QR kod, serial number "ABC123XYZ789" değerini içerir</p>
+    </div>
+    
+    <div class="qr-code">
+        <h3>Test QR Code 3: JSON Data</h3>
+        <div class="test-text">{"barcode":"9876543210987","serial":"DEF456GHI012"}</div>
+        <img src="https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=%7B%22barcode%22%3A%229876543210987%22%2C%22serial%22%3A%22DEF456GHI012%22%7D" alt="Test QR Code 3">
+        <p>Bu QR kod, JSON formatında barcode ve serial number içerir</p>
+    </div>
+    
+    <h2>Kullanım Talimatları:</h2>
+    <ol>
+        <li>Installation scanner sayfasını açın</li>
+        <li>"Kamerayı Başlat" butonuna tıklayın</li>
+        <li>Kamera izni verin</li>
+        <li>Bu sayfadaki QR kodlardan birini kameranın karşısına tutun</li>
+        <li>QR kod okununca API'ye gönderilecek ve sonuç gösterilecek</li>
+    </ol>
+    
+    <h2>Beklenen Davranışlar:</h2>
+    <ul>
+        <li>Kamera başladığında video görüntüsü gözükmelidir</li>
+        <li>QR kod okununca otomatik olarak kamera durmalıdır</li>
+        <li>API çağrısı yapılmalı ve sonuç gösterilmelidir</li>
+        <li>Authentication hatası durumunda login sayfasına yönlendirilmelidir</li>
+    </ul>
+</body>
+</html>

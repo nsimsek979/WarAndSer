@@ -240,7 +240,7 @@
                         <div>
                             <div class="info-item">
                                 <span class="info-label">{% trans "Installation Date" %}</span>
-                                <span class="info-value">{{ installation.setup_date|date:"d.m.Y H:i" }}</span>
+                                <span class="info-value">{{ installation.setup_date|date:"d.m.Y" }}</span>
                             </div>
                             <div class="info-item">
                                 <span class="info-label">{% trans "Installer" %}</span>
@@ -486,7 +486,7 @@
 
         <!-- Footer -->
         <div class="footer">
-            <p>{% trans "This document was generated automatically on" %} {{ installation.setup_date|date:"d.m.Y H:i" }}.</p>
+            <p>{% trans "This document was generated automatically on" %} {{ installation.setup_date|date:"d.m.Y" }}.</p>
             <p>Konnektom  - {% trans "Warranty and Service Tracking System" %}</p>
         </div>
     </div>

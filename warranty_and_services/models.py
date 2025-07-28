@@ -71,10 +71,12 @@ class Installation(models.Model):
         verbose_name=_("Installer User"),
         help_text=_("User who performed the installation")
     )
-    setup_date = models.DateTimeField(
+    setup_date = models.DateField(
         default=timezone.now,
+        blank=True,
+        null=True,
         verbose_name=_("Setup Date"),
-        help_text=_("Date and time when the installation was completed")
+        help_text=_("Date when the installation was completed")
     )
     inventory_item = models.ForeignKey(
         'item_master.InventoryItem',

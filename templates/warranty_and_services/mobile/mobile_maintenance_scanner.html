@@ -279,6 +279,14 @@
             })
             .then(response => {
                 console.log('API yanıtı alındı, status:', response.status);
+                // 401 Unauthorized kontrolü
+                if (response.status === 401) {
+                    showError('Oturum süreniz dolmuş. Giriş sayfasına yönlendiriliyorsunuz...');
+                    setTimeout(() => {
+                        window.location.href = '/accounts/login/';
+                    }, 2000);
+                    return Promise.reject('Authentication required');
+                }
                 return response.json();
             })
             .then(data => {
@@ -298,7 +306,15 @@
                     }
                 } else {
                     console.log('API success=false döndü:', data.message);
-                    showError(data.message || 'Kurulumu yapılmış ekipman bulunamadı');
+                    // Authentication error kontrolü
+                    if (data.error_code === 'AUTH_REQUIRED') {
+                        showError('Oturum süreniz dolmuş. Giriş sayfasına yönlendiriliyorsunuz...');
+                        setTimeout(() => {
+                            window.location.href = '/accounts/login/';
+                        }, 2000);
+                    } else {
+                        showError(data.message || 'Kurulumu yapılmış ekipman bulunamadı');
+                    }
                 }
             })
             .catch(error => {
@@ -369,6 +385,14 @@
             })
             .then(response => {
                 console.log('Maintenance detail API yanıtı:', response.status);
+                // 401 Unauthorized kontrolü
+                if (response.status === 401) {
+                    showError('Oturum süreniz dolmuş. Giriş sayfasına yönlendiriliyorsunuz...');
+                    setTimeout(() => {
+                        window.location.href = '/accounts/login/';
+                    }, 2000);
+                    return Promise.reject('Authentication required');
+                }
                 return response.json();
             })
             .then(data => {
@@ -377,7 +401,15 @@
                     // Redirect to maintenance form with installation ID
                     window.location.href = "{% url 'warranty_and_services:mobile_maintenance_form' %}?installation_id=" + result.installation_id;
                 } else {
-                    showError(data.message || 'Detay bilgileri alınamadı');
+                    // Authentication error kontrolü
+                    if (data.error_code === 'AUTH_REQUIRED') {
+                        showError('Oturum süreniz dolmuş. Giriş sayfasına yönlendiriliyorsunuz...');
+                        setTimeout(() => {
+                            window.location.href = '/accounts/login/';
+                        }, 2000);
+                    } else {
+                        showError(data.message || 'Detay bilgileri alınamadı');
+                    }
                 }
             })
             .catch(error => {

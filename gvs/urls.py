@@ -27,6 +27,7 @@ urlpatterns = [
     path("admin/", garanti_ve_servis_admin_site.urls),
     path("accounts/login/", auth_views.LoginView.as_view(template_name="registration/login.html"), name="login"),
     path("accounts/logout/", auth_views.LogoutView.as_view(next_page="login"), name="logout"),
+    path("auth/", include("custom_user.urls")),
     path("core/", include("core.urls")),
     path("", include("dashboard.urls")),
     path('set_language/', set_language, name='set_language'),
@@ -35,6 +36,8 @@ urlpatterns = [
     path('warranty-services/', include('warranty_and_services.urls')),
     # API endpoints for mobile app
     path('api/', include('api.urls')),
+    # Inventory API endpoints
+    path('api/inventory/', include('item_master.urls')),
 ]
 
 # Serve static and media files from development server if DEBUG is True
