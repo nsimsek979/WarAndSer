@@ -10,7 +10,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="theme-color" content="#3b82f6">
-    <title>GVS Mobile - Ana Sayfa</title>
+    <title>{% trans "GVS Mobile - Home" %}</title>
     <link rel="shortcut icon" type="image/x-icon" href="{% static 'konnektom-logo.png' %}">
 
     <!-- Tailwind CSS -->
@@ -179,7 +179,7 @@
 
         <!-- Main Action Buttons -->
         <div class="space-y-4">
-            <h2 class="text-lg font-semibold text-gray-900 px-2">İşlemler</h2>
+            <h2 class="text-lg font-semibold text-gray-900 px-2">{% trans "Operations" %}</h2>
             
             <!-- Installation Button -->
             <a href="{% url 'warranty_and_services:mobile_installation_scanner' %}" 
@@ -192,13 +192,12 @@
                                     <i class="fas fa-tools text-blue-600 text-xl"></i>
                                 </div>
                                 <div>
-                                    <h3 class="text-xl font-bold text-gray-900">Kurulum</h3>
-                                    <p class="text-gray-600 text-sm">Yeni Ekipman Kurulumu</p>
+                                    <h3 class="text-xl font-bold text-gray-900">{% trans "Installation" %}</h3>
+                                    <p class="text-gray-600 text-sm">{% trans "New Equipment Installation" %}</p>
                                 </div>
                             </div>
                             <p class="text-gray-600 text-sm leading-relaxed">
-                                QR kod okutarak yeni ekipman kurulumu yapın, 
-                                fotoğraf çekin ve müşteri bilgilerini kaydedin.
+                                {% trans "Scan QR code to install new equipment, take photos and record customer information." %}
                             </p>
                         </div>
                         <div class="ml-4">
@@ -210,11 +209,11 @@
                     <div class="mt-4 flex items-center space-x-4 text-gray-500 text-xs">
                         <div class="flex items-center space-x-1">
                             <i class="fas fa-qrcode"></i>
-                            <span>QR Okutma</span>
+                            <span>{% trans "QR Scan" %}</span>
                         </div>
                         <div class="flex items-center space-x-1">
                             <i class="fas fa-camera"></i>
-                            <span>Fotoğraf</span>
+                            <span>{% trans "Photo" %}</span>
                         </div>
                         <div class="flex items-center space-x-1">
                             <i class="fas fa-map-marker-alt"></i>
@@ -235,13 +234,12 @@
                                     <i class="fas fa-wrench text-green-600 text-xl"></i>
                                 </div>
                                 <div>
-                                    <h3 class="text-xl font-bold text-gray-900">Bakım & Onarım</h3>
-                                    <p class="text-gray-600 text-sm">Periyodik Bakım İşlemleri</p>
+                                    <h3 class="text-xl font-bold text-gray-900">{% trans "Maintenance & Repair" %}</h3>
+                                    <p class="text-gray-600 text-sm">{% trans "Periodic Maintenance Operations" %}</p>
                                 </div>
                             </div>
                             <p class="text-gray-600 text-sm leading-relaxed">
-                                Kurulu ekipmanların bakım ve onarım işlemlerini 
-                                gerçekleştirin, rapor oluşturun.
+                                {% trans "Perform maintenance and repair operations on installed equipment, create reports." %}
                             </p>
                         </div>
                         <div class="ml-4">
@@ -253,15 +251,15 @@
                     <div class="mt-4 flex items-center space-x-4 text-gray-500 text-xs">
                         <div class="flex items-center space-x-1">
                             <i class="fas fa-search"></i>
-                            <span>Ekipman Ara</span>
+                            <span>{% trans "Search Equipment" %}</span>
                         </div>
                         <div class="flex items-center space-x-1">
                             <i class="fas fa-file-alt"></i>
-                            <span>Rapor</span>
+                            <span>{% trans "Report" %}</span>
                         </div>
                         <div class="flex items-center space-x-1">
                             <i class="fas fa-clock"></i>
-                            <span>Zamanlama</span>
+                            <span>{% trans "Scheduling" %}</span>
                         </div>
                     </div>
                 </div>

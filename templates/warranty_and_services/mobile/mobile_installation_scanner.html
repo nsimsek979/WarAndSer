@@ -197,7 +197,7 @@
 
         function processQRCode(qrData) {
             // Show loading
-            showMessage('QR kod okundu, veriler işleniyor...', 'info');
+            showMessage('{% trans "QR code read, processing data..." %}', 'info');
             
             // API call to search by QR code
             fetch('{% url "warranty_and_services:api_search_by_barcode" %}', {
@@ -213,7 +213,7 @@
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    showMessage(`QR kod okundu: ${data.item.name} (${data.item.brand})`, 'success');
+                    showMessage(`{% trans "QR code read:" %} ${data.item.name} (${data.item.brand})`, 'success');
                     
                     // Fill manual entry field with serial number
                     const serialInput = document.querySelector('input[type="text"]');
@@ -224,18 +224,18 @@
                     // Display item details
                     displayItemDetails(data.item);
                 } else {
-                    showError(data.message || 'QR kod ile eşleşen kuruluma hazır ekipman bulunamadı');
+                    showError(data.message || '{% trans "No equipment ready for installation matching the QR code was found" %}');
                 }
             })
             .catch(error => {
                 console.error('QR API Error:', error);
-                showError('QR kod işleme sırasında bir hata oluştu');
+                showError('{% trans "An error occurred while processing QR code" %}');
             });
         }
 
         function searchBySerial(serialNumber) {
             if (!serialNumber) {
-                showError('Seri numarası bulunamadı');
+                showError('{% trans "Serial number not found" %}');
                 return;
             }
 
@@ -258,12 +258,12 @@
                     // Fill form with item data or redirect to installation form
                     displayItemDetails(data.item);
                 } else {
-                    showError(data.message || 'Ekipman bulunamadı');
+                    showError(data.message || '{% trans "Equipment not found" %}');
                 }
             })
             .catch(error => {
                 console.error('API Error:', error);
-                showError('Arama sırasında bir hata oluştu');
+                showError('{% trans "An error occurred during search" %}');
             });
         }
 

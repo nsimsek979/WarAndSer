@@ -741,7 +741,10 @@ def category_report(request):
 
 @login_required(login_url='login')
 def breakdown_maintenance_report(request):
-    """Detailed Breakdown Maintenance Report with pagination and chart data"""
+    """Detailed Breakdown Maintenance Report with filters and pagination"""
+    from item_master.models import ItemMaster, Category
+    from warranty_and_services.models import BreakdownCategory, BreakdownReason
+    
     context = {}
 
     # Only generate report if models are available
@@ -749,7 +752,11 @@ def breakdown_maintenance_report(request):
         # Get user's accessible companies filter
         installation_filter = get_user_accessible_companies_filter(request.user, 'installation')
         
-        # Get date filter parameter
+        # Get filter parameters
+        breakdown_category_filter = request.GET.get('breakdown_category', '')
+        breakdown_reason_filter = request.GET.get('breakdown_reason', '')
+        item_category_filter = request.GET.get('item_category', '')
+        item_master_filter = request.GET.get('item_master', '')
         date_filter = request.GET.get('period', 'all')
         
         # Calculate date range based on filter
@@ -773,18 +780,58 @@ def breakdown_maintenance_report(request):
             'service_followup__installation__customer',
             'service_followup__installation__inventory_item',
             'service_followup__installation__inventory_item__name',
-            'service_followup__installation__inventory_item__name__category'
+            'service_followup__installation__inventory_item__name__category',
+            'category',
+            'breakdown_reason_selected'
         )
         
         # Apply date filter if specified
         if start_date:
             base_queryset = base_queryset.filter(service_date__gte=start_date)
+            
+        # Apply breakdown category filter
+        if breakdown_category_filter:
+            base_queryset = base_queryset.filter(category__id=breakdown_category_filter)
+            
+        # Apply breakdown reason filter
+        if breakdown_reason_filter:
+            base_queryset = base_queryset.filter(breakdown_reason_selected__id=breakdown_reason_filter)
+            
+        # Apply item category filter
+        if item_category_filter:
+            base_queryset = base_queryset.filter(
+                service_followup__installation__inventory_item__name__category__id=item_category_filter
+            )
+            
+        # Apply item master filter
+        if item_master_filter:
+            base_queryset = base_queryset.filter(
+                service_followup__installation__inventory_item__name__id=item_master_filter
+            )
         
         # Breakdown by Customer/Company
         customer_breakdown_stats = base_queryset.values(
             'service_followup__installation__customer__name'
         ).annotate(
             breakdown_count=Count('id')
+        ).order_by('-breakdown_count')
+        
+        # Breakdown by Breakdown Category
+        breakdown_category_stats = base_queryset.values(
+            'category__name'
+        ).annotate(
+            breakdown_count=Count('id')
+        ).filter(
+            category__name__isnull=False
+        ).order_by('-breakdown_count')
+        
+        # Breakdown by Breakdown Reason
+        breakdown_reason_stats = base_queryset.values(
+            'breakdown_reason_selected__name'
+        ).annotate(
+            breakdown_count=Count('id')
+        ).filter(
+            breakdown_reason_selected__name__isnull=False
         ).order_by('-breakdown_count')
         
         # Breakdown by Category
@@ -820,6 +867,44 @@ def breakdown_maintenance_report(request):
             '#DC2626', '#EF4444', '#F87171', '#FCA5A5', '#FECACA',
             '#FEE2E2', '#B91C1C', '#991B1B', '#7F1D1D', '#64748B'
         ]
+        
+        # Prepare chart data for breakdown category breakdowns - All data
+        chart_breakdown_categories = list(breakdown_category_stats)
+        
+        # Breakdown Category chart data
+        breakdown_category_labels = []
+        breakdown_category_data = []
+        breakdown_category_colors = [
+            '#DC2626', '#F97316', '#EAB308', '#22C55E', '#06B6D4'
+        ]
+        
+        for stat in chart_breakdown_categories:
+            if stat['category__name']:
+                breakdown_category_labels.append(stat['category__name'])
+                breakdown_category_data.append(stat['breakdown_count'])
+        
+        # Prepare chart data for breakdown reason breakdowns - Top 9 + Others
+        chart_breakdown_reasons = list(breakdown_reason_stats[:9])
+        reason_others_count = sum(item['breakdown_count'] for item in breakdown_reason_stats[9:])
+        
+        if reason_others_count > 0:
+            chart_breakdown_reasons.append({
+                'breakdown_reason_selected__name': 'Others',
+                'breakdown_count': reason_others_count
+            })
+        
+        # Breakdown Reason chart data
+        breakdown_reason_labels = []
+        breakdown_reason_data = []
+        breakdown_reason_colors = [
+            '#8B5CF6', '#EC4899', '#F59E0B', '#10B981', '#3B82F6',
+            '#EF4444', '#84CC16', '#F97316', '#06B6D4', '#64748B'
+        ]
+        
+        for stat in chart_breakdown_reasons:
+            if stat['breakdown_reason_selected__name']:
+                breakdown_reason_labels.append(stat['breakdown_reason_selected__name'])
+                breakdown_reason_data.append(stat['breakdown_count'])
         
         # Prepare chart data for category breakdowns - Top 9 + Others
         chart_categories = list(category_breakdown_stats[:9])
@@ -860,6 +945,16 @@ def breakdown_maintenance_report(request):
         
         # Prepare comprehensive chart data for all visualizations
         chart_data = {
+            'breakdown_category_data': {
+                'labels': breakdown_category_labels,
+                'data': breakdown_category_data,
+                'colors': breakdown_category_colors[:len(breakdown_category_data)]
+            },
+            'breakdown_reason_data': {
+                'labels': breakdown_reason_labels,
+                'data': breakdown_reason_data,
+                'colors': breakdown_reason_colors[:len(breakdown_reason_data)]
+            },
             'customer_data': {
                 'labels': customer_labels,
                 'data': customer_data,
@@ -954,5 +1049,17 @@ def breakdown_maintenance_report(request):
             {'value': '1quarter', 'label': 'Last Quarter (3 months)'},
             {'value': '1month', 'label': 'Last Month'},
         ]
+        
+        # Add filter options to context
+        context['breakdown_categories'] = BreakdownCategory.objects.all()
+        context['breakdown_reasons'] = BreakdownReason.objects.all().order_by('name')
+        context['item_categories'] = Category.objects.all()
+        context['item_masters'] = ItemMaster.objects.all().order_by('name')
+        
+        # Current filter values
+        context['current_breakdown_category'] = breakdown_category_filter
+        context['current_breakdown_reason'] = breakdown_reason_filter
+        context['current_item_category'] = item_category_filter
+        context['current_item_master'] = item_master_filter
 
     return render(request, 'dashboard/breakdown_maintenance_report.html', context)

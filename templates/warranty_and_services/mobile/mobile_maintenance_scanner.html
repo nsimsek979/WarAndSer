@@ -34,7 +34,7 @@
                 }
                 searchInstalledItems(qrResult);
             }ttp-equiv="X-UA-Compatible" content="IE=edge">
-    <title>Bakım Scanner - GVS Mobile</title>
+    <title>{% trans "Maintenance Scanner - GVS Mobile" %}</title>
     <link rel="shortcut icon" type="image/x-icon" href="{% static 'konnektom-logo.png' %}">
 
     <!-- Tailwind CSS -->
@@ -75,8 +75,8 @@
                     <i class="fas fa-arrow-left text-white"></i>
                 </a>
                 <div>
-                    <h1 class="text-lg font-bold">Bakım Scanner</h1>
-                    <p class="text-white/80 text-sm">QR Kod ile Bakım</p>
+                    <h1 class="text-lg font-bold">{% trans "Maintenance Scanner" %}</h1>
+                    <p class="text-white/80 text-sm">{% trans "QR Code Maintenance" %}</p>
                 </div>
             </div>
         </div>
@@ -98,31 +98,31 @@
                 <div class="w-24 h-24 mx-auto mb-4 bg-green-100 rounded-full flex items-center justify-center">
                     <i class="fas fa-qrcode text-green-600 text-3xl"></i>
                 </div>
-                <h2 class="text-xl font-bold text-gray-900 mb-2">QR Kod Okutun</h2>
-                <p class="text-gray-600 mb-6">Ekipmanın QR kodunu kameraya tutun</p>
+                <h2 class="text-xl font-bold text-gray-900 mb-2">{% trans "Scan QR Code" %}</h2>
+                <p class="text-gray-600 mb-6">{% trans "Hold the equipment's QR code up to the camera" %}</p>
             </div>
             
             <button id="startCamera" class="w-full bg-green-600 text-white py-4 rounded-xl font-semibold hover:bg-green-700 transition-colors mobile-card">
                 <i class="fas fa-camera mr-2"></i>
-                <span id="cameraButtonText">Kamerayı Başlat</span>
+                <span id="cameraButtonText">{% trans "Start Camera" %}</span>
             </button>
         </div>
 
         <!-- Manual Search -->
         <div class="bg-white rounded-xl p-6 mobile-card">
-            <h3 class="text-lg font-semibold text-gray-900 mb-4">Kurulumu Yapılmış Ekipman Ara</h3>
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">{% trans "Search Installed Equipment" %}</h3>
             
             <div class="space-y-4">
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Seri No / Barkod</label>
-                    <input type="text" placeholder="Seri numarası veya barkod girin" 
+                    <label class="block text-sm font-medium text-gray-700 mb-1">{% trans "Serial No / Barcode" %}</label>
+                    <input type="text" placeholder="{% trans 'Enter serial number or barcode' %}" 
                            class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
-                    <p class="text-xs text-gray-500 mt-1">Sadece kurulumu yapılmış ekipmanlar aranır</p>
+                    <p class="text-xs text-gray-500 mt-1">{% trans "Only installed equipment will be searched" %}</p>
                 </div>
                 
                 <button id="manualSearchBtn" class="w-full bg-gray-600 text-white py-3 rounded-lg font-semibold hover:bg-gray-700 transition-colors">
                     <i class="fas fa-search mr-2"></i>
-                    Ekipman Ara
+                    {% trans "Search Equipment" %}
                 </button>
             </div>
         </div>
@@ -159,7 +159,7 @@
             // Update button
             button.classList.remove('bg-green-600', 'hover:bg-green-700');
             button.classList.add('bg-red-600', 'hover:bg-red-700');
-            buttonText.innerHTML = '<i class="fas fa-stop mr-2"></i>Kamerayı Durdur';
+            buttonText.innerHTML = '<i class="fas fa-stop mr-2"></i>{% trans "Stop Camera" %}';
 
             // Start QR Code scanner
             html5QrCode = new Html5Qrcode("cameraPreview");
@@ -187,7 +187,7 @@
                 }
             ).catch(err => {
                 console.error('Camera error:', err);
-                showError('Kamera erişimi başarısız. Lütfen kamera izinlerini kontrol edin.');
+                showError('{% trans "Camera access failed. Please check camera permissions." %}');
                 resetUI();
             });
 
@@ -219,14 +219,14 @@
             // Reset button
             button.classList.remove('bg-red-600', 'hover:bg-red-700');
             button.classList.add('bg-green-600', 'hover:bg-green-700');
-            buttonText.innerHTML = '<i class="fas fa-camera mr-2"></i>Kamerayı Başlat';
+            buttonText.innerHTML = '<i class="fas fa-camera mr-2"></i>{% trans "Start Camera" %}';
 
             cameraStarted = false;
         }
 
         function processQRCode(qrData) {
             // Show loading
-            showMessage('QR kod okundu, kurulumu yapılmış ekipman aranıyor...', 'info');
+            showMessage('{% trans "QR code read, searching for installed equipment..." %}', 'info');
             
             // Try to extract serial number or item info from QR code
             let searchTerm = qrData;
@@ -260,11 +260,11 @@
             console.log('searchInstalledItems fonksiyonu çağrıldı, searchTerm:', searchTerm);
             
             if (!searchTerm) {
-                showError('Arama terimi gerekli');
+                showError('{% trans "Search term required" %}');
                 return;
             }
 
-            showMessage('Kurulumu yapılmış ekipman aranıyor...', 'info');
+            showMessage('{% trans "Searching for installed equipment..." %}', 'info');
 
             // Call maintenance search API
             fetch('{% url "warranty_and_services:api_maintenance_search" %}', {
@@ -294,16 +294,16 @@
                         showSearchResults(data.results);
                     } else {
                         console.log('Hiç sonuç bulunamadı');
-                        showError('Kurulumu yapılmış ekipman bulunamadı');
+                        showError('{% trans "No installed equipment found" %}');
                     }
                 } else {
                     console.log('API success=false döndü:', data.message);
-                    showError(data.message || 'Kurulumu yapılmış ekipman bulunamadı');
+                    showError(data.message || '{% trans "No installed equipment found" %}');
                 }
             })
             .catch(error => {
                 console.error('Search error:', error);
-                showError('Arama sırasında bir hata oluştu');
+                showError('{% trans "An error occurred during search" %}');
             });
         }
 
@@ -377,12 +377,12 @@
                     // Redirect to maintenance form with installation ID
                     window.location.href = "{% url 'warranty_and_services:mobile_maintenance_form' %}?installation_id=" + result.installation_id;
                 } else {
-                    showError(data.message || 'Detay bilgileri alınamadı');
+                    showError(data.message || '{% trans "Unable to get detail information" %}');
                 }
             })
             .catch(error => {
                 console.error('Detail error:', error);
-                showError('Detay bilgileri alınırken bir hata oluştu');
+                showError('{% trans "An error occurred while getting detail information" %}');
             });
         }
 
@@ -431,7 +431,7 @@
             if (searchTerm) {
                 searchInstalledItems(searchTerm);
             } else {
-                showError('Lütfen bir seri numarası veya barkod girin');
+                showError('{% trans "Please enter a serial number or barcode" %}');
             }
         });
 
