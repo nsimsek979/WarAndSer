@@ -92,7 +92,7 @@
         {% endif %}
 
         <!-- Charts Section -->
-        {% if chart_data %}
+        {% if chart_data_json %}
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
             <!-- Customer Breakdown Chart -->
             <div class="bg-white rounded-lg shadow-lg border border-gray-200">
@@ -356,13 +356,14 @@
     </div>
 
     <!-- Chart.js Scripts -->
-    {% if chart_data %}
+    {% if chart_data_json %}
     <script>
     document.addEventListener('DOMContentLoaded', function() {
         // Parse data from Django context
-        const customerData = {{ chart_data.customer_data|safe }};
-        const monthlyData = {{ chart_data.monthly_data|safe }};
-        const categoryData = {{ chart_data.category_data|safe }};
+        const chartData = {{ chart_data_json|safe }};
+        const customerData = chartData.customer_data;
+        const monthlyData = chartData.monthly_data;
+        const categoryData = chartData.category_data;
         
         // Customer Breakdown Chart
         if (customerData && customerData.labels.length > 0) {

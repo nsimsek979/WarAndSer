@@ -73,10 +73,14 @@
                                                     {% now "Y-m-d" as today %}
                                                     {% if service.next_service_date|date:"Y-m-d" <= today %}
                                                         <span class="badge bg-danger fs-6">Geciken Servis</span>
-                                                    {% elif service.next_service_date|timeuntil|slice:":1" == "1" %}
-                                                        <span class="badge bg-warning fs-6">Bu Hafta</span>
                                                     {% else %}
-                                                        <span class="badge bg-info fs-6">Bekliyor</span>
+                                                        {% with service.next_service_date|days_until as days %}
+                                                            {% if days <= 7 %}
+                                                                <span class="badge bg-warning fs-6">Bu Hafta</span>
+                                                            {% else %}
+                                                                <span class="badge bg-info fs-6">Bekliyor</span>
+                                                            {% endif %}
+                                                        {% endwith %}
                                                     {% endif %}
                                                 {% endif %}
                                             </td>

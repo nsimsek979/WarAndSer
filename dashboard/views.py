@@ -886,23 +886,27 @@ def breakdown_maintenance_report(request):
                 customer_data.append(stat['breakdown_count'])
         
         # Prepare comprehensive chart data for all visualizations
-        context['chart_data'] = {
+        chart_data = {
             'customer_data': {
-                'labels': json.dumps(customer_labels),
-                'data': json.dumps(customer_data),
-                'colors': json.dumps(customer_colors[:len(customer_data)])
+                'labels': customer_labels,
+                'data': customer_data,
+                'colors': customer_colors[:len(customer_data)]
             },
             'monthly_data': {
-                'labels': json.dumps(monthly_labels),
-                'data': json.dumps(monthly_data),
-                'colors': json.dumps(['#f97316'] * len(monthly_data))
+                'labels': monthly_labels,
+                'data': monthly_data,
+                'colors': ['#f97316'] * len(monthly_data)
             },
             'category_data': {
-                'labels': json.dumps(category_labels),
-                'data': json.dumps(category_data),
-                'colors': json.dumps(category_colors[:len(category_data)])
+                'labels': category_labels,
+                'data': category_data,
+                'colors': category_colors[:len(category_data)]
             }
         }
+        context['chart_data_json'] = json.dumps(chart_data)
+        
+        # Debug: Chart data oluştuğunu kontrol edelim
+        print(f"DEBUG: Chart data created - Customer: {len(customer_labels)} items, Monthly: {len(monthly_labels)} items, Category: {len(category_labels)} items")
         
         # Summary statistics for dashboard
         total_breakdowns = base_queryset.count()
@@ -917,8 +921,8 @@ def breakdown_maintenance_report(request):
             count = 0
             for record in base_queryset:
                 if record.service_date and record.maintenance_date:
-                    # Convert maintenance_date to date for comparison
-                    maintenance_date = record.maintenance_date.date()
+                    # maintenance_date is already a date object, no need to call .date()
+                    maintenance_date = record.maintenance_date
                     days = (maintenance_date - record.service_date).days
                     total_days += days
                     count += 1
@@ -947,7 +951,8 @@ def breakdown_maintenance_report(request):
         for record in all_maintenance_records:
             # Calculate resolution days using maintenance_date - service_date
             if record.service_date and record.maintenance_date:
-                maintenance_date = record.maintenance_date.date()
+                # maintenance_date is already a date object, no need to call .date()
+                maintenance_date = record.maintenance_date
                 record.resolution_days = (maintenance_date - record.service_date).days
             else:
                 record.resolution_days = None

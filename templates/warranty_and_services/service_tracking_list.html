@@ -177,7 +177,7 @@
                         <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Product" %}</th>
                         <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Serial No" %}</th>
                         <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Service Type" %}</th>
-                        <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Service Value" %}</th>
+                        <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Service Completed" %}</th>
                         <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Installation Date" %}</th>
                         <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Next Service" %}</th>
                         <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Status" %}</th>
@@ -205,15 +205,36 @@
                                          {% if installation.critical_service.service_type == 'time_term' %}bg-blue-100 text-blue-800{% else %}bg-gray-100 text-gray-800{% endif %}">
                                 {{ installation.critical_service.get_service_type_display }}
                             </span>
-                        </td>
-                        <td class="px-3 py-4 whitespace-nowrap">
-                            <div class="text-sm font-medium text-gray-900">
+                            <div class="text-xs text-gray-600 mt-1">
                                 {% if installation.critical_service.service_type == 'time_term' %}
                                     {{ installation.critical_service.service_value|floatformat:"0" }} ay
                                 {% else %}
                                     {{ installation.critical_service.service_value|humanize_number }} saat
                                 {% endif %}
                             </div>
+                        </td>
+                        <td class="px-3 py-4 whitespace-nowrap">
+                            {% with installation.maintenance_stats as stats %}
+                                <div class="text-sm font-medium text-gray-900">
+                                    {{ stats.total|default:0 }} {% trans "services" %}
+                                </div>
+                                {% if stats.total > 0 %}
+                                <div class="text-xs text-gray-500 space-y-1">
+                                    {% if stats.periodic > 0 %}
+                                    <div class="flex items-center">
+                                        <span class="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                                        {{ stats.periodic|default:0 }} {% trans "periodic" %}
+                                    </div>
+                                    {% endif %}
+                                    {% if stats.breakdown > 0 %}
+                                    <div class="flex items-center">
+                                        <span class="w-2 h-2 bg-red-500 rounded-full mr-2"></span>
+                                        {{ stats.breakdown|default:0 }} {% trans "breakdown" %}
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                {% endif %}
+                            {% endwith %}
                         </td>
                         <td class="px-3 py-4 whitespace-nowrap text-sm text-gray-900">
                             {{ installation.setup_date|date:"d.m.Y" }}
@@ -234,14 +255,18 @@
                                 <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">
                                     Expired
                                 </span>
-                            {% elif installation.critical_service.next_service_date|timeuntil|slice:":1" == "1" %}
-                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">
-                                    This Week
-                                </span>
                             {% else %}
-                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
-                                    Pending
-                                </span>
+                                {% with installation.critical_service.next_service_date|days_until as days %}
+                                    {% if days <= 7 %}
+                                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                            This Week
+                                        </span>
+                                    {% else %}
+                                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
+                                            Pending
+                                        </span>
+                                    {% endif %}
+                                {% endwith %}
                             {% endif %}
                         </td>
                         <td class="px-3 py-4 whitespace-nowrap text-sm font-medium">

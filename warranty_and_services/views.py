@@ -11,7 +11,7 @@ from django.views.decorators.http import require_http_methods
 from django.contrib import messages
 import json
 from datetime import datetime, timedelta
-from .models import Installation, WarrantyFollowUp, ServiceFollowUp, InstallationImage, InstallationDocument
+from .models import Installation, WarrantyFollowUp, ServiceFollowUp, InstallationImage, InstallationDocument, MaintenanceRecord
 from .utils import get_user_accessible_companies_filter
 
 
@@ -186,7 +186,7 @@ def service_tracking_list(request):
                 Q(inventory_item__serial_no__icontains=search_query)
             )
     
-    # Her installation için en kritik servis kaydını ekle
+    # Her installation için en kritik servis kaydını ve maintenance istatistiklerini ekle
     installations = []
     for installation in installations_with_service:
         if filter_type == 'completed':
@@ -195,14 +195,28 @@ def service_tracking_list(request):
                 is_completed=True
             ).order_by('-completed_date').first()
         else:
-            # En yakın tarihi olan servis kaydını bul
+            # En yakın tarihi olan tamamlanmamış servis kaydını bul
             critical_service = installation.service_followups.filter(
-                is_completed=False,
-                next_service_date=installation.next_service_date
-            ).first()
+                is_completed=False
+            ).order_by('next_service_date').first()
         
-        # Installation objesine geçici attribute ekle
+        # Maintenance istatistiklerini hesapla (service history sayfasındaki mantıkla aynı)
+        # MaintenanceRecord'u olan servislerin istatistikleri
+        all_maintenance_records = MaintenanceRecord.objects.filter(
+            service_followup__installation=installation
+        )
+        
+        total_maintenances = all_maintenance_records.count()
+        periodic_count = all_maintenance_records.filter(maintenance_type='periodic').count()
+        breakdown_count = all_maintenance_records.filter(maintenance_type='breakdown').count()
+        
+        # Installation objesine geçici attribute'ler ekle
         installation.critical_service = critical_service
+        installation.maintenance_stats = {
+            'total': total_maintenances,
+            'periodic': periodic_count,
+            'breakdown': breakdown_count
+        }
         installations.append(installation)
     
     # Pagination
