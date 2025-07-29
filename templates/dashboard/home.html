@@ -293,6 +293,39 @@
                     View Full Report
                 </a>
             </div>
+
+            <!-- Spare Parts Report -->
+            <div class="bg-white rounded-lg p-6 border border-gray-200 hover:bg-blue-50 hover:border-blue-200 transition-colors duration-200">
+                <div class="mb-4 pb-3 border-b border-gray-200">
+                    <h3 class="text-lg font-semibold text-gray-900 flex items-center">
+                        <svg class="w-6 h-6 text-blue-600 mr-2" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+                        </svg>
+                        Spare Parts Usage Report
+                    </h3>
+                </div>
+                <div class="space-y-3 mb-4">
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Total Parts Used:</span>
+                        <span class="font-semibold text-gray-900">{{ spare_parts_count|default:"0" }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Recent (30 days):</span>
+                        <span class="font-semibold text-gray-900">{{ recent_spare_parts|default:"0" }}</span>
+                    </div>
+                    <div class="text-center bg-gray-50 rounded p-2">
+                        <div class="text-sm text-gray-500">Parts Categories</div>
+                        <div class="font-semibold text-blue-600">Comprehensive Analysis</div>
+                        <div class="text-xs text-gray-500">Breakdown, periodic & others</div>
+                    </div>
+                </div>
+                <a href="{% url 'dashboard:spare_parts_report' %}" target="_blank" rel="noopener noreferrer" class="w-full inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded text-center transition-colors duration-200">
+                    <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                    </svg>
+                    View Full Report
+                </a>
+            </div>
         </div>
     </div>
 

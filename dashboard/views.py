@@ -74,6 +74,39 @@ def home(request):
         ).count()
         context['recent_breakdowns'] = recent_breakdowns
 
+        # Spare Parts Usage Statistics
+        from warranty_and_services.models import MaintenanceSparePart
+        from django.db.models import Sum
+        
+        # Spare parts statistics
+        spare_parts_count = MaintenanceSparePart.objects.filter(
+            maintenance_record__service_followup__installation__in=Installation.objects.filter(installation_filter),
+            is_used=True
+        ).aggregate(Sum('quantity_used'))['quantity_used__sum'] or 0
+        context['spare_parts_count'] = spare_parts_count
+        
+        # Recent spare parts usage (last 30 days)
+        recent_spare_parts = MaintenanceSparePart.objects.filter(
+            maintenance_record__service_followup__installation__in=Installation.objects.filter(installation_filter),
+            is_used=True,
+            maintenance_record__service_date__gte=now - timedelta(days=30)
+        ).aggregate(Sum('quantity_used'))['quantity_used__sum'] or 0
+        context['recent_spare_parts'] = recent_spare_parts
+        
+        spare_parts_count = MaintenanceSparePart.objects.filter(
+            maintenance_record__service_followup__installation__in=Installation.objects.filter(installation_filter),
+            is_used=True
+        ).aggregate(Sum('quantity_used'))['quantity_used__sum'] or 0
+        context['spare_parts_count'] = spare_parts_count
+        
+        # Recent spare parts usage (last 30 days)
+        recent_spare_parts = MaintenanceSparePart.objects.filter(
+            maintenance_record__service_followup__installation__in=Installation.objects.filter(installation_filter),
+            is_used=True,
+            maintenance_record__service_date__gte=now - timedelta(days=30)
+        ).aggregate(Sum('quantity_used'))['quantity_used__sum'] or 0
+        context['recent_spare_parts'] = recent_spare_parts
+
         # Core Business Installation Statistics - Summary only for dashboard
         core_business_summary_stats = Installation.objects.filter(
             installation_filter,
@@ -1063,3 +1096,278 @@ def breakdown_maintenance_report(request):
         context['current_item_master'] = item_master_filter
 
     return render(request, 'dashboard/breakdown_maintenance_report.html', context)
+
+
+def spare_parts_report(request):
+    """Detailed Spare Parts Usage Report with filters and pagination"""
+    from django.db.models import Sum
+    from item_master.models import ItemMaster, Category
+    from warranty_and_services.models import MaintenanceSparePart, BreakdownCategory
+    
+    context = {}
+
+    # Only generate report if models are available
+    if Installation and MaintenanceSparePart and get_user_accessible_companies_filter:
+        # Get user's accessible companies filter
+        installation_filter = get_user_accessible_companies_filter(request.user, 'installation')
+        
+        # Get filter parameters
+        maintenance_type_filter = request.GET.get('maintenance_type', '')
+        breakdown_category_filter = request.GET.get('breakdown_category', '')
+        item_category_filter = request.GET.get('item_category', '')
+        item_master_filter = request.GET.get('item_master', '')
+        spare_part_category_filter = request.GET.get('spare_part_category', '')
+        date_filter = request.GET.get('period', 'all')
+        
+        # Calculate date range based on filter
+        end_date = timezone.now()
+        start_date = None
+        
+        if date_filter == '1month':
+            start_date = end_date - timedelta(days=30)
+        elif date_filter == '1quarter':
+            start_date = end_date - timedelta(days=90)
+        elif date_filter == '1year':
+            start_date = end_date - timedelta(days=365)
+        # 'all' means no date filter
+        
+        # Build base queryset for spare parts usage
+        base_queryset = MaintenanceSparePart.objects.filter(
+            maintenance_record__service_followup__installation__in=Installation.objects.filter(installation_filter)
+        ).select_related(
+            'spare_part',
+            'maintenance_record',
+            'maintenance_record__service_followup',
+            'maintenance_record__service_followup__installation',
+            'maintenance_record__service_followup__installation__inventory_item',
+            'maintenance_record__service_followup__installation__inventory_item__name',
+            'maintenance_record__service_followup__installation__inventory_item__name__category',
+            'maintenance_record__category'  # For breakdown category if applicable
+        )
+        
+        # Apply date filter if specified
+        if start_date:
+            # Use service_date which is the actual date when maintenance was performed
+            base_queryset = base_queryset.filter(maintenance_record__service_date__gte=start_date)
+            
+        # Apply maintenance type filter
+        if maintenance_type_filter:
+            base_queryset = base_queryset.filter(maintenance_record__maintenance_type=maintenance_type_filter)
+            
+        # Apply breakdown category filter (only relevant for breakdown maintenance)
+        if breakdown_category_filter:
+            base_queryset = base_queryset.filter(
+                maintenance_record__category__id=breakdown_category_filter,
+                maintenance_record__maintenance_type='breakdown'
+            )
+            
+        # Apply item category filter
+        if item_category_filter:
+            base_queryset = base_queryset.filter(
+                maintenance_record__service_followup__installation__inventory_item__name__category__id=item_category_filter
+            )
+            
+        # Apply item master filter
+        if item_master_filter:
+            base_queryset = base_queryset.filter(
+                maintenance_record__service_followup__installation__inventory_item__name__id=item_master_filter
+            )
+            
+        # Apply spare part category filter - if there's no SparePartCategory model, use the ItemMaster category
+        if spare_part_category_filter:
+            base_queryset = base_queryset.filter(
+                spare_part__category__id=spare_part_category_filter
+            )
+        
+        # Summary statistics
+        total_spare_parts = base_queryset.aggregate(Sum('quantity_used'))['quantity_used__sum'] or 0
+        breakdown_spare_parts = base_queryset.filter(maintenance_record__maintenance_type='breakdown').aggregate(Sum('quantity_used'))['quantity_used__sum'] or 0
+        periodic_spare_parts = base_queryset.filter(maintenance_record__maintenance_type='periodic').aggregate(Sum('quantity_used'))['quantity_used__sum'] or 0
+        other_spare_parts = base_queryset.filter(maintenance_record__maintenance_type='other').aggregate(Sum('quantity_used'))['quantity_used__sum'] or 0
+        
+        context['summary'] = {
+            'total_spare_parts': total_spare_parts,
+            'breakdown_spare_parts': breakdown_spare_parts,
+            'periodic_spare_parts': periodic_spare_parts,
+            'other_spare_parts': other_spare_parts
+        }
+        
+        # Spare Parts by Category
+        spare_part_category_stats = base_queryset.values(
+            'spare_part__category__category_name'
+        ).annotate(
+            parts_count=Sum('quantity_used')
+        ).filter(
+            spare_part__category__category_name__isnull=False
+        ).order_by('-parts_count')
+        
+        # Spare Parts by Maintenance Type
+        maintenance_type_stats = base_queryset.values(
+            'maintenance_record__maintenance_type'
+        ).annotate(
+            parts_count=Sum('quantity_used')
+        ).order_by('-parts_count')
+        
+        # Monthly usage trend - PostgreSQL/SQLite compatible using Django ORM
+        from django.db.models.functions import TruncMonth
+        
+        monthly_usage_stats = base_queryset.annotate(
+            month=TruncMonth('maintenance_record__service_date')
+        ).values('month').annotate(
+            total_parts=Sum('quantity_used')
+        ).order_by('month')
+        
+        # Also get breakdown and periodic parts by month for the chart
+        monthly_breakdown_stats = base_queryset.filter(
+            maintenance_record__maintenance_type='breakdown'
+        ).annotate(
+            month=TruncMonth('maintenance_record__service_date')
+        ).values('month').annotate(
+            parts_count=Sum('quantity_used')
+        ).order_by('month')
+        
+        monthly_periodic_stats = base_queryset.filter(
+            maintenance_record__maintenance_type='periodic'
+        ).annotate(
+            month=TruncMonth('maintenance_record__service_date')
+        ).values('month').annotate(
+            parts_count=Sum('quantity_used')
+        ).order_by('month')
+        
+        # Top 5 most used spare parts
+        top_spare_parts = base_queryset.values(
+            'spare_part__name',
+            'spare_part__shortcode',
+            'spare_part__category__category_name'
+        ).annotate(
+            count=Sum('quantity_used')
+        ).order_by('-count')[:5]
+        
+        context['top_spare_parts'] = []
+        for part in top_spare_parts:
+            context['top_spare_parts'].append({
+                'name': part['spare_part__name'],
+                'part_number': part['spare_part__shortcode'],  # Using shortcode instead of part_number
+                'category': part['spare_part__category__category_name'],
+                'count': part['count']
+            })
+        
+        # Prepare chart data for spare part categories
+        spare_part_category_labels = []
+        spare_part_category_data = []
+        spare_part_category_colors = [
+            '#EF4444', '#F97316', '#EAB308', '#22C55E', '#06B6D4',
+            '#3B82F6', '#8B5CF6', '#EC4899', '#F59E0B', '#64748B'
+        ]
+        
+        for stat in spare_part_category_stats:
+            if stat['spare_part__category__category_name']:
+                spare_part_category_labels.append(stat['spare_part__category__category_name'])
+                spare_part_category_data.append(stat['parts_count'])
+        
+        # Prepare chart data for maintenance types
+        maintenance_type_labels = []
+        maintenance_type_data = []
+        maintenance_type_colors = ['#EF4444', '#3B82F6', '#22C55E']
+        maintenance_type_map = {
+            'breakdown': 'Breakdown',
+            'periodic': 'Periodic',
+            'other': 'Other'
+        }
+        
+        for stat in maintenance_type_stats:
+            if stat['maintenance_record__maintenance_type'] in maintenance_type_map:
+                maintenance_type_labels.append(maintenance_type_map[stat['maintenance_record__maintenance_type']])
+                maintenance_type_data.append(stat['parts_count'])
+        
+        # Monthly trend chart data
+        monthly_labels = []
+        monthly_total_data = []
+        monthly_breakdown_data = []
+        monthly_periodic_data = []
+        
+        # Create a dictionary to efficiently look up values by month
+        breakdown_by_month = {stat['month'].strftime('%Y-%m') if stat['month'] else None: stat['parts_count'] for stat in monthly_breakdown_stats}
+        periodic_by_month = {stat['month'].strftime('%Y-%m') if stat['month'] else None: stat['parts_count'] for stat in monthly_periodic_stats}
+        
+        for stat in monthly_usage_stats:
+            if stat['month']:
+                month_str = stat['month'].strftime('%Y-%m') 
+                monthly_labels.append(month_str)
+                monthly_total_data.append(stat['total_parts'])
+                monthly_breakdown_data.append(breakdown_by_month.get(month_str, 0))
+                monthly_periodic_data.append(periodic_by_month.get(month_str, 0))
+        
+        # Prepare comprehensive chart data for all visualizations
+        chart_data = {
+            'spare_part_category_data': {
+                'labels': spare_part_category_labels,
+                'data': spare_part_category_data,
+                'colors': spare_part_category_colors[:len(spare_part_category_data)]
+            },
+            'maintenance_type_data': {
+                'labels': maintenance_type_labels,
+                'data': maintenance_type_data,
+                'colors': maintenance_type_colors[:len(maintenance_type_data)]
+            },
+            'monthly_data': {
+                'labels': monthly_labels,
+                'total_data': monthly_total_data,
+                'breakdown_data': monthly_breakdown_data,
+                'periodic_data': monthly_periodic_data
+            }
+        }
+        context['chart_data_json'] = json.dumps(chart_data)
+        
+        # All spare parts records for main table
+        all_spare_parts_records = base_queryset.order_by('-maintenance_record__service_date')
+        
+        # Pagination for spare parts records
+        page = request.GET.get('page', 1)
+        per_page = 20
+        
+        paginator = Paginator(all_spare_parts_records, per_page)
+        
+        try:
+            paginated_records = paginator.page(page)
+        except PageNotAnInteger:
+            paginated_records = paginator.page(1)
+        except EmptyPage:
+            paginated_records = paginator.page(paginator.num_pages)
+        
+        context['spare_parts_records'] = paginated_records
+        
+        # Add current filter to context
+        context['current_period'] = date_filter
+        
+        # Period options for the dropdown
+        context['period_options'] = [
+            {'value': 'all', 'label': 'All Time'},
+            {'value': '1year', 'label': 'Last 1 Year'},
+            {'value': '1quarter', 'label': 'Last Quarter (3 months)'},
+            {'value': '1month', 'label': 'Last Month'},
+        ]
+        
+        # Maintenance type options
+        context['maintenance_types'] = [
+            {'value': 'breakdown', 'label': 'Breakdown'},
+            {'value': 'periodic', 'label': 'Periodic'},
+            {'value': 'other', 'label': 'Other'},
+        ]
+        
+        # Add filter options to context
+        from warranty_and_services.models import BreakdownCategory
+        context['breakdown_categories'] = BreakdownCategory.objects.all()
+        context['item_categories'] = Category.objects.all()
+        context['item_masters'] = ItemMaster.objects.all().order_by('name')
+        # There is no SparePartCategory model, so we need to use ItemMaster categories instead
+        context['spare_part_categories'] = Category.objects.all().order_by('category_name')
+        
+        # Current filter values
+        context['current_maintenance_type'] = maintenance_type_filter
+        context['current_breakdown_category'] = breakdown_category_filter
+        context['current_item_category'] = item_category_filter
+        context['current_item_master'] = item_master_filter
+        context['current_spare_part_category'] = spare_part_category_filter
+
+    return render(request, 'dashboard/spare_parts_report.html', context)

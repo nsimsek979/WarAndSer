@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% trans "Breakdown Maintenance Report" %}</title>
+    <title>{% trans "Spare Parts Report" %}</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
@@ -26,9 +26,9 @@
                         </svg>
                     </a>
                     <div class="flex-1">
-                        <h1 class="text-2xl font-bold text-gray-900">{% trans "Breakdown Maintenance Report" %}</h1>
+                        <h1 class="text-2xl font-bold text-gray-900">{% trans "Spare Parts Report" %}</h1>
                         <p class="text-sm text-gray-500 mt-1">
-                            {% trans "Comprehensive analysis of equipment breakdown and maintenance activities" %}
+                            {% trans "Comprehensive analysis of spare parts used in all maintenance activities" %}
                             {% if current_period != 'all' %}
                             <span class="inline-flex items-center px-2 py-1 ml-2 text-xs font-medium bg-orange-100 text-orange-800 rounded-full">
                                 {% for option in period_options %}
@@ -62,6 +62,19 @@
                         </select>
                     </div>
                     
+                    <!-- Maintenance Type Filter -->
+                    <div class="flex-shrink-0">
+                        <label class="block text-xs font-medium text-gray-700 mb-1">Maintenance Type</label>
+                        <select id="maintenanceTypeFilter" onchange="changeFilters()" class="bg-white border border-gray-300 rounded-md px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 min-w-36">
+                            <option value="">All Types</option>
+                            {% for type in maintenance_types %}
+                            <option value="{{ type.value }}" {% if current_maintenance_type == type.value %}selected{% endif %}>
+                                {{ type.label }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
                     <!-- Breakdown Category Filter -->
                     <div class="flex-shrink-0">
                         <label class="block text-xs font-medium text-gray-700 mb-1">Breakdown Category</label>
@@ -70,19 +83,6 @@
                             {% for category in breakdown_categories %}
                             <option value="{{ category.id }}" {% if current_breakdown_category == category.id|stringformat:"s" %}selected{% endif %}>
                                 {{ category.name }}
-                            </option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    
-                    <!-- Breakdown Reason Filter -->
-                    <div class="flex-shrink-0">
-                        <label class="block text-xs font-medium text-gray-700 mb-1">Breakdown Reason</label>
-                        <select id="breakdownReasonFilter" onchange="changeFilters()" class="bg-white border border-gray-300 rounded-md px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 min-w-36">
-                            <option value="">All Reasons</option>
-                            {% for reason in breakdown_reasons %}
-                            <option value="{{ reason.id }}" {% if current_breakdown_reason == reason.id|stringformat:"s" %}selected{% endif %}>
-                                {{ reason.name }}
                             </option>
                             {% endfor %}
                         </select>
@@ -113,6 +113,19 @@
                             {% endfor %}
                         </select>
                     </div>
+
+                    <!-- Spare Part Category Filter -->
+                    <div class="flex-shrink-0">
+                        <label class="block text-xs font-medium text-gray-700 mb-1">Spare Part Category</label>
+                        <select id="sparePartCategoryFilter" onchange="changeFilters()" class="bg-white border border-gray-300 rounded-md px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 min-w-40">
+                            <option value="">All Categories</option>
+                            {% for category in spare_part_categories %}
+                            <option value="{{ category.id }}" {% if current_spare_part_category == category.id|stringformat:"s" %}selected{% endif %}>
+                                {{ category.category_name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
                 </div>
             </div>
         </div>
@@ -132,18 +145,22 @@
                     Report Summary
                 </h2>
             </div>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 p-6">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 p-6">
                 <div class="text-center bg-orange-50 rounded-lg p-4">
-                    <div class="text-3xl font-bold text-orange-600">{{ summary.total_maintenance }}</div>
-                    <div class="text-sm text-gray-600 mt-1">Total Maintenance Records</div>
+                    <div class="text-3xl font-bold text-orange-600">{{ summary.total_spare_parts }}</div>
+                    <div class="text-sm text-gray-600 mt-1">Total Spare Parts Used</div>
                 </div>
                 <div class="text-center bg-red-50 rounded-lg p-4">
-                    <div class="text-3xl font-bold text-red-600">{{ summary.total_breakdowns }}</div>
-                    <div class="text-sm text-gray-600 mt-1">Breakdown Cases</div>
+                    <div class="text-3xl font-bold text-red-600">{{ summary.breakdown_spare_parts }}</div>
+                    <div class="text-sm text-gray-600 mt-1">Parts Used in Breakdowns</div>
                 </div>
                 <div class="text-center bg-blue-50 rounded-lg p-4">
-                    <div class="text-3xl font-bold text-blue-600">{{ summary.customers_affected }}</div>
-                    <div class="text-sm text-gray-600 mt-1">Customers Affected</div>
+                    <div class="text-3xl font-bold text-blue-600">{{ summary.periodic_spare_parts }}</div>
+                    <div class="text-sm text-gray-600 mt-1">Parts Used in Periodic Maintenance</div>
+                </div>
+                <div class="text-center bg-green-50 rounded-lg p-4">
+                    <div class="text-3xl font-bold text-green-600">{{ summary.other_spare_parts }}</div>
+                    <div class="text-sm text-gray-600 mt-1">Parts Used in Other Maintenance</div>
                 </div>
             </div>
         </div>
@@ -152,35 +169,35 @@
         <!-- Charts Section -->
         {% if chart_data_json %}
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-            <!-- Breakdown Category Chart -->
+            <!-- Spare Parts by Category Chart -->
             <div class="bg-white rounded-lg shadow-lg border border-gray-200">
                 <div class="px-6 py-4 border-b border-gray-200">
-                    <h3 class="text-lg font-semibold text-gray-900">Breakdown by Breakdown Category</h3>
+                    <h3 class="text-lg font-semibold text-gray-900">Spare Parts by Category</h3>
                 </div>
                 <div class="p-6">
                     <div class="relative" style="height: 400px;">
-                        <canvas id="breakdownCategoryChart"></canvas>
+                        <canvas id="sparePartCategoryChart"></canvas>
                     </div>
                 </div>
             </div>
             
-            <!-- Breakdown Reason Chart -->
+            <!-- Spare Parts by Maintenance Type Chart -->
             <div class="bg-white rounded-lg shadow-lg border border-gray-200">
                 <div class="px-6 py-4 border-b border-gray-200">
-                    <h3 class="text-lg font-semibold text-gray-900">Breakdown by Reason</h3>
+                    <h3 class="text-lg font-semibold text-gray-900">Spare Parts by Maintenance Type</h3>
                 </div>
                 <div class="p-6">
                     <div class="relative" style="height: 400px;">
-                        <canvas id="breakdownReasonChart"></canvas>
+                        <canvas id="maintenanceTypeChart"></canvas>
                     </div>
                 </div>
             </div>
         </div>
         
-        <!-- Monthly Breakdown Trend Chart -->
+        <!-- Monthly Spare Parts Usage Trend Chart -->
         <div class="bg-white rounded-lg shadow-lg border border-gray-200 mb-8">
             <div class="px-6 py-4 border-b border-gray-200">
-                <h3 class="text-lg font-semibold text-gray-900">Monthly Breakdown Trend</h3>
+                <h3 class="text-lg font-semibold text-gray-900">Monthly Spare Parts Usage Trend</h3>
             </div>
             <div class="p-6">
                 <div class="relative" style="height: 400px;">
@@ -190,15 +207,15 @@
         </div>
         {% endif %}
 
-        <!-- Top 5 Breakdown Reasons -->
-        {% if top_breakdown_reasons %}
+        <!-- Top 5 Most Used Spare Parts -->
+        {% if top_spare_parts %}
         <div class="bg-white rounded-lg shadow-lg border border-gray-200 mb-8">
             <div class="px-6 py-4 border-b border-gray-200">
                 <h3 class="text-lg font-semibold text-gray-900 flex items-center">
                     <svg class="w-5 h-5 mr-2 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
                     </svg>
-                    Top 5 Breakdown Reasons
+                    Top 5 Most Used Spare Parts
                 </h3>
             </div>
             <div class="overflow-x-auto">
@@ -206,13 +223,15 @@
                     <thead class="bg-gray-50">
                         <tr>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rank</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Breakdown Reason</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Spare Part</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Part Number</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Count</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Percentage</th>
                         </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200">
-                        {% for reason in top_breakdown_reasons %}
+                        {% for part in top_spare_parts %}
                         <tr class="hover:bg-gray-50">
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="flex items-center">
@@ -228,16 +247,22 @@
                                 </div>
                             </td>
                             <td class="px-6 py-4">
-                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-orange-100 text-orange-800">
-                                    {{ reason.breakdown_reason }}
+                                <div class="text-sm font-medium text-gray-900">{{ part.name }}</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-900">{{ part.part_number }}</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
+                                    {{ part.category }}
                                 </span>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm text-gray-900 font-semibold">{{ reason.breakdown_count }}</div>
+                                <div class="text-sm text-gray-900 font-semibold">{{ part.count }}</div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="text-sm text-gray-500">
-                                    {% widthratio reason.breakdown_count summary.total_breakdowns 100 %}%
+                                    {% widthratio part.count summary.total_spare_parts 100 %}%
                                 </div>
                             </td>
                         </tr>
@@ -248,15 +273,15 @@
         </div>
         {% endif %}
 
-        <!-- All Maintenance Records Table -->
-        {% if maintenance_records %}
+        <!-- All Spare Parts Records Table -->
+        {% if spare_parts_records %}
         <div class="bg-white rounded-lg shadow-lg border border-gray-200">
             <div class="px-6 py-4 border-b border-gray-200">
                 <h3 class="text-lg font-semibold text-gray-900 flex items-center">
                     <svg class="w-5 h-5 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                     </svg>
-                    All Maintenance Records ({{ maintenance_records.paginator.count }} total)
+                    All Spare Parts Usage Records ({{ spare_parts_records.paginator.count }} total)
                 </h3>
             </div>
             <div class="overflow-x-auto">
@@ -265,61 +290,66 @@
                         <tr>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">#</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Part Name</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Part Number</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Equipment</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Maintenance Type</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Breakdown Category</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Breakdown Reason</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quantity</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                         </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200">
-                        {% for record in maintenance_records %}
+                        {% for record in spare_parts_records %}
                         <tr class="hover:bg-gray-50">
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                {{ maintenance_records.start_index|add:forloop.counter0 }}
+                                {{ spare_parts_records.start_index|add:forloop.counter0 }}
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm text-gray-900">{{ record.service_date|date:"d M Y" }}</div>
+                                <div class="text-sm text-gray-900">{{ record.maintenance_record.service_date|date:"d M Y" }}</div>
                             </td>
                             <td class="px-6 py-4">
-                                <div class="text-sm text-gray-900">{{ record.service_followup.installation.inventory_item.short_code|default:record.service_followup.installation.inventory_item.name }}</div>
-                                <div class="text-xs text-gray-500">{{ record.service_followup.installation.inventory_item.serial_no }}</div>
+                                <div class="text-sm font-medium text-gray-900">{{ record.spare_part.name }}</div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm text-gray-900">{{ record.service_followup.installation.inventory_item.name.category.category_name|default:"N/A" }}</div>
+                                <div class="text-sm text-gray-500">{{ record.spare_part.shortcode }}</div>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="text-sm text-gray-900">{{ record.maintenance_record.service_followup.installation.inventory_item.short_code|default:record.maintenance_record.service_followup.installation.inventory_item.name }}</div>
+                                <div class="text-xs text-gray-500">{{ record.maintenance_record.service_followup.installation.inventory_item.serial_no }}</div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
-                                {% if record.category %}
+                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full 
+                                {% if record.maintenance_record.maintenance_type == 'breakdown' %}
+                                    bg-red-100 text-red-800
+                                {% elif record.maintenance_record.maintenance_type == 'periodic' %}
+                                    bg-blue-100 text-blue-800
+                                {% else %}
+                                    bg-green-100 text-green-800
+                                {% endif %}">
+                                    {{ record.maintenance_record.get_maintenance_type_display }}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                {% if record.maintenance_record.maintenance_type == 'breakdown' and record.maintenance_record.category %}
                                 <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">
-                                    {{ record.category.name }}
+                                    {{ record.maintenance_record.category.name }}
                                 </span>
                                 {% else %}
                                 <span class="text-gray-500 text-sm">-</span>
                                 {% endif %}
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
-                                {% if record.breakdown_reason_selected %}
-                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-orange-100 text-orange-800">
-                                    {{ record.breakdown_reason_selected.name }}
-                                </span>
-                                {% else %}
-                                <span class="text-gray-500 text-sm">-</span>
-                                {% endif %}
+                                <div class="text-sm font-semibold text-gray-900">{{ record.quantity_used }}</div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
-                                    Resolved
-                                </span>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <a href="{% url 'warranty_and_services:item_service_history' record.service_followup.installation.id %}" 
+                                <a href="{% url 'warranty_and_services:item_service_history' record.maintenance_record.service_followup.installation.id %}" 
                                    class="inline-flex items-center px-3 py-1 border border-transparent text-sm leading-4 font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
                                    target="_blank">
                                     <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                                     </svg>
-                                    Service History
+                                    Service Details
                                 </a>
                             </td>
                         </tr>
@@ -329,17 +359,17 @@
             </div>
             
             <!-- Pagination -->
-            {% if maintenance_records.has_other_pages %}
+            {% if spare_parts_records.has_other_pages %}
             <div class="px-6 py-4 border-t border-gray-200">
                 <div class="flex items-center justify-between">
                     <div class="flex-1 flex justify-between sm:hidden">
-                        {% if maintenance_records.has_previous %}
-                        <a href="?period={{ current_period }}&page={{ maintenance_records.previous_page_number }}" class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                        {% if spare_parts_records.has_previous %}
+                        <a href="?period={{ current_period }}&page={{ spare_parts_records.previous_page_number }}" class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
                             Previous
                         </a>
                         {% endif %}
-                        {% if maintenance_records.has_next %}
-                        <a href="?period={{ current_period }}&page={{ maintenance_records.next_page_number }}" class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                        {% if spare_parts_records.has_next %}
+                        <a href="?period={{ current_period }}&page={{ spare_parts_records.next_page_number }}" class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
                             Next
                         </a>
                         {% endif %}
@@ -347,19 +377,19 @@
                     <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
                         <div>
                             <p class="text-sm text-gray-700">
-                                Showing <span class="font-medium">{{ maintenance_records.start_index }}</span> to <span class="font-medium">{{ maintenance_records.end_index }}</span> of <span class="font-medium">{{ maintenance_records.paginator.count }}</span> results
+                                Showing <span class="font-medium">{{ spare_parts_records.start_index }}</span> to <span class="font-medium">{{ spare_parts_records.end_index }}</span> of <span class="font-medium">{{ spare_parts_records.paginator.count }}</span> results
                             </p>
                         </div>
                         <div>
                             <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
-                                {% if maintenance_records.has_previous %}
+                                {% if spare_parts_records.has_previous %}
                                 <a href="?period={{ current_period }}&page=1" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
                                     <span class="sr-only">First</span>
                                     <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
                                         <path fill-rule="evenodd" d="M15.707 15.707a1 1 0 01-1.414 0l-5-5a1 1 0 010-1.414l5-5a1 1 0 111.414 1.414L11.414 9H17a1 1 0 110 2h-5.586l4.293 4.293a1 1 0 010 1.414zM9 1L3.707 6.293a1 1 0 000 1.414L9 13l1.414-1.414L6.121 7.293a1 1 0 000-1.414L10.414 1.707A1 1 0 009 1z" clip-rule="evenodd"/>
                                     </svg>
                                 </a>
-                                <a href="?period={{ current_period }}&page={{ maintenance_records.previous_page_number }}" class="relative inline-flex items-center px-2 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                <a href="?period={{ current_period }}&page={{ spare_parts_records.previous_page_number }}" class="relative inline-flex items-center px-2 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
                                     <span class="sr-only">Previous</span>
                                     <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
                                         <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd"/>
@@ -367,34 +397,34 @@
                                 </a>
                                 {% endif %}
                                 
-                                {% for page_num in maintenance_records.paginator.page_range %}
-                                    {% if page_num == maintenance_records.number %}
+                                {% for page_num in spare_parts_records.paginator.page_range %}
+                                    {% if page_num == spare_parts_records.number %}
                                     <span class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-orange-50 text-sm font-medium text-orange-600">
                                         {{ page_num }}
                                     </span>
-                                    {% elif page_num > maintenance_records.number|add:'-3' and page_num < maintenance_records.number|add:'3' %}
+                                    {% elif page_num > spare_parts_records.number|add:'-3' and page_num < spare_parts_records.number|add:'3' %}
                                     <a href="?period={{ current_period }}&page={{ page_num }}" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
                                         {{ page_num }}
                                     </a>
-                                    {% elif page_num == 1 or page_num == maintenance_records.paginator.num_pages %}
+                                    {% elif page_num == 1 or page_num == spare_parts_records.paginator.num_pages %}
                                     <a href="?period={{ current_period }}&page={{ page_num }}" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
                                         {{ page_num }}
                                     </a>
-                                    {% elif page_num == maintenance_records.number|add:'-4' or page_num == maintenance_records.number|add:'4' %}
+                                    {% elif page_num == spare_parts_records.number|add:'-4' or page_num == spare_parts_records.number|add:'4' %}
                                     <span class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700">
                                         ...
                                     </span>
                                     {% endif %}
                                 {% endfor %}
                                 
-                                {% if maintenance_records.has_next %}
-                                <a href="?period={{ current_period }}&page={{ maintenance_records.next_page_number }}" class="relative inline-flex items-center px-2 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                {% if spare_parts_records.has_next %}
+                                <a href="?period={{ current_period }}&page={{ spare_parts_records.next_page_number }}" class="relative inline-flex items-center px-2 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
                                     <span class="sr-only">Next</span>
                                     <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
                                         <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
                                     </svg>
                                 </a>
-                                <a href="?period={{ current_period }}&page={{ maintenance_records.paginator.num_pages }}" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                <a href="?period={{ current_period }}&page={{ spare_parts_records.paginator.num_pages }}" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
                                     <span class="sr-only">Last</span>
                                     <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
                                         <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0l5 5a1 1 0 010 1.414l-5 5a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414zM11 19l5.293-5.293a1 1 0 000-1.414L11 7l-1.414 1.414L13.879 12.707a1 1 0 000 1.414L9.586 18.293A1 1 0 0011 19z" clip-rule="evenodd"/>
@@ -410,13 +440,13 @@
         </div>
         {% endif %}
 
-        {% if not maintenance_records %}
+        {% if not spare_parts_records %}
         <div class="bg-white rounded-lg shadow-lg border border-gray-200 p-8 text-center">
             <svg class="mx-auto h-12 w-12 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
                 <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
             </svg>
             <h3 class="mt-2 text-sm font-medium text-gray-900">No Data Available</h3>
-            <p class="mt-1 text-sm text-gray-500">There are no breakdown maintenance records to display for the selected period.</p>
+            <p class="mt-1 text-sm text-gray-500">There are no spare parts records to display for the selected period.</p>
         </div>
         {% endif %}
     </div>
@@ -427,20 +457,20 @@
     document.addEventListener('DOMContentLoaded', function() {
         // Parse data from Django context
         const chartData = {{ chart_data_json|safe }};
-        const breakdownCategoryData = chartData.breakdown_category_data;
-        const breakdownReasonData = chartData.breakdown_reason_data;
+        const sparePartCategoryData = chartData.spare_part_category_data;
+        const maintenanceTypeData = chartData.maintenance_type_data;
         const monthlyData = chartData.monthly_data;
         
-        // Breakdown Category Chart
-        if (breakdownCategoryData && breakdownCategoryData.labels.length > 0) {
-            const categoryCtx = document.getElementById('breakdownCategoryChart').getContext('2d');
+        // Spare Parts by Category Chart
+        if (sparePartCategoryData && sparePartCategoryData.labels.length > 0) {
+            const categoryCtx = document.getElementById('sparePartCategoryChart').getContext('2d');
             new Chart(categoryCtx, {
                 type: 'doughnut',
                 data: {
-                    labels: breakdownCategoryData.labels,
+                    labels: sparePartCategoryData.labels,
                     datasets: [{
-                        data: breakdownCategoryData.data,
-                        backgroundColor: breakdownCategoryData.colors,
+                        data: sparePartCategoryData.data,
+                        backgroundColor: sparePartCategoryData.colors,
                         borderColor: '#fff',
                         borderWidth: 3,
                         hoverBorderWidth: 4,
@@ -486,16 +516,16 @@
             });
         }
         
-        // Breakdown Reason Chart
-        if (breakdownReasonData && breakdownReasonData.labels.length > 0) {
-            const reasonCtx = document.getElementById('breakdownReasonChart').getContext('2d');
-            new Chart(reasonCtx, {
+        // Spare Parts by Maintenance Type Chart
+        if (maintenanceTypeData && maintenanceTypeData.labels.length > 0) {
+            const typeCtx = document.getElementById('maintenanceTypeChart').getContext('2d');
+            new Chart(typeCtx, {
                 type: 'doughnut',
                 data: {
-                    labels: breakdownReasonData.labels,
+                    labels: maintenanceTypeData.labels,
                     datasets: [{
-                        data: breakdownReasonData.data,
-                        backgroundColor: breakdownReasonData.colors,
+                        data: maintenanceTypeData.data,
+                        backgroundColor: maintenanceTypeData.colors,
                         borderColor: '#fff',
                         borderWidth: 3,
                         hoverBorderWidth: 4,
@@ -551,33 +581,71 @@
             });
         }
         
-        // Monthly Trend Chart
+        // Monthly Spare Parts Usage Trend Chart
         if (monthlyData && monthlyData.labels.length > 0) {
             const monthlyCtx = document.getElementById('monthlyTrendChart').getContext('2d');
             new Chart(monthlyCtx, {
                 type: 'line',
                 data: {
                     labels: monthlyData.labels,
-                    datasets: [{
-                        label: 'Breakdowns',
-                        data: monthlyData.data,
-                        borderColor: '#f97316',
-                        backgroundColor: '#f9731620',
-                        borderWidth: 3,
-                        fill: true,
-                        tension: 0.4,
-                        pointBackgroundColor: '#f97316',
-                        pointBorderColor: '#fff',
-                        pointBorderWidth: 2,
-                        pointRadius: 6,
-                        pointHoverRadius: 8
-                    }]
+                    datasets: [
+                        {
+                            label: 'Total Parts',
+                            data: monthlyData.total_data,
+                            borderColor: '#f97316',
+                            backgroundColor: '#f9731620',
+                            borderWidth: 3,
+                            fill: true,
+                            tension: 0.4,
+                            pointBackgroundColor: '#f97316',
+                            pointBorderColor: '#fff',
+                            pointBorderWidth: 2,
+                            pointRadius: 6,
+                            pointHoverRadius: 8
+                        },
+                        {
+                            label: 'Breakdown Parts',
+                            data: monthlyData.breakdown_data,
+                            borderColor: '#ef4444',
+                            backgroundColor: 'transparent',
+                            borderWidth: 2,
+                            borderDash: [5, 5],
+                            fill: false,
+                            tension: 0.4,
+                            pointBackgroundColor: '#ef4444',
+                            pointBorderColor: '#fff',
+                            pointBorderWidth: 2,
+                            pointRadius: 4,
+                            pointHoverRadius: 6
+                        },
+                        {
+                            label: 'Periodic Parts',
+                            data: monthlyData.periodic_data,
+                            borderColor: '#3b82f6',
+                            backgroundColor: 'transparent',
+                            borderWidth: 2,
+                            borderDash: [5, 5],
+                            fill: false,
+                            tension: 0.4,
+                            pointBackgroundColor: '#3b82f6',
+                            pointBorderColor: '#fff',
+                            pointBorderWidth: 2,
+                            pointRadius: 4,
+                            pointHoverRadius: 6
+                        }
+                    ]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
-                        legend: { display: false }
+                        legend: { 
+                            position: 'top',
+                            labels: {
+                                padding: 20,
+                                usePointStyle: true
+                            }
+                        }
                     },
                     scales: {
                         y: {
@@ -613,26 +681,27 @@
     }
     
     function changeFilters() {
+        const maintenanceTypeFilter = document.getElementById('maintenanceTypeFilter');
         const breakdownCategoryFilter = document.getElementById('breakdownCategoryFilter');
-        const breakdownReasonFilter = document.getElementById('breakdownReasonFilter');
         const itemCategoryFilter = document.getElementById('itemCategoryFilter');
         const itemMasterFilter = document.getElementById('itemMasterFilter');
+        const sparePartCategoryFilter = document.getElementById('sparePartCategoryFilter');
         
         // Get current URL and update filter parameters
         const url = new URL(window.location);
+        
+        // Update maintenance type filter
+        if (maintenanceTypeFilter.value) {
+            url.searchParams.set('maintenance_type', maintenanceTypeFilter.value);
+        } else {
+            url.searchParams.delete('maintenance_type');
+        }
         
         // Update breakdown category filter
         if (breakdownCategoryFilter.value) {
             url.searchParams.set('breakdown_category', breakdownCategoryFilter.value);
         } else {
             url.searchParams.delete('breakdown_category');
-        }
-        
-        // Update breakdown reason filter
-        if (breakdownReasonFilter.value) {
-            url.searchParams.set('breakdown_reason', breakdownReasonFilter.value);
-        } else {
-            url.searchParams.delete('breakdown_reason');
         }
         
         // Update item category filter
@@ -647,6 +716,13 @@
             url.searchParams.set('item_master', itemMasterFilter.value);
         } else {
             url.searchParams.delete('item_master');
+        }
+        
+        // Update spare part category filter
+        if (sparePartCategoryFilter.value) {
+            url.searchParams.set('spare_part_category', sparePartCategoryFilter.value);
+        } else {
+            url.searchParams.delete('spare_part_category');
         }
         
         // Reset pagination when changing filters
