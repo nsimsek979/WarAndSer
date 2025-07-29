@@ -461,6 +461,11 @@ def mobile_maintenance_form(request):
         last_maintenance = services.filter(is_completed=True).first()
         last_maintenance_date = last_maintenance.completed_date.strftime('%d.%m.%Y') if last_maintenance and last_maintenance.completed_date else 'Henüz bakım yapılmamış'
         
+        # Get breakdown categories and reasons for breakdown maintenance
+        from .models import BreakdownCategory, BreakdownReason
+        breakdown_categories = BreakdownCategory.objects.all().order_by('name')
+        breakdown_reasons = BreakdownReason.objects.all().order_by('name')
+        
         context = {
             'installation': {
                 'id': installation.id,
@@ -473,7 +478,9 @@ def mobile_maintenance_form(request):
                 'last_maintenance_date': last_maintenance_date
             },
             'warranties': warranties,
-            'services': services
+            'services': services,
+            'breakdown_categories': breakdown_categories,
+            'breakdown_reasons': breakdown_reasons
         }
         
         return render(request, 'warranty_and_services/mobile/maintenance_form.html', context)
@@ -1732,7 +1739,10 @@ def api_maintenance_submit(request):
         
         # Get form data
         maintenance_type = request.POST.get('maintenance_type')
+        breakdown_category = request.POST.get('breakdown_category', '')
+        breakdown_reason_selected = request.POST.get('breakdown_reason_selected', '')
         breakdown_reason = request.POST.get('breakdown_reason', '')
+        notes = request.POST.get('notes', '')
         service_date = request.POST.get('service_date')
         
         # Simple validation - only check required fields
@@ -1747,6 +1757,19 @@ def api_maintenance_submit(request):
                 'success': False,
                 'message': 'Bakım tarihi zorunludur'
             })
+            
+        # Additional validation for breakdown maintenance
+        if maintenance_type == 'breakdown':
+            if not breakdown_category:
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Arıza kategorisi seçimi zorunludur'
+                })
+            if not breakdown_reason_selected:
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Arıza nedeni seçimi zorunludur'
+                })
         
         # Find ALL existing incomplete service follow-ups for this installation
         service_followups = ServiceFollowUp.objects.filter(
@@ -1771,7 +1794,27 @@ def api_maintenance_submit(request):
             service_followups = list(service_followups)
         
         # Import the new models
-        from .models import MaintenanceRecord, MaintenancePhoto, MaintenanceDocument
+        from .models import MaintenanceRecord, MaintenancePhoto, MaintenanceDocument, BreakdownCategory, BreakdownReason
+        
+        # Get category and reason objects if breakdown maintenance
+        category_obj = None
+        reason_obj = None
+        if maintenance_type == 'breakdown':
+            try:
+                category_obj = BreakdownCategory.objects.get(id=breakdown_category)
+            except BreakdownCategory.DoesNotExist:
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Geçersiz arıza kategorisi'
+                })
+            
+            try:
+                reason_obj = BreakdownReason.objects.get(id=breakdown_reason_selected)
+            except BreakdownReason.DoesNotExist:
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Geçersiz arıza nedeni'
+                })
         
         # Check if a MaintenanceRecord already exists for the first service followup
         target_service_followup = service_followups[0]
@@ -1782,7 +1825,10 @@ def api_maintenance_submit(request):
             # If exists, update it
             maintenance_record.maintenance_type = maintenance_type
             maintenance_record.technician = request.user
+            maintenance_record.category = category_obj
+            maintenance_record.breakdown_reason_selected = reason_obj
             maintenance_record.breakdown_reason = breakdown_reason
+            maintenance_record.notes = notes
             maintenance_record.service_date = service_date
             maintenance_record.save()
         except MaintenanceRecord.DoesNotExist:
@@ -1791,7 +1837,10 @@ def api_maintenance_submit(request):
                 service_followup=target_service_followup,
                 maintenance_type=maintenance_type,
                 technician=request.user,
+                category=category_obj,
+                breakdown_reason_selected=reason_obj,
                 breakdown_reason=breakdown_reason,
+                notes=notes,
                 service_date=service_date
             )
         

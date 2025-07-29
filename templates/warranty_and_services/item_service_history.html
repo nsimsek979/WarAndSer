@@ -233,11 +233,34 @@
                                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                                         <!-- Left Column -->
                                                         <div class="space-y-4">
-                                                            {% if maintenance.maintenance_type == 'breakdown' and maintenance.breakdown_reason %}
+                                                            {% if maintenance.maintenance_type == 'breakdown' %}
+                                                                <!-- Breakdown Category -->
+                                                                {% if maintenance.category %}
+                                                                <div>
+                                                                    <h4 class="text-sm font-medium text-gray-700 mb-2">Breakdown Category</h4>
+                                                                    <div class="inline-flex items-center px-3 py-2 bg-red-100 text-red-800 text-sm rounded-lg font-medium">
+                                                                        🔧 {{ maintenance.category.name }}
+                                                                    </div>
+                                                                </div>
+                                                                {% endif %}
+                                                                
+                                                                <!-- Breakdown Reason -->
+                                                                {% if maintenance.breakdown_reason_selected %}
                                                                 <div>
                                                                     <h4 class="text-sm font-medium text-gray-700 mb-2">Breakdown Reason</h4>
-                                                                    <p class="text-sm text-gray-600 bg-white rounded-lg p-3 border">{{ maintenance.breakdown_reason }}</p>
+                                                                    <div class="inline-flex items-center px-3 py-2 bg-orange-100 text-orange-800 text-sm rounded-lg font-medium">
+                                                                        ⚠️ {{ maintenance.breakdown_reason_selected.name }}
+                                                                    </div>
                                                                 </div>
+                                                                {% endif %}
+                                                                
+                                                                <!-- Breakdown Details -->
+                                                                {% if maintenance.breakdown_reason %}
+                                                                <div>
+                                                                    <h4 class="text-sm font-medium text-gray-700 mb-2">Breakdown Details</h4>
+                                                                    <p class="text-sm text-gray-600 bg-white rounded-lg p-3 border">{{ maintenance.breakdown_reason|linebreaks }}</p>
+                                                                </div>
+                                                                {% endif %}
                                                             {% endif %}
                                                             
                                                             {% if maintenance.notes %}

@@ -1079,28 +1079,101 @@ class ServiceFollowUp(models.Model):
                 )
 
 
+class BreakdownCategory(models.Model):
+    """
+    Arıza kategorileri modeli - Arıza türlerini sınıflandırmak için
+    """
+    CATEGORY_CHOICES = [
+        ('mechanical', _('Mechanical Failures')),
+        ('electrical', _('Electrical Failures')),
+        ('hydraulic', _('Hydraulic Failures')),
+        ('pneumatic', _('Pneumatic Failures')),
+    ]
+    
+    type = models.CharField(
+        max_length=50,
+        choices=CATEGORY_CHOICES,
+        unique=True,
+        verbose_name=_("Category Type"),
+        help_text=_("Type of breakdown category")
+    )
+    
+    name = models.CharField(
+        max_length=100,
+        verbose_name=_("Name"),
+        help_text=_("Category name")
+    )
+    
+    is_active = models.BooleanField(
+        default=True,
+        verbose_name=_("Is Active"),
+        help_text=_("Whether this category is active and can be selected")
+    )
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        verbose_name = _("Breakdown Category")
+        verbose_name_plural = _("Breakdown Categories")
+        ordering = ['type']
+    
+    def __str__(self):
+        return self.name or self.get_type_display()
+
+
+class BreakdownReason(models.Model):
+    """
+    Arıza sebepleri modeli - Teknisyenler tarafından seçilecek arıza nedenleri
+    """
+   
+    
+    name = models.CharField(
+        max_length=200,
+        verbose_name=_("Name"),
+        help_text=_("Breakdown reason name")
+    )
+    
+    is_active = models.BooleanField(
+        default=True,
+        verbose_name=_("Is Active"),
+        help_text=_("Whether this breakdown reason is active and can be selected")
+    )
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        verbose_name = _("Breakdown Reason")
+        verbose_name_plural = _("Breakdown Reasons")
+        ordering = ['name']
+    
+    def __str__(self):
+        return self.name
+
+
 class MaintenanceRecord(models.Model):
     """
     Ana bakım kaydı modeli - ServiceFollowUp'ı genişletir
     """
     MAINTENANCE_TYPE_CHOICES = [
-        ('periodic', 'Periodic Maintenance'),
-        ('breakdown', 'Breakdown Maintenance'),
+        ('periodic', _('Periodic Maintenance')),
+        ('breakdown', _('Breakdown Maintenance')),
     ]
 
     service_followup = models.OneToOneField(
         ServiceFollowUp,
         on_delete=models.CASCADE,
         related_name='maintenance_record',
-        verbose_name="Service Follow-Up"
+        verbose_name=_("Service Follow-Up")
     )
     
     # Bakım türü (choice field)
     maintenance_type = models.CharField(
         max_length=20,
         choices=MAINTENANCE_TYPE_CHOICES,
-        verbose_name="Maintenance Type",
-        help_text="Select the type of maintenance performed"
+        verbose_name=_("Maintenance Type"),
+        help_text=_("Select the type of maintenance performed")
     )
     
     # Teknisyen (otomatik user bilgisi)
@@ -1108,39 +1181,67 @@ class MaintenanceRecord(models.Model):
         settings.AUTH_USER_MODEL,
         on_delete=models.SET_NULL,
         null=True,
-        verbose_name="Technician"
+        verbose_name=_("Technician")
+    )
+
+    category = models.ForeignKey(
+        BreakdownCategory,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        verbose_name=_("Breakdown Category"),
+        help_text=_("Category of the breakdown (required for breakdown maintenance)")
     )
     
-    # Arıza sebebi (sadece breakdown maintenance için)
+    # Arıza sebebi seçimi (sadece breakdown maintenance için)
+    breakdown_reason_selected = models.ForeignKey(
+        BreakdownReason,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        verbose_name=_("Breakdown Reason"),
+        help_text=_("Select breakdown reason (required for breakdown maintenance)")
+    )
+    
+    # ESKİ FIELD - Migration uyumluluğu için geçici olarak bırakıldı
+    # Sonraki migration'da silinecek
     breakdown_reason = models.TextField(
         blank=True,
-        verbose_name="Breakdown Reason",
-        help_text="Required for breakdown maintenance"
+        null=True,
+        verbose_name="Old Breakdown Reason (Deprecated)",
+        help_text="This field will be removed in future migration"
+    )
+    
+    # Arıza sebebi detayı (ek açıklama için)
+    breakdown_reason_detail = models.TextField(
+        blank=True,
+        verbose_name=_("Breakdown Reason Detail"),
+        help_text=_("Additional details about the breakdown reason")
     )
     
     # Notlar
     notes = models.TextField(
         blank=True,
-        verbose_name="Notes"
+        verbose_name=_("Notes")
     )
     
     # Bakım tarihi
     service_date = models.DateField(
-        verbose_name="Service Date",
-        help_text="Date when maintenance was performed"
+        verbose_name=_("Service Date"),
+        help_text=_("Date when maintenance was performed")
     )
     
     maintenance_date = models.DateField(
         auto_now_add=True,
-        verbose_name="Maintenance Date"
+        verbose_name=_("Maintenance Date")
     )
     
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        verbose_name = "Maintenance Record"
-        verbose_name_plural = "Maintenance Records"
+        verbose_name = _("Maintenance Record")
+        verbose_name_plural = _("Maintenance Records")
         ordering = ['-maintenance_date']
 
     def __str__(self):
@@ -1155,11 +1256,14 @@ class MaintenanceRecord(models.Model):
         
         # Maintenance type is required
         if not self.maintenance_type:
-            raise ValidationError("Maintenance type must be selected.")
+            raise ValidationError(_("Maintenance type must be selected."))
         
-        # Breakdown maintenance için arıza sebebi zorunlu
-        if self.maintenance_type == 'breakdown' and not self.breakdown_reason:
-            raise ValidationError("Breakdown reason is required for breakdown maintenance.")
+        # Breakdown maintenance için category ve breakdown reason zorunlu
+        if self.maintenance_type == 'breakdown':
+            if not self.category:
+                raise ValidationError(_("Breakdown category is required for breakdown maintenance."))
+            if not self.breakdown_reason_selected:
+                raise ValidationError(_("Breakdown reason is required for breakdown maintenance."))
 
     def save(self, *args, **kwargs):
         self.clean()
@@ -1267,6 +1371,20 @@ class MaintenanceRecord(models.Model):
             from django.template.loader import render_to_string
             from django.conf import settings
             
+            # Get next service date for periodic maintenance
+            next_service_date = None
+            if self.maintenance_type == 'periodic':
+                # Look for the next service follow-up for this installation
+                try:
+                    next_service = self.service_followup.installation.service_followups.filter(
+                        is_completed=False
+                    ).order_by('next_service_date').first()
+                    
+                    if next_service and next_service.next_service_date:
+                        next_service_date = next_service.next_service_date.strftime('%d.%m.%Y')
+                except Exception:
+                    pass
+            
             # Mail content
             context = {
                 'maintenance_record': self,
@@ -1281,13 +1399,22 @@ class MaintenanceRecord(models.Model):
                 'maintenance_type_display': self.get_maintenance_type_display() if self.maintenance_type else "Unknown",
                 'current_date': timezone.now().strftime('%d.%m.%Y %H:%M'),
                 'service_date_formatted': self.service_date if isinstance(self.service_date, str) else self.service_date.strftime('%d.%m.%Y') if self.service_date else 'N/A',
+                'next_service_date': next_service_date,
                 'language': 'tr'
             }
             
-            subject = f"Maintenance Completed - {self.service_followup.installation.inventory_item.name.name}"
+            # Select template based on maintenance type
+            if self.maintenance_type == 'breakdown':
+                template_name = 'warranty_and_services/emails/breakdown_maintenance_notification.html'
+                subject_prefix = "Breakdown Maintenance Completed"
+            else:
+                template_name = 'warranty_and_services/emails/maintenance_notification.html'
+                subject_prefix = "Periodic Maintenance Completed"
+            
+            subject = f"{subject_prefix} - {self.service_followup.installation.inventory_item.name.name}"
             
             # HTML mail template
-            html_content = render_to_string('warranty_and_services/emails/maintenance_notification.html', context)
+            html_content = render_to_string(template_name, context)
             
             # Recipients - Use same logic as installation notification
             recipients = set()
@@ -1363,26 +1490,26 @@ class MaintenanceServiceForm(models.Model):
         MaintenanceRecord,
         on_delete=models.CASCADE,
         related_name='service_forms',
-        verbose_name="Maintenance Record"
+        verbose_name=_("Maintenance Record")
     )
     service_form = models.ForeignKey(
         'item_master.ServiceForm',
         on_delete=models.CASCADE,
-        verbose_name="Service Form"
+        verbose_name=_("Service Form")
     )
     is_completed = models.BooleanField(
         default=False,
-        verbose_name="Completed"
+        verbose_name=_("Completed")
     )
     notes = models.TextField(
         blank=True,
-        verbose_name="Notes"
+        verbose_name=_("Notes")
     )
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        verbose_name = "Maintenance Service Form"
-        verbose_name_plural = "Maintenance Service Forms"
+        verbose_name = _("Maintenance Service Form")
+        verbose_name_plural = _("Maintenance Service Forms")
         unique_together = ('maintenance_record', 'service_form')
 
     def __str__(self):
@@ -1398,30 +1525,30 @@ class MaintenanceSparePart(models.Model):
         MaintenanceRecord,
         on_delete=models.CASCADE,
         related_name='spare_parts',
-        verbose_name="Maintenance Record"
+        verbose_name=_("Maintenance Record")
     )
     spare_part = models.ForeignKey(
         'item_master.ItemMaster',
         on_delete=models.CASCADE,
-        verbose_name="Spare Part"
+        verbose_name=_("Spare Part")
     )
     is_used = models.BooleanField(
         default=False,
-        verbose_name="Used"
+        verbose_name=_("Used")
     )
     quantity_used = models.PositiveIntegerField(
         default=1,
-        verbose_name="Quantity Used"
+        verbose_name=_("Quantity Used")
     )
     notes = models.TextField(
         blank=True,
-        verbose_name="Notes"
+        verbose_name=_("Notes")
     )
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        verbose_name = "Maintenance Spare Part"
-        verbose_name_plural = "Maintenance Spare Parts"
+        verbose_name = _("Maintenance Spare Part")
+        verbose_name_plural = _("Maintenance Spare Parts")
         unique_together = ('maintenance_record', 'spare_part')
 
     def __str__(self):
@@ -1438,22 +1565,22 @@ class MaintenancePhoto(models.Model):
         MaintenanceRecord,
         on_delete=models.CASCADE,
         related_name='photos',
-        verbose_name="Maintenance Record"
+        verbose_name=_("Maintenance Record")
     )
     image = models.ImageField(
         upload_to='maintenance_photos/',
-        verbose_name="Photo"
+        verbose_name=_("Photo")
     )
     description = models.CharField(
         max_length=255,
         blank=True,
-        verbose_name="Description"
+        verbose_name=_("Description")
     )
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        verbose_name = "Maintenance Photo"
-        verbose_name_plural = "Maintenance Photos"
+        verbose_name = _("Maintenance Photo")
+        verbose_name_plural = _("Maintenance Photos")
         ordering = ['created_at']
 
     def __str__(self):
@@ -1468,26 +1595,26 @@ class MaintenanceDocument(models.Model):
         MaintenanceRecord,
         on_delete=models.CASCADE,
         related_name='documents',
-        verbose_name="Maintenance Record"
+        verbose_name=_("Maintenance Record")
     )
     document = models.FileField(
         upload_to='maintenance_documents/',
-        verbose_name="Document"
+        verbose_name=_("Document")
     )
     name = models.CharField(
         max_length=255,
-        verbose_name="Document Name"
+        verbose_name=_("Document Name")
     )
     description = models.CharField(
         max_length=255,
         blank=True,
-        verbose_name="Description"
+        verbose_name=_("Description")
     )
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        verbose_name = "Maintenance Document"
-        verbose_name_plural = "Maintenance Documents"
+        verbose_name = _("Maintenance Document")
+        verbose_name_plural = _("Maintenance Documents")
         ordering = ['created_at']
 
     def __str__(self):

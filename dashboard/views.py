@@ -24,13 +24,6 @@ except ImportError:
 def home(request):
     context = {}
 
-    # ...existing code...
-    print(f"Debug Dashboard: User {request.user.username}")
-    if hasattr(request.user, 'company'):
-        print(f"Debug Dashboard: User company: {request.user.company}")
-    else:
-        print("Debug Dashboard: User has no company attribute")
-
     # Only calculate stats if models are available
     if Installation and WarrantyFollowUp and ServiceFollowUp and MaintenanceRecord and get_user_accessible_companies_filter and CoreBusiness:
         now = timezone.now()
@@ -40,12 +33,9 @@ def home(request):
         warranty_filter = get_user_accessible_companies_filter(request.user, 'warranty')
         service_filter = get_user_accessible_companies_filter(request.user, 'service')
 
-        print(f"Debug Dashboard: Installation filter: {installation_filter}")
-
         # Basic stats
         total_installations = Installation.objects.filter(installation_filter).count()
         context['total_installations'] = total_installations
-        print(f"Debug Dashboard: Total installations: {total_installations}")
 
         # Count distinct items with active warranty coverage (not total warranty count)
         # One item can have multiple warranties, but we count each item only once
@@ -54,7 +44,6 @@ def home(request):
             end_of_warranty_date__gt=now
         ).values('installation__inventory_item').distinct().count()
         context['active_warranties'] = active_warranties
-        print(f"Debug Dashboard: Active warranties: {active_warranties}")
 
         expiring_warranties = WarrantyFollowUp.objects.filter(
             warranty_filter,
@@ -62,7 +51,6 @@ def home(request):
             end_of_warranty_date__lte=now + timedelta(days=30)
         ).count()
         context['expiring_warranties'] = expiring_warranties
-        print(f"Debug Dashboard: Expiring warranties: {expiring_warranties}")
 
         overdue_services = ServiceFollowUp.objects.filter(
             service_filter,
@@ -70,7 +58,6 @@ def home(request):
             next_service_date__lte=now
         ).count()
         context['overdue_services'] = overdue_services
-        print(f"Debug Dashboard: Overdue services: {overdue_services}")
 
         # Breakdown maintenance statistics
         breakdown_maintenance_count = MaintenanceRecord.objects.filter(
@@ -78,7 +65,6 @@ def home(request):
             maintenance_type='breakdown'
         ).count()
         context['breakdown_maintenance_count'] = breakdown_maintenance_count
-        print(f"Debug Dashboard: Breakdown maintenance count: {breakdown_maintenance_count}")
         
         # Recent breakdown maintenance (last 30 days)
         recent_breakdowns = MaintenanceRecord.objects.filter(
@@ -87,7 +73,6 @@ def home(request):
             maintenance_date__gte=now - timedelta(days=30)
         ).count()
         context['recent_breakdowns'] = recent_breakdowns
-        print(f"Debug Dashboard: Recent breakdowns (30 days): {recent_breakdowns}")
 
         # Core Business Installation Statistics - Summary only for dashboard
         core_business_summary_stats = Installation.objects.filter(
@@ -376,8 +361,6 @@ def distributor_report(request):
         distributor_filter = request.GET.get('distributor', 'all')
         chart_type = request.GET.get('chart_type', 'category')
         
-        print(f"Debug Distributor Report: period={date_filter}, distributor={distributor_filter}, chart_type={chart_type}")
-        
         # Calculate date range based on filter
         end_date = timezone.now()
         start_date = None
@@ -400,7 +383,6 @@ def distributor_report(request):
         # Apply distributor filter if specified
         if distributor_filter != 'all':
             base_queryset = base_queryset.filter(customer__related_company__id=distributor_filter)
-            print(f"Debug Distributor Report: Filtered by distributor {distributor_filter}, result count: {base_queryset.count()}")
         
         # Distributor Installation Statistics - Full data for report
         distributor_stats = base_queryset.values(
@@ -814,15 +796,6 @@ def breakdown_maintenance_report(request):
             service_followup__installation__inventory_item__name__category__category_name__isnull=False
         ).order_by('-breakdown_count')
         
-        # Breakdown by Distributor
-        distributor_breakdown_stats = base_queryset.values(
-            'service_followup__installation__customer__related_company__name'
-        ).annotate(
-            breakdown_count=Count('id')
-        ).filter(
-            service_followup__installation__customer__related_company__name__isnull=False
-        ).order_by('-breakdown_count')
-        
         # Monthly breakdown trend - SQLite compatible
         monthly_breakdown_stats = base_queryset.extra(
             select={'month': "strftime('%%Y-%%m', service_date)"}
@@ -905,14 +878,10 @@ def breakdown_maintenance_report(request):
         }
         context['chart_data_json'] = json.dumps(chart_data)
         
-        # Debug: Chart data oluştuğunu kontrol edelim
-        print(f"DEBUG: Chart data created - Customer: {len(customer_labels)} items, Monthly: {len(monthly_labels)} items, Category: {len(category_labels)} items")
-        
         # Summary statistics for dashboard
         total_breakdowns = base_queryset.count()
         customers_affected = customer_breakdown_stats.count()
         # All breakdown records in our query are resolved (since they have MaintenanceRecord)
-        resolved_breakdowns = total_breakdowns
         avg_resolution_time = 0
         
         # Calculate average resolution time using maintenance_date - service_date

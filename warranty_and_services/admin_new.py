@@ -1,8 +1,9 @@
 from django.contrib import admin
 from django.utils.translation import gettext_lazy as _
 from django import forms
+from django.utils.html import format_html
 from django.db.models import Q
-from .models import Installation, WarrantyFollowUp, ServiceFollowUp, InstallationImage, InstallationDocument, BreakdownReason, BreakdownCategory, MaintenanceRecord
+from .models import Installation, WarrantyFollowUp, ServiceFollowUp, InstallationImage, InstallationDocument, BreakdownReason, BreakdownCategory
 
 
 class InstallationImageInline(admin.TabularInline):
@@ -190,49 +191,13 @@ class BreakdownCategoryAdmin(admin.ModelAdmin):
 
 @admin.register(BreakdownReason)
 class BreakdownReasonAdmin(admin.ModelAdmin):
-    list_display = ['name', 'is_active', 'created_at']
-    list_filter = ['is_active']
+    list_display = ['name', 'category', 'is_active', 'created_at']
+    list_filter = ['category', 'is_active']
     search_fields = ['name']
-    ordering = ['name']
+    ordering = ['category__type', 'name']
     
     fieldsets = (
         (None, {
-            'fields': ('name', 'is_active')
+            'fields': ('category', 'name', 'is_active')
         }),
     )
-
-
-@admin.register(MaintenanceRecord)
-class MaintenanceRecordAdmin(admin.ModelAdmin):
-    list_display = ['get_installation_display', 'maintenance_type', 'technician', 'category', 'breakdown_reason_selected', 'service_date', 'created_at']
-    list_filter = ['maintenance_type', 'category', 'created_at']
-    search_fields = ['service_followup__installation__customer__name', 'technician__first_name', 'technician__last_name', 'notes']
-    ordering = ['-created_at']
-    
-    fieldsets = (
-        (_('Basic Information'), {
-            'fields': ('service_followup', 'maintenance_type', 'technician', 'service_date')
-        }),
-        (_('Breakdown Information'), {
-            'fields': ('category', 'breakdown_reason_selected', 'breakdown_reason_detail'),
-            'classes': ('collapse',),
-            'description': _('Required for breakdown maintenance only')
-        }),
-        (_('Notes'), {
-            'fields': ('notes',),
-            'classes': ('collapse',)
-        }),
-    )
-    
-    def get_installation_display(self, obj):
-        if obj.service_followup and obj.service_followup.installation:
-            inst = obj.service_followup.installation
-            return f"{inst.inventory_item.name.shortcode} - {inst.customer.name}"
-        return "-"
-    get_installation_display.short_description = _('Installation')
-    
-    def save_model(self, request, obj, form, change):
-        # Auto-set technician to current user if not set
-        if not obj.technician:
-            obj.technician = request.user
-        super().save_model(request, obj, form, change)
