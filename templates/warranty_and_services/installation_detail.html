@@ -94,7 +94,7 @@
                         
                         {% if installation.installation_notes %}
                         <div class="mt-6 p-4 bg-gray-50 rounded-lg">
-                            <h4 class="text-sm font-medium text-gray-900 mb-2">Installation Notes</h4>
+                            <h4 class="text-sm font-medium text-gray-900 mb-2">{% trans "Installation Notes" %}</h4>
                             <p class="text-sm text-gray-700">{{ installation.installation_notes|linebreaks }}</p>
                         </div>
                         {% endif %}
@@ -108,31 +108,31 @@
                             <svg class="w-5 h-5 text-green-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-4m-5 0H3m2 0h4M9 7h6m-6 4h6m-6 4h6m-6 4h6"></path>
                             </svg>
-                            <h3 class="text-lg font-semibold text-gray-900">Customer Information</h3>
+                            <h3 class="text-lg font-semibold text-gray-900">{% trans "Customer Information" %}</h3>
                         </div>
                     </div>
                     <div class="p-6">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
-                                <h4 class="text-sm font-medium text-gray-900 mb-3">Company Details</h4>
+                                <h4 class="text-sm font-medium text-gray-900 mb-3">{% trans "Company Details" %}</h4>
                                 <dl class="space-y-2">
                                     <div class="flex justify-between">
-                                        <dt class="text-sm text-gray-500">Name:</dt>
+                                        <dt class="text-sm text-gray-500">{% trans "Name" %}:</dt>
                                         <dd class="text-sm font-medium text-gray-900">{{ customer.name }}</dd>
                                     </div>
                                     <div class="flex justify-between">
-                                        <dt class="text-sm text-gray-500">Type:</dt>
+                                        <dt class="text-sm text-gray-500">{% trans "Type" %}:</dt>
                                         <dd class="text-sm text-gray-900">{{ customer.get_company_type_display }}</dd>
                                     </div>
                                     {% if customer.core_business %}
                                     <div class="flex justify-between">
-                                        <dt class="text-sm text-gray-500">Business:</dt>
+                                        <dt class="text-sm text-gray-500">{% trans "Business" %}:</dt>
                                         <dd class="text-sm text-gray-900">{{ customer.core_business.name }}</dd>
                                     </div>
                                     {% endif %}
                                     {% if customer.tax_number %}
                                     <div class="flex justify-between">
-                                        <dt class="text-sm text-gray-500">Tax Number:</dt>
+                                        <dt class="text-sm text-gray-500">{% trans "Tax Number" %}:</dt>
                                         <dd class="text-sm text-gray-900">{{ customer.tax_number }}</dd>
                                     </div>
                                     {% endif %}
@@ -140,29 +140,29 @@
                             </div>
                             
                             <div>
-                                <h4 class="text-sm font-medium text-gray-900 mb-3">Contact Details</h4>
+                                <h4 class="text-sm font-medium text-gray-900 mb-3">{% trans "Contact Details" %}</h4>
                                 <dl class="space-y-2">
                                     {% if customer.email %}
                                     <div class="flex justify-between">
-                                        <dt class="text-sm text-gray-500">Email:</dt>
+                                        <dt class="text-sm text-gray-500">{% trans "Email" %}:</dt>
                                         <dd class="text-sm text-gray-900">{{ customer.email }}</dd>
                                     </div>
                                     {% endif %}
                                     {% if customer.telephone %}
                                     <div class="flex justify-between">
-                                        <dt class="text-sm text-gray-500">Phone:</dt>
+                                        <dt class="text-sm text-gray-500">{% trans "Phone" %}:</dt>
                                         <dd class="text-sm text-gray-900">{{ customer.telephone }}</dd>
                                     </div>
                                     {% endif %}
                                     {% if customer.related_manager %}
                                     <div class="flex justify-between">
-                                        <dt class="text-sm text-gray-500">Manager:</dt>
+                                        <dt class="text-sm text-gray-500">{% trans "Manager" %}:</dt>
                                         <dd class="text-sm text-gray-900">{{ customer.related_manager.get_full_name|default:customer.related_manager.username }}</dd>
                                     </div>
                                     {% endif %}
                                     {% if customer.related_company %}
                                     <div class="flex justify-between">
-                                        <dt class="text-sm text-gray-500">Related Company:</dt>
+                                        <dt class="text-sm text-gray-500">{% trans "Related Company" %}:</dt>
                                         <dd class="text-sm text-gray-900">{{ customer.related_company.name }}</dd>
                                     </div>
                                     {% endif %}
@@ -173,7 +173,7 @@
                         <!-- Customer Addresses -->
                         {% if customer.address.exists %}
                         <div class="mt-6 p-4 bg-blue-50 rounded-lg">
-                            <h4 class="text-sm font-medium text-gray-900 mb-3">Customer Addresses</h4>
+                            <h4 class="text-sm font-medium text-gray-900 mb-3">{% trans "Customer Addresses" %}</h4>
                             <div class="space-y-3">
                                 {% for address in customer.address.all %}
                                 <div class="bg-white p-3 rounded border">
@@ -196,7 +196,7 @@
                         <!-- Contact Persons -->
                         {% if customer.contactperson_set.exists %}
                         <div class="mt-6 p-4 bg-green-50 rounded-lg">
-                            <h4 class="text-sm font-medium text-gray-900 mb-3">Contact Persons</h4>
+                            <h4 class="text-sm font-medium text-gray-900 mb-3">{% trans "Contact Persons" %}</h4>
                             <div class="space-y-3">
                                 {% for contact in customer.contactperson_set.all %}
                                 <div class="bg-white p-3 rounded border">
@@ -331,7 +331,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
                             </svg>
-                            <h3 class="text-lg font-semibold text-gray-900">Service Information</h3>
+                            <h3 class="text-lg font-semibold text-gray-900">{% trans "Service Information" %}</h3>
                             <span class="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
                                 {{ services.count }} service{{ services.count|pluralize }}
                             </span>
@@ -353,34 +353,34 @@
                                         </span>
                                         {% if service.is_completed %}
                                             <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                                ✓ Complete
+                                                ✓ {% trans "Complete" %}
                                             </span>
                                         {% elif service.is_due %}
                                             <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                                                Overdue
+                                                {% trans "Overdue" %}
                                             </span>
                                         {% else %}
                                             <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                                Pending
+                                                {% trans "Pending" %}
                                             </span>
                                         {% endif %}
                                     </div>
                                 </div>
                                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                                     <div>
-                                        <span class="text-gray-500">Type:</span>
+                                        <span class="text-gray-500">{% trans "Type" %}:</span>
                                         <span class="ml-1 text-gray-900">{{ service.get_service_type_display }}</span>
                                     </div>
                                     <div>
-                                        <span class="text-gray-500">Created:</span>
+                                        <span class="text-gray-500">{% trans "Created" %}:</span>
                                         <span class="ml-1 text-gray-900">{{ service.creation_date|date:"d.m.Y" }}</span>
                                     </div>
                                     <div>
-                                        <span class="text-gray-500">Next Service:</span>
+                                        <span class="text-gray-500">{% trans "Next Service" %}:</span>
                                         <span class="ml-1 text-gray-900">{{ service.next_service_date|date:"d.m.Y" }}</span>
                                     </div>
                                     <div>
-                                        <span class="text-gray-500">Status:</span>
+                                        <span class="text-gray-500">{% trans "Status" %}:</span>
                                         <span class="ml-1 text-gray-900">
                                             {% if service.is_completed %}Complete{% elif service.is_due %}Due{% else %}{% trans "Pending" %}{% endif %}
                                         </span>
@@ -401,7 +401,7 @@
                             <svg class="w-5 h-5 text-indigo-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                             </svg>
-                            <h3 class="text-lg font-semibold text-gray-900">Installation Images</h3>
+                            <h3 class="text-lg font-semibold text-gray-900">{% trans "Installation Images" %}</h3>
                             <span class="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
                                 {{ installation.images.count }} image{{ installation.images.count|pluralize }}
                             </span>
@@ -436,7 +436,7 @@
                             <svg class="w-5 h-5 text-gray-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                             </svg>
-                            <h3 class="text-lg font-semibold text-gray-900">Installation Documents</h3>
+                            <h3 class="text-lg font-semibold text-gray-900">{% trans "Installation Documents" %}</h3>
                             <span class="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
                                 {{ installation.documents.count }} document{{ installation.documents.count|pluralize }}
                             </span>
@@ -475,7 +475,7 @@
                                     <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                                     </svg>
-                                    Download
+                                    {% trans "Download" %}
                                 </a>
                             </div>
                             {% endfor %}
@@ -527,19 +527,19 @@
                     <div class="p-6">
                         <div class="space-y-4">
                             <div class="flex items-center justify-between">
-                                <span class="text-sm text-gray-500">Total Warranties:</span>
+                                <span class="text-sm text-gray-500">{% trans "Total Warranties" %}:</span>
                                 <span class="text-sm font-medium text-gray-900">{{ warranties.count }}</span>
                             </div>
                             <div class="flex items-center justify-between">
-                                <span class="text-sm text-gray-500">Total Services:</span>
+                                <span class="text-sm text-gray-500">{% trans "Total Services" %}:</span>
                                 <span class="text-sm font-medium text-gray-900">{{ services.count }}</span>
                             </div>
                             <div class="flex items-center justify-between">
-                                <span class="text-sm text-gray-500">Images:</span>
+                                <span class="text-sm text-gray-500">{% trans "Images" %}:</span>
                                 <span class="text-sm font-medium text-gray-900">{{ installation.images.count }}</span>
                             </div>
                             <div class="flex items-center justify-between">
-                                <span class="text-sm text-gray-500">Documents:</span>
+                                <span class="text-sm text-gray-500">{% trans "Documents" %}:</span>
                                 <span class="text-sm font-medium text-gray-900">{{ installation.documents.count }}</span>
                             </div>
                         </div>

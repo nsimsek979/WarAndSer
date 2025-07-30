@@ -255,14 +255,10 @@ msgid "Address"
 msgstr "Adres"
 
 #: .\customer\models.py:151
-#, fuzzy
-#| msgid "Address"
 msgid "Adres"
 msgstr "Adres"
 
 #: .\customer\models.py:152
-#, fuzzy
-#| msgid "Addresses"
 msgid "Adresler"
 msgstr "Adresler"
 
@@ -519,8 +515,6 @@ msgid "Kısa Kod"
 msgstr ""
 
 #: .\item_master\models.py:319
-#, fuzzy
-#| msgid "Add"
 msgid "Ad"
 msgstr "Ekle"
 
@@ -529,8 +523,6 @@ msgid "Açıklama"
 msgstr ""
 
 #: .\item_master\models.py:321
-#, fuzzy
-#| msgid "Category"
 msgid "Kategori"
 msgstr "Kategori"
 
@@ -555,14 +547,10 @@ msgid "Garanti Değerleri"
 msgstr ""
 
 #: .\item_master\models.py:344
-#, fuzzy
-#| msgid "Service Form"
 msgid "Servis Formları"
 msgstr "Servis Formu"
 
 #: .\item_master\models.py:350
-#, fuzzy
-#| msgid "Service Periods"
 msgid "Servis Periyotları"
 msgstr "Servis Periyodu"
 
@@ -583,8 +571,6 @@ msgid "Üretim Tarihi"
 msgstr ""
 
 #: .\item_master\models.py:376
-#, fuzzy
-#| msgid "Serial No"
 msgid "Seri No"
 msgstr "Seri No"
 
@@ -1317,7 +1303,7 @@ msgstr "Kurulumu Yapılmamış"
 
 #: .\templates\dashboard\core_business_report.html:123
 msgid "Count by Core Business"
-msgstr "İş Koluna Göre Sayıları"
+msgstr "İş Koluna Göre Kurulumlar"
 
 #: .\templates\dashboard\core_business_report.html:154
 msgid "Top 5 Core Businesses"
@@ -1393,7 +1379,7 @@ msgstr "Aktif Garantideki Ürünler"
 #: .\warranty_and_services\admin.py:137
 #: .\warranty_and_services\admin_new.py:138
 msgid "Expiring Soon"
-msgstr "Süresi Dolacaklar"
+msgstr "Süresi Dolacak Garantiler"
 
 #: .\templates\dashboard\home.html:108
 #: .\templates\warranty_and_services\service_tracking_list.html:140
@@ -4014,7 +4000,7 @@ msgstr "Tamamlanan Servisler"
 
 #: .\templates\warranty_and_services\service_tracking_list.html:219
 msgid "services"
-msgstr "servisler"
+msgstr "servis"
 
 #: .\templates\warranty_and_services\service_tracking_list.html:226
 msgid "periodic"
@@ -6749,6 +6735,21 @@ msgstr "Bakım Belgesi"
 #: .\warranty_and_services\models.py:1617
 msgid "Maintenance Documents"
 msgstr "Bakım Belgeleri"
+
+msgid "Total Warranties"
+msgstr "Toplam Garantiler"
+
+msgid "Total Services"
+msgstr "Toplam Servis"
+
+msgid "Summary"
+msgstr "Özet"
+
+msgid "By Category"
+msgstr "Kategoriye Göre"
+
+msgid "By Item Master"
+msgstr "Ana Ürüne Göre"
 
 #~ msgid "Daily working hours cannot exceed 24 hours."
 #~ msgstr "Günlük çalışma 24 saati geçemez."

@@ -135,9 +135,9 @@
                     <h3 class="text-lg font-semibold text-gray-900">
                         {% trans "Distribution Overview" %}
                         {% if current_chart_type == 'category' %}
-                            - By Category
+                            - {% trans "By Category" %}
                         {% else %}
-                            - By Item Master
+                            - {% trans "By Item Master" %}
                         {% endif %}
                     </h3>
                 </div>
@@ -165,10 +165,10 @@
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-50">
                         <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rank</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Distributor</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Installations</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Percentage</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Rank" %}</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Distributor" %}</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Installations" %}</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Percentage" %}</th>
                         </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200">

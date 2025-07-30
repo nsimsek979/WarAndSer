@@ -269,7 +269,7 @@ def core_business_report(request):
                 inventory_item__name__category__category_name__isnull=False
             ).order_by('-installation_count')
             
-            chart_title = 'Installation Distribution by Category'
+            chart_title = 'Kategoriye Göre Kurulum Dağılımı'
             field_name = 'inventory_item__name__category__category_name'
         else:
             # Item Master distribution
@@ -281,7 +281,7 @@ def core_business_report(request):
                 inventory_item__name__name__isnull=False
             ).order_by('-installation_count')
             
-            chart_title = 'Installation Distribution by Item'
+            chart_title = 'Ana Ürüne Göre Kurulum Dağılımı'
             field_name = 'inventory_item__name__name'
         
         # Prepare distribution chart data - Top 19 + Others
@@ -355,15 +355,15 @@ def core_business_report(request):
         
         # Filter options
         context['period_options'] = [
-            {'value': 'all', 'label': 'All Time'},
-            {'value': '1year', 'label': 'Last 1 Year'},
-            {'value': '1quarter', 'label': 'Last Quarter (3 months)'},
-            {'value': '1month', 'label': 'Last Month'},
+            {'value': 'all', 'label': 'Tüm Zamanlar'},
+            {'value': '1year', 'label': 'Son 1 Yıl'},
+            {'value': '1quarter', 'label': 'Son Çeyrek (3 ay)'},
+            {'value': '1month', 'label': 'Bu Ay'},
         ]
         
         # Core Business options for filter
         core_businesses = CoreBusiness.objects.all().order_by('name')
-        context['core_business_options'] = [{'value': 'all', 'label': 'All Core Businesses'}]
+        context['core_business_options'] = [{'value': 'all', 'label': 'Tüm İş Kolları'}]
         for cb in core_businesses:
             context['core_business_options'].append({
                 'value': str(cb.id),
@@ -372,8 +372,8 @@ def core_business_report(request):
         
         # Chart type options
         context['chart_type_options'] = [
-            {'value': 'category', 'label': 'By Category'},
-            {'value': 'item', 'label': 'By Item Master'},
+            {'value': 'category', 'label': 'Kategoriye Göre'},
+            {'value': 'item', 'label': 'Ana Ürüne Göre'},
         ]
 
     return render(request, 'dashboard/core_business_report.html', context)
@@ -558,16 +558,16 @@ def distributor_report(request):
         
         # Period options for the dropdown
         context['period_options'] = [
-            {'value': 'all', 'label': 'All Time'},
-            {'value': '1year', 'label': 'Last 1 Year'},
-            {'value': '1quarter', 'label': 'Last Quarter (3 months)'},
-            {'value': '1month', 'label': 'Last Month'},
+            {'value': 'all', 'label': 'Tüm Zamanlar'},
+            {'value': '1year', 'label': 'Son 1 Yıl'},
+            {'value': '1quarter', 'label': 'Son Çeyrek (3 ay)'},
+            {'value': '1month', 'label': 'Son Ay'},
         ]
         
         # Distributor options (companies with type distributor)
         from customer.models import Company
         distributor_companies = Company.objects.filter(company_type='distributor').order_by('name')
-        context['distributor_options'] = [{'value': 'all', 'label': 'All Distributors'}]
+        context['distributor_options'] = [{'value': 'all', 'label': 'Bütün Bayiler'}]
         context['distributor_options'].extend([
             {'value': str(company.id), 'label': company.name} 
             for company in distributor_companies
@@ -575,8 +575,8 @@ def distributor_report(request):
         
         # Chart type options for distribution chart
         context['chart_type_options'] = [
-            {'value': 'category', 'label': 'By Category'},
-            {'value': 'item', 'label': 'By Item Master'},
+            {'value': 'category', 'label': 'Kategoriye Göre'},
+            {'value': 'item', 'label': 'Ana Ürüne Göre'},
         ]
 
     return render(request, 'dashboard/distributor_report.html', context)
@@ -763,10 +763,10 @@ def category_report(request):
         
         # Period options for the dropdown
         context['period_options'] = [
-            {'value': 'all', 'label': 'All Time'},
-            {'value': '1year', 'label': 'Last 1 Year'},
-            {'value': '1quarter', 'label': 'Last Quarter (3 months)'},
-            {'value': '1month', 'label': 'Last Month'},
+            {'value': 'all', 'label': 'Tüm Zamanlar'},
+            {'value': '1year', 'label': 'Son 1 Yıl'},
+            {'value': '1quarter', 'label': 'Son Çeyrek (3 ay)'},
+            {'value': '1month', 'label': 'Son Ay'},
         ]
 
     return render(request, 'dashboard/category_report.html', context)
@@ -1077,10 +1077,10 @@ def breakdown_maintenance_report(request):
         
         # Period options for the dropdown
         context['period_options'] = [
-            {'value': 'all', 'label': 'All Time'},
-            {'value': '1year', 'label': 'Last 1 Year'},
-            {'value': '1quarter', 'label': 'Last Quarter (3 months)'},
-            {'value': '1month', 'label': 'Last Month'},
+            {'value': 'all', 'label': 'Tüm Zamanlar'},
+            {'value': '1year', 'label': 'Son 1 Yıl'},
+            {'value': '1quarter', 'label': 'Son Çeyrek (3 ay)'},
+            {'value': '1month', 'label': 'Bu Ay'},
         ]
         
         # Add filter options to context
@@ -1342,17 +1342,17 @@ def spare_parts_report(request):
         
         # Period options for the dropdown
         context['period_options'] = [
-            {'value': 'all', 'label': 'All Time'},
-            {'value': '1year', 'label': 'Last 1 Year'},
-            {'value': '1quarter', 'label': 'Last Quarter (3 months)'},
-            {'value': '1month', 'label': 'Last Month'},
+            {'value': 'all', 'label': 'Tüm Zaman'},
+            {'value': '1year', 'label': 'Son 1 Yıl'},
+            {'value': '1quarter', 'label': 'Son Çeyrek (3 ay)'},
+            {'value': '1month', 'label': 'Bu Ay'},
         ]
         
         # Maintenance type options
         context['maintenance_types'] = [
-            {'value': 'breakdown', 'label': 'Breakdown'},
-            {'value': 'periodic', 'label': 'Periodic'},
-            {'value': 'other', 'label': 'Other'},
+            {'value': 'breakdown', 'label': 'Arıza'},
+            {'value': 'periodic', 'label': 'Periyodik'},
+            
         ]
         
         # Add filter options to context
