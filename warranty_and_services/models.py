@@ -181,8 +181,8 @@ class Installation(models.Model):
         if self.customer and self.customer.email:
             recipients.add(self.customer.email)
         # ContactPerson
-        if hasattr(self.customer, 'contactperson_set'):
-            for contact in self.customer.contactperson_set.all():
+        if hasattr(self.customer, 'contact_persons'):
+            for contact in self.customer.contact_persons.all():
                 if contact.email:
                     recipients.add(contact.email)
         # Kurulum yapan kullanıcı
@@ -1424,8 +1424,8 @@ class MaintenanceRecord(models.Model):
                 recipients.add(self.service_followup.installation.customer.email)
             
             # 2. ContactPerson - servis yapılan firmadaki iletişim kişileri
-            if hasattr(self.service_followup.installation.customer, 'contactperson_set'):
-                for contact in self.service_followup.installation.customer.contactperson_set.all():
+            if hasattr(self.service_followup.installation.customer, 'contact_persons'):
+                for contact in self.service_followup.installation.customer.contact_persons.all():
                     if contact.email:
                         recipients.add(contact.email)
             

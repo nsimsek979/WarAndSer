@@ -123,15 +123,15 @@
         {% if all_categories %}
         <div class="bg-white rounded-lg shadow-lg">
             <div class="px-6 py-4 border-b border-gray-200">
-                <h3 class="text-lg font-semibold text-gray-900">All Categories</h3>
+                <h3 class="text-lg font-semibold text-gray-900">{% trans "All Categories" %}</h3>
             </div>
             <div class="overflow-x-auto">
                 <table class="min-w-full">
                     <thead class="bg-gray-50">
                         <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Parent Category</th>
-                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Installations</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Category" %}</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Parent Category" %}</th>
+                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Installations" %}</th>
                         </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200">
@@ -162,22 +162,22 @@
                             {% if all_categories.has_previous %}
                                 <a href="?page={{ all_categories.previous_page_number }}{% if request.GET.period %}&period={{ request.GET.period }}{% endif %}" 
                                    class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
-                                    Previous
+                                    {% trans "Previous" %}
                                 </a>
                             {% endif %}
                             {% if all_categories.has_next %}
                                 <a href="?page={{ all_categories.next_page_number }}{% if request.GET.period %}&period={{ request.GET.period }}{% endif %}" 
                                    class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
-                                    Next
+                                    {% trans "Next" %}
                                 </a>
                             {% endif %}
                         </div>
                         <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
                             <div>
                                 <p class="text-sm text-gray-700">
-                                    Showing <span class="font-medium">{{ all_categories.start_index }}</span> to 
-                                    <span class="font-medium">{{ all_categories.end_index }}</span> of 
-                                    <span class="font-medium">{{ all_categories.paginator.count }}</span> results
+                                    {% trans "Showing" %} <span class="font-medium">{{ all_categories.start_index }}</span> {% trans "to" %} 
+                                    <span class="font-medium">{{ all_categories.end_index }}</span> {% trans "of" %} 
+                                    <span class="font-medium">{{ all_categories.paginator.count }}</span> {% trans "results" %}
                                 </p>
                             </div>
                             <div>
@@ -185,7 +185,7 @@
                                     {% if all_categories.has_previous %}
                                         <a href="?page={{ all_categories.previous_page_number }}{% if request.GET.period %}&period={{ request.GET.period }}{% endif %}" 
                                            class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
-                                            Previous
+                                            {%
                                         </a>
                                     {% endif %}
                                     
@@ -205,7 +205,7 @@
                                     {% if all_categories.has_next %}
                                         <a href="?page={{ all_categories.next_page_number }}{% if request.GET.period %}&period={{ request.GET.period }}{% endif %}" 
                                            class="relative inline-flex items-components px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
-                                            Next
+                                            {% trans "Next" %}
                                         </a>
                                     {% endif %}
                                 </nav>
@@ -217,8 +217,8 @@
         </div>
         {% else %}
             <div class="bg-white rounded-lg shadow-lg p-8 text-center">
-                <h3 class="text-lg font-semibold text-gray-900 mb-4">No Category Data Found</h3>
-                <p class="text-gray-600">There are no installation records with category information in the selected time period.</p>
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">{% trans "No Category Data Found" %}</h3>
+                <p class="text-gray-600">{% trans "There are no installation records with category information in the selected time period." %}</p>
             </div>
         {% endif %}
     </div>

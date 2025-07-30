@@ -126,8 +126,8 @@
                         <img src="{% static 'konnektom-logo.png' %}" alt="Logo" class="w-6 h-6">
                     </div>
                     <div>
-                        <h1 class="text-lg font-bold">GVS Mobile</h1>
-                        <p class="text-white/80 text-sm">Garanti ve Servis</p>
+                        <h1 class="text-lg font-bold">{% trans "GVS Mobile" %}</h1>
+                        <p class="text-white/80 text-sm">{% trans "Warranty and Service" %}</p>
                     </div>
                 </div>
                 <div class="flex items-center space-x-3">
@@ -153,9 +153,9 @@
             <div class="stats-card primary rounded-xl p-4 mobile-card">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-white/80 text-sm">Bugün</p>
+                        <p class="text-white/80 text-sm">{% trans "Today" %}</p>
                         <p class="text-2xl font-bold">{{ todays_work|default:0 }}</p>
-                        <p class="text-white/80 text-xs">İş Yapıldı</p>
+                        <p class="text-white/80 text-xs">{% trans "Work Done" %}</p>
                     </div>
                     <div class="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center">
                         <i class="fas fa-calendar-day text-xl"></i>
@@ -166,9 +166,9 @@
             <div class="stats-card rounded-xl p-4 mobile-card">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-gray-600 text-sm">Bu Ay</p>
+                        <p class="text-gray-600 text-sm">{% trans "This Month" %}</p>
                         <p class="text-2xl font-bold text-gray-900">{{ monthly_work|default:0 }}</p>
-                        <p class="text-gray-500 text-xs">Toplam İş</p>
+                        <p class="text-gray-500 text-xs">{% trans "Total Work" %}</p>
                     </div>
                     <div class="w-12 h-12 bg-blue-50 rounded-lg flex items-center justify-center">
                         <i class="fas fa-chart-line text-blue-600 text-xl"></i>

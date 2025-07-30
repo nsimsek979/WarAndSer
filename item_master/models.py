@@ -7,6 +7,7 @@ from PIL import Image
 import os
 from io import BytesIO
 from django.core.files import File
+from django.utils.translation import gettext_lazy as _
 
 User = get_user_model()
 
@@ -15,34 +16,48 @@ def get_qrcode_upload_path(instance, filename):
     return f'qrcodes/{instance.id}/{filename}'
 
 class Status(models.Model):
-    status = models.CharField(max_length=100)
+    status = models.CharField(max_length=100, verbose_name=_("Status"))
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return self.status
+    
+    class Meta:
+        verbose_name = 'Statü'
+        verbose_name_plural = 'Statüler'
+        ordering = ['status']
 
 class StockType(models.Model):
-    name = models.CharField(max_length=100, unique=True)
+    name = models.CharField(max_length=100, unique=True, verbose_name=_("Stock Type"))
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return self.name
+    
+    class Meta:
+        verbose_name = 'Stok Türü'
+        verbose_name_plural = 'Stok Türleri'
+        ordering = ['name']
 
 class Brand(models.Model):
-    name = models.CharField(max_length=100, unique=True)
-    image = models.ImageField(upload_to='brands/', null=True, blank=True)
+    name = models.CharField(max_length=100, unique=True, verbose_name=_("Brand Name"))
+    image = models.ImageField(upload_to='brands/', null=True, blank=True, verbose_name=_("Brand Image"))
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return self.name
+    class Meta:
+        verbose_name = 'Marka'
+        verbose_name_plural = 'Markalar'
+        ordering = ['name']
 
 class Category(models.Model):
-    category_name = models.CharField(max_length=100, unique=True)
-    parent = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, default=None)
-    slug = models.SlugField(max_length=100, unique=True)
+    category_name = models.CharField(max_length=100, unique=True, verbose_name=_("Category Name"))
+    parent = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, default=None, verbose_name=_("Parent Category"))
+    slug = models.SlugField(max_length=100, unique=True, verbose_name=_("Slug"))
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -53,58 +68,77 @@ class Category(models.Model):
 
     def __str__(self):
         return self.category_name
+    
+    class Meta:
+        verbose_name = 'Kategori'
+        verbose_name_plural = 'Kategoriler'
+        ordering = ['category_name']
 
 class ItemImage(models.Model):
-    item = models.ForeignKey('ItemMaster', on_delete=models.CASCADE, related_name='images')
-    url = models.ImageField(upload_to='item_images/')
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    item = models.ForeignKey('ItemMaster', on_delete=models.CASCADE, related_name='images', verbose_name=_("Item"))
+    url = models.ImageField(upload_to='item_images/', verbose_name=_("Image URL"))
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name=_("Created At"))
+    updated_at = models.DateTimeField(auto_now=True, verbose_name=_("Updated At"))
 
     def __str__(self):
         return f"{self.item.name} - {self.id}"
+    
+    class Meta:
+        verbose_name = 'Ürün Resmi'
+        verbose_name_plural = 'Ürün Resimleri'
+        ordering = ['created_at']
 
 class ItemSpec(models.Model):
-    item = models.ForeignKey('ItemMaster', on_delete=models.CASCADE, related_name='specs')
-    url = models.FileField(upload_to='item_specs/', unique=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    item = models.ForeignKey('ItemMaster', on_delete=models.CASCADE, related_name='specs', verbose_name=_("Item"))
+    url = models.FileField(upload_to='item_specs/', unique=True, verbose_name=_("Specification URL"))
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name=_("Created At"))
+    updated_at = models.DateTimeField(auto_now=True, verbose_name=_("Updated At"))
 
     def __str__(self):
         return f"{self.item.name} - {self.id}"
+    
+    class Meta:
+        verbose_name = 'Ürün Özelliği Dosyası'
+        verbose_name_plural = 'Ürün Özelliği Dosyaları'
+        ordering = ['created_at']
 
 class WarrantyType(models.Model):
-    type = models.CharField(max_length=100)
+    type = models.CharField(max_length=100, verbose_name=_("Warranty Type"))
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return self.type
 
+    class Meta:
+        verbose_name = 'Garanti Türü'
+        verbose_name_plural = 'Garanti Türleri'
+        ordering = ['type']
+        constraints = [
+            models.UniqueConstraint(fields=['type'], name='unique_warranty_type')
+        ]
+
 class WarrantyValue(models.Model):
-    warranty_type = models.ForeignKey(WarrantyType, on_delete=models.CASCADE)
+    warranty_type = models.ForeignKey(WarrantyType, on_delete=models.CASCADE, verbose_name=_("Warranty Type"))
     value = models.PositiveIntegerField(
-        help_text="Garanti değeri (maksimum 4 haneli pozitif sayı)"
+        help_text="Garanti değeri (maksimum 4 haneli pozitif sayı)", verbose_name=_("Warranty Value")
     )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        constraints = [
-            models.CheckConstraint(
-                check=models.Q(value__lte=9999),
-                name='warranty_value_max_4_digits'
-            )
-        ]
+        verbose_name = 'Garanti Değeri'
+        verbose_name_plural = 'Garanti Değerleri'
 
     def __str__(self):
         return f"{self.warranty_type}: {self.value}"
 
 class ServicePeriodType(models.Model):
     """Servis periyodu türleri (Ay bazlı, Çalışma saati bazlı, vb.)"""
-    type = models.CharField(max_length=100, help_text="Örn: Ay bazlı, Çalışma saati bazlı, Kilometre bazlı")
-    unit = models.CharField(max_length=50, help_text="Örn: ay, saat, km")
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    type = models.CharField(max_length=100, help_text="Örn: Ay bazlı, Çalışma saati bazlı, Kilometre bazlı", verbose_name=_("Service Period Type"))
+    unit = models.CharField(max_length=50, help_text="Örn: ay, saat, km", verbose_name=_("Unit"))
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name=_("Created At"))
+    updated_at = models.DateTimeField(auto_now=True, verbose_name=_("Updated At"))
 
     class Meta:
         verbose_name = 'Servis Periyodu Türü'
@@ -115,13 +149,13 @@ class ServicePeriodType(models.Model):
 
 class ServicePeriodValue(models.Model):
     """Servis periyodu değerleri"""
-    service_period_type = models.ForeignKey(ServicePeriodType, on_delete=models.CASCADE)
+    service_period_type = models.ForeignKey(ServicePeriodType, on_delete=models.CASCADE, verbose_name=_("Service Period Type"))
     value = models.PositiveIntegerField(
-        help_text="Servis periyodu değeri (maksimum 4 haneli pozitif sayı). Örn: 6, 3000, 9999"
+        help_text="Servis periyodu değeri (maksimum 4 haneli pozitif sayı). Örn: 6, 3000, 9999", verbose_name=_("Service Period Value")
     )
-    description = models.CharField(max_length=200, blank=True, help_text="Opsiyonel açıklama")
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    description = models.CharField(max_length=200, blank=True, help_text="Opsiyonel açıklama", verbose_name=_("Description"))
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name=_("Created At"))
+    updated_at = models.DateTimeField(auto_now=True, verbose_name=_("Updated At"))
 
     class Meta:
         verbose_name = 'Servis Periyodu Değeri'
@@ -138,12 +172,12 @@ class ServicePeriodValue(models.Model):
 
 class MaintenanceSchedule(models.Model):
     """Ana bakım programı - hangi ürün için hangi servis periyotları geçerli"""
-    item_master = models.ForeignKey('ItemMaster', on_delete=models.CASCADE, related_name='maintenance_schedules')
-    service_period_value = models.ForeignKey(ServicePeriodValue, on_delete=models.CASCADE)
-    is_critical = models.BooleanField(default=True, help_text="Kritik bakım mı?")
-    maintenance_description = models.TextField(blank=True, help_text="Bakım açıklaması")
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    item_master = models.ForeignKey('ItemMaster', on_delete=models.CASCADE, related_name='maintenance_schedules', verbose_name=_("Item Master"))
+    service_period_value = models.ForeignKey(ServicePeriodValue, on_delete=models.CASCADE, verbose_name=_("Service Period Value"))
+    is_critical = models.BooleanField(default=True, help_text="Kritik bakım mı?", verbose_name=_("Is Critical"))
+    maintenance_description = models.TextField(blank=True, help_text="Bakım açıklaması", verbose_name=_("Maintenance Description"))
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name=_("Created At"))
+    updated_at = models.DateTimeField(auto_now=True, verbose_name=_("Updated At"))
 
     class Meta:
         verbose_name = 'Bakım Programı'
@@ -181,24 +215,29 @@ class MaintenanceSchedule(models.Model):
         return f"{self.item_master.name} - {self.service_period_value}"
 
 class ServiceForm(models.Model):
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=100, verbose_name=_("Service Form Name"))
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return self.name
+    class Meta:
+        verbose_name = 'Servis Formu'
+        verbose_name_plural = 'Servis Formları'
+        ordering = ['name']
+      
 
 class AttributeType(models.Model):
     """Types of attributes that can be assigned to inventory items"""
-    name = models.CharField(max_length=100, unique=True)
-    description = models.TextField(blank=True)
-    is_required = models.BooleanField(default=False)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    name = models.CharField(max_length=100, unique=True, verbose_name=_("Attribute Type Name"))
+    description = models.TextField(blank=True, verbose_name=_("Description"))
+    is_required = models.BooleanField(default=False, verbose_name=_("Is Required"))
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name=_("Created At"))
+    updated_at = models.DateTimeField(auto_now=True, verbose_name=_("Updated At"))
 
     class Meta:
-        verbose_name = 'Attribute Type'
-        verbose_name_plural = 'Attribute Types'
+        verbose_name = 'Özellik Türü'
+        verbose_name_plural = 'Özellik Türleri'
         ordering = ['name']
 
     def __str__(self):
@@ -206,14 +245,14 @@ class AttributeType(models.Model):
 
 class AttributeUnit(models.Model):
     """Units of measurement for attributes"""
-    name = models.CharField(max_length=50, unique=True)
-    symbol = models.CharField(max_length=10, unique=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    name = models.CharField(max_length=50, unique=True, verbose_name=_("Attribute Unit Name"))
+    symbol = models.CharField(max_length=10, unique=True, verbose_name=_("Attribute Unit Symbol"))
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name=_("Created At"))
+    updated_at = models.DateTimeField(auto_now=True, verbose_name=_("Updated At"))
 
     class Meta:
-        verbose_name = 'Attribute Unit'
-        verbose_name_plural = 'Attribute Units'
+        verbose_name = 'Özellik Birimi'
+        verbose_name_plural = 'Özellik Birimleri'
         ordering = ['name']
 
     def __str__(self):
@@ -225,28 +264,31 @@ class AttributeTypeUnit(models.Model):
     attribute_type = models.ForeignKey(
         AttributeType, 
         on_delete=models.CASCADE, 
-        related_name='type_units'
+        related_name='type_units',
+        verbose_name=_("Özellik Türü")
     )
     attribute_unit = models.ForeignKey(
         AttributeUnit, 
         on_delete=models.CASCADE, 
-        related_name='unit_types'
+        related_name='unit_types',
+        verbose_name=_("Özellik Birimi")
     )
     is_default = models.BooleanField(
         default=False, 
-        help_text="Is this the default unit for this attribute type?"
+        help_text="Is this the default unit for this attribute type?",
+        verbose_name=_("Varsayılan mı?")
     )
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name=_("Oluşturulma Tarihi"))
+    updated_at = models.DateTimeField(auto_now=True, verbose_name=_("Güncellenme Tarihi"))
 
     class Meta:
-        verbose_name = 'Attribute Type Unit'
-        verbose_name_plural = 'Attribute Type Units'
+        verbose_name = 'Özellik Türü Birimi'
+        verbose_name_plural = 'Özellik Türü Birimleri'
         unique_together = ('attribute_type', 'attribute_unit')
         ordering = ['attribute_type__name', '-is_default', 'attribute_unit__name']
 
     def __str__(self):
-        default_text = " (Default)" if self.is_default else ""
+        default_text = " (Varsayılan)" if self.is_default else ""
         return f"{self.attribute_type.name} - {self.attribute_unit.name}{default_text}"
 
     def save(self, *args, **kwargs):
@@ -259,52 +301,63 @@ class AttributeTypeUnit(models.Model):
         super().save(*args, **kwargs)
 
 class ItemSparePart(models.Model):
-    main_item = models.ForeignKey('ItemMaster', on_delete=models.CASCADE, related_name='main_item_spare_parts_set')
-    spare_part_item = models.ForeignKey('ItemMaster', on_delete=models.CASCADE, related_name='spare_part_of_items_set')
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    main_item = models.ForeignKey('ItemMaster', on_delete=models.CASCADE, related_name='main_item_spare_parts_set', verbose_name=_("Main Item"))
+    spare_part_item = models.ForeignKey('ItemMaster', on_delete=models.CASCADE, related_name='spare_part_of_items_set', verbose_name=_("Spare Part Item"))
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name=_("Created At"))
+    updated_at = models.DateTimeField(auto_now=True, verbose_name=_("Updated At"))
 
     class Meta:
         unique_together = ('main_item', 'spare_part_item')
+        verbose_name = 'Yedek Parça'
+        verbose_name_plural = 'Yedek Parçalar'
 
     def __str__(self):
         return f"{self.main_item.name} - {self.spare_part_item.name}"
 
 class ItemMaster(models.Model):
-    shortcode = models.CharField(max_length=10, unique=True)
-    name = models.CharField(max_length=255)
-    description = models.TextField(null=True, blank=True)
-    category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, related_name='items')
-    status = models.ForeignKey(Status, on_delete=models.SET_NULL, null=True)
-    brand_name = models.ForeignKey(Brand, on_delete=models.SET_NULL, null=True)
-    stock_type = models.ForeignKey(StockType, on_delete=models.SET_NULL, null=True)
-    slug = models.SlugField(max_length=255, unique=True)
+    shortcode = models.CharField(max_length=10, unique=True, verbose_name=_("Kısa Kod"))
+    name = models.CharField(max_length=255, verbose_name=_("Ad"))
+    description = models.TextField(null=True, blank=True, verbose_name=_("Açıklama"))
+    category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, related_name='items', verbose_name=_("Kategori"))
+    status = models.ForeignKey(Status, on_delete=models.SET_NULL, null=True, verbose_name=_("Durum"))
+    brand_name = models.ForeignKey(Brand, on_delete=models.SET_NULL, null=True, verbose_name=_("Marka Adı"))
+    stock_type = models.ForeignKey(StockType, on_delete=models.SET_NULL, null=True, verbose_name=_("Stok Türü"))
+    slug = models.SlugField(max_length=255, unique=True, verbose_name=_("Slug"))
     
     spare_parts = models.ManyToManyField(
         "self",
         through='ItemSparePart',
         symmetrical=False,
         blank=True,
-        through_fields=('main_item', 'spare_part_item') 
+        through_fields=('main_item', 'spare_part_item') ,
+        verbose_name=_("Yedek Parçalar"),
+        help_text="Bu ürünün yedek parçaları"
     )
     
     warranties = models.ManyToManyField(
         WarrantyValue, 
-        blank=True
+        blank=True,
+        verbose_name=_("Garanti Değerleri"),
     )
     service_forms = models.ManyToManyField(
         ServiceForm, 
-        blank=True
+        blank=True, verbose_name=_("Servis Formları"),
     )
     service_periods = models.ManyToManyField(
         ServicePeriodValue,
         through='MaintenanceSchedule',
         blank=True,
-        help_text="Bu ürün için geçerli servis periyotları"
+        help_text="Bu ürün için geçerli servis periyotları", verbose_name=_("Servis Periyotları")
     )
     
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = 'Ana Ürün'
+        verbose_name_plural = 'Ana Ürün'
+        ordering = ['name']
+       
 
     def save(self, *args, **kwargs):
         if not self.slug:
@@ -315,20 +368,24 @@ class ItemMaster(models.Model):
         return self.name
 
 class InventoryItem(models.Model):
-    name = models.ForeignKey(ItemMaster, on_delete=models.CASCADE, related_name='inventory_items')
-    quantity = models.PositiveIntegerField(default=1)
-    created_at = models.DateTimeField(auto_now_add=True)
-    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
-    production_date = models.DateTimeField(null=True, blank=True, auto_now_add=True)
-    serial_no = models.CharField(max_length=100, blank=True)
-    in_used = models.BooleanField(default=False)
-    updated_at = models.DateTimeField(auto_now=True)
-    qr_code_image = models.ImageField(upload_to=get_qrcode_upload_path, null=True, blank=True)
+    name = models.ForeignKey(ItemMaster, on_delete=models.CASCADE, related_name='inventory_items', verbose_name=_("Ürün Adı"))
+    quantity = models.PositiveIntegerField(default=1, verbose_name=_("Miktar"))
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name=_("Oluşturulma Tarihi"))
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, verbose_name=_("Oluşturan"))
+    production_date = models.DateTimeField(null=True, blank=True, verbose_name=_("Üretim Tarihi"))
+    serial_no = models.CharField(max_length=100, blank=True, verbose_name=_("Seri No"))
+    in_used = models.BooleanField(default=False, verbose_name=_("Kullanımda"))
+    updated_at = models.DateTimeField(auto_now=True, verbose_name=_("Güncellenme Tarihi"))
+    qr_code_image = models.ImageField(upload_to=get_qrcode_upload_path, null=True, blank=True, verbose_name=_("QR Kodu"))
 
     def __str__(self):
         shortcode = self.name.shortcode if self.name.shortcode else "NO-CODE"
         serial = self.serial_no if self.serial_no else f"INV-{self.pk}"
         return f"{shortcode} - {serial}"
+    class Meta:
+        verbose_name = 'Stok Ürünü'
+        verbose_name_plural = 'Stok Ürünleri'
+        ordering = ['name__shortcode', 'serial_no']
 
     def generate_qr_code(self):
         """Generate a QR code and save it to the qr_code_image field"""
@@ -397,24 +454,24 @@ class InventoryItemAttribute(models.Model):
     inventory_item = models.ForeignKey(
         InventoryItem,
         on_delete=models.CASCADE,
-        related_name='attributes'
+        related_name='attributes', verbose_name=_("Stok Ürünü")
     )
     attribute_type = models.ForeignKey(
         AttributeType,
         on_delete=models.CASCADE,
-        verbose_name='Type',
+        verbose_name='Tür',
         null=True,
-        blank=True,
+        blank=True, 
     )
-    value = models.CharField(max_length=255, null=True)
-    unit = models.ForeignKey(AttributeUnit, on_delete=models.SET_NULL, null=True, blank=True)
-    notes = models.TextField(blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    value = models.CharField(max_length=255, null=True, verbose_name=_("Değer"))
+    unit = models.ForeignKey(AttributeUnit, on_delete=models.SET_NULL, null=True, blank=True, verbose_name=_("Birim"))
+    notes = models.TextField(blank=True, verbose_name=_("Notlar"))
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name=_("Oluşturulma Tarihi"))
+    updated_at = models.DateTimeField(auto_now=True, verbose_name=_("Güncellenme Tarihi"))
 
     class Meta:
-        verbose_name = 'Item Attribute'
-        verbose_name_plural = 'Item Attributes'
+        verbose_name = 'Ürün Özelliği'
+        verbose_name_plural = 'Ürün Özellikleri'
         ordering = ['attribute_type__name']
         unique_together = ('inventory_item', 'attribute_type', 'unit')
 

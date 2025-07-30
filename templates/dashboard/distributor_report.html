@@ -120,7 +120,7 @@
             <!-- Bar Chart -->
             <div class="bg-white rounded-lg shadow-lg border border-gray-200">
                 <div class="px-6 py-4 border-b border-gray-200">
-                    <h3 class="text-lg font-semibold text-gray-900">Installation Count by Distributor</h3>
+                    <h3 class="text-lg font-semibold text-gray-900">{% trans "Installation Count by Distributor" %}</h3>
                 </div>
                 <div class="p-6">
                     <div class="relative" style="height: 400px;">
@@ -133,7 +133,7 @@
             <div class="bg-white rounded-lg shadow-lg border border-gray-200">
                 <div class="px-6 py-4 border-b border-gray-200">
                     <h3 class="text-lg font-semibold text-gray-900">
-                        Distribution Overview
+                        {% trans "Distribution Overview" %}
                         {% if current_chart_type == 'category' %}
                             - By Category
                         {% else %}
@@ -158,7 +158,7 @@
                     <svg class="w-5 h-5 mr-2 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"></path>
                     </svg>
-                    Top 5 Distributors
+                    {% trans "Top 5 Distributors" %}
                 </h3>
             </div>
             <div class="overflow-x-auto">
@@ -214,7 +214,7 @@
                     <svg class="w-5 h-5 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
                     </svg>
-                    All Distributors with Installations ({{ all_distributors.paginator.count }} total)
+                    {% trans "All Distributors with Installations" %} ({{ all_distributors.paginator.count }} total)
                 </h3>
             </div>
             <div class="overflow-x-auto">
@@ -222,10 +222,10 @@
                     <thead class="bg-gray-50">
                         <tr>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">#</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Distributor</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Installations</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Percentage</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Visual</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Distributor" %}</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Installations" %}</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Percentage" %}</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Visual" %}</th>
                         </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200">
@@ -263,19 +263,19 @@
                     <div class="flex-1 flex justify-between sm:hidden">
                         {% if all_distributors.has_previous %}
                         <a href="?period={{ current_period }}&distributor={{ current_distributor }}&chart_type={{ current_chart_type }}&page={{ all_distributors.previous_page_number }}" class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
-                            Previous
+                            {% trans "Previous" %}
                         </a>
                         {% endif %}
                         {% if all_distributors.has_next %}
                         <a href="?period={{ current_period }}&distributor={{ current_distributor }}&chart_type={{ current_chart_type }}&page={{ all_distributors.next_page_number }}" class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
-                            Next
+                            {% trans "Next" %}
                         </a>
                         {% endif %}
                     </div>
                     <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
                         <div>
                             <p class="text-sm text-gray-700">
-                                Showing <span class="font-medium">{{ all_distributors.start_index }}</span> to <span class="font-medium">{{ all_distributors.end_index }}</span> of <span class="font-medium">{{ all_distributors.paginator.count }}</span> results
+                                {% trans "Showing" %} <span class="font-medium">{{ all_distributors.start_index }}</span> {% trans "to" %} <span class="font-medium">{{ all_distributors.end_index }}</span> {% trans "of" %} <span class="font-medium">{{ all_distributors.paginator.count }}</span> {% trans "results" %}.
                             </p>
                         </div>
                         <div>
@@ -343,8 +343,8 @@
             <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
             </svg>
-            <h3 class="mt-2 text-sm font-medium text-gray-900">No Data Available</h3>
-            <p class="mt-1 text-sm text-gray-500">There are no installations with distributor data to display.</p>
+            <h3 class="mt-2 text-sm font-medium text-gray-900">{% trans "No Data Available" %}</h3>
+            <p class="mt-1 text-sm text-gray-500">{% trans "There are no installations with distributor data to display." %}</p>
         </div>
         {% endif %}
     </div>

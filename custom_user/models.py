@@ -16,5 +16,10 @@ class CustomUser(AbstractUser):
         ("salesmanager_distributor", "Distributor Sales Manager"),
         ("service_distributor", "Distributor Service Personnel"),
     ]
-    company = models.ForeignKey(Company, on_delete=models.SET_NULL, null=True, blank=True)
-    role = models.CharField(max_length=32, choices=ROLE_CHOICES, null=True, blank=True)
+    company = models.ForeignKey(Company, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Firma")
+    role = models.CharField(max_length=32, choices=ROLE_CHOICES, null=True, blank=True, verbose_name="Rol")
+
+    class Meta:
+        verbose_name = "Kullanıcı"
+        verbose_name_plural = "Kullanıcılar"
+       

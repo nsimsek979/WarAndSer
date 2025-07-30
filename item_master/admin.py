@@ -1,5 +1,9 @@
 from django.contrib import admin
 from django import forms
+from import_export import resources, fields
+from import_export.admin import ImportExportModelAdmin
+from import_export.widgets import ForeignKeyWidget
+from import_export.formats.base_formats import CSV, JSON, HTML, TSV, XLSX
 from .models import (
     Status, StockType, Brand, Category, ItemImage, ItemSpec,
     WarrantyType, WarrantyValue, ServiceForm, ItemSparePart, ItemMaster,
@@ -162,23 +166,113 @@ class InventoryItemInline(admin.TabularInline):
     verbose_name_plural = "Inventory Items"
 
 
+# Import/Export Resources
+class StatusResource(resources.ModelResource):
+    class Meta:
+        model = Status
+        fields = ('status',)
+
+
+class StockTypeResource(resources.ModelResource):
+    class Meta:
+        model = StockType
+        fields = ('name',)
+
+
+class BrandResource(resources.ModelResource):
+    class Meta:
+        model = Brand
+        fields = ('name',)
+
+
+class CategoryResource(resources.ModelResource):
+    parent = fields.Field(
+        column_name='parent',
+        attribute='parent',
+        widget=ForeignKeyWidget(Category, 'category_name')
+    )
+    
+    class Meta:
+        model = Category
+        fields = ('category_name', 'parent', 'slug')
+
+
+class ItemMasterResource(resources.ModelResource):
+    category = fields.Field(
+        column_name='category',
+        attribute='category',
+        widget=ForeignKeyWidget(Category, 'category_name')
+    )
+    status = fields.Field(
+        column_name='status',
+        attribute='status',
+        widget=ForeignKeyWidget(Status, 'status')
+    )
+    brand_name = fields.Field(
+        column_name='brand_name',
+        attribute='brand_name',
+        widget=ForeignKeyWidget(Brand, 'name')
+    )
+    stock_type = fields.Field(
+        column_name='stock_type',
+        attribute='stock_type',
+        widget=ForeignKeyWidget(StockType, 'name')
+    )
+    
+    class Meta:
+        model = ItemMaster
+        fields = ('shortcode', 'name', 'description', 'category', 'status', 'brand_name', 'stock_type')
+
+
+class InventoryItemResource(resources.ModelResource):
+    name = fields.Field(
+        column_name='item_name',
+        attribute='name',
+        widget=ForeignKeyWidget(ItemMaster, 'name')
+    )
+    
+    class Meta:
+        model = InventoryItem
+        fields = ('name', 'serial_no', 'production_date', 'in_used')
+
+
+class ItemSparePartResource(resources.ModelResource):
+    main_item = fields.Field(
+        column_name='main_item',
+        attribute='main_item',
+        widget=ForeignKeyWidget(ItemMaster, 'name')
+    )
+    spare_part_item = fields.Field(
+        column_name='spare_part_item',
+        attribute='spare_part_item',
+        widget=ForeignKeyWidget(ItemMaster, 'name')
+    )
+    
+    class Meta:
+        model = ItemSparePart
+        fields = ('main_item', 'spare_part_item')
+
+
 # Admin classes
 @admin.register(Status)
-class StatusAdmin(admin.ModelAdmin):
+class StatusAdmin(ImportExportModelAdmin):
+    resource_class = StatusResource
     list_display = ('status', 'created_at', 'updated_at')
     search_fields = ('status',)
     list_filter = ('created_at',)
 
 
 @admin.register(StockType)
-class StockTypeAdmin(admin.ModelAdmin):
+class StockTypeAdmin(ImportExportModelAdmin):
+    resource_class = StockTypeResource
     list_display = ('name', 'created_at', 'updated_at')
     search_fields = ('name',)
     list_filter = ('created_at',)
 
 
 @admin.register(Brand)
-class BrandAdmin(admin.ModelAdmin):
+class BrandAdmin(ImportExportModelAdmin):
+    resource_class = BrandResource
     list_display = ('name', 'created_at', 'updated_at')
     search_fields = ('name',)
     list_filter = ('created_at',)
@@ -186,7 +280,8 @@ class BrandAdmin(admin.ModelAdmin):
 
 
 @admin.register(Category)
-class CategoryAdmin(admin.ModelAdmin):
+class CategoryAdmin(ImportExportModelAdmin):
+    resource_class = CategoryResource
     list_display = ('category_name', 'parent', 'slug', 'created_at')
     list_filter = ('parent', 'created_at')
     search_fields = ('category_name',)
@@ -276,7 +371,8 @@ class AttributeUnitAdmin(admin.ModelAdmin):
 
 
 @admin.register(ItemSparePart)
-class ItemSparePartAdmin(admin.ModelAdmin):
+class ItemSparePartAdmin(ImportExportModelAdmin):
+    resource_class = ItemSparePartResource
     list_display = ('main_item_code', 'main_item_name', 'spare_part_code', 'spare_part_name', 'created_at')
     list_filter = ('created_at', 'main_item__stock_type', 'spare_part_item__stock_type')
     search_fields = ('main_item__shortcode', 'main_item__name', 'spare_part_item__shortcode', 'spare_part_item__name')
@@ -312,7 +408,8 @@ class ItemSparePartAdmin(admin.ModelAdmin):
 
 
 @admin.register(ItemMaster)
-class ItemMasterAdmin(admin.ModelAdmin):
+class ItemMasterAdmin(ImportExportModelAdmin):
+    resource_class = ItemMasterResource
     list_display = ('shortcode', 'name', 'category', 'brand_name', 'status', 'stock_type', 'created_at')
     list_filter = ('category', 'brand_name', 'status', 'stock_type', 'created_at')
     search_fields = ('shortcode', 'name', 'description')
@@ -337,7 +434,8 @@ class ItemMasterAdmin(admin.ModelAdmin):
 
 
 @admin.register(InventoryItem)
-class InventoryItemAdmin(admin.ModelAdmin):
+class InventoryItemAdmin(ImportExportModelAdmin):
+    resource_class = InventoryItemResource
     list_display = ('item_name', 'serial_no', 'production_date', 'in_used', 'created_by', 'created_at')
     list_filter = ('in_used', 'name__category', 'name__brand_name', 'created_at', 'production_date')
     search_fields = ('serial_no', 'name__name', 'name__shortcode')
@@ -390,7 +488,7 @@ class InventoryItemAttributeAdmin(admin.ModelAdmin):
     )
     
     def inventory_item_code(self, obj):
-        return obj.inventory_item.item_code
+        return obj.inventory_item.name.shortcode if obj.inventory_item else "No Item"
     inventory_item_code.short_description = 'Inventory Item Code'
 
 

@@ -307,7 +307,7 @@ def installation_detail(request, installation_id):
             'images',
             'documents',
             'customer__address',
-            'customer__contactperson_set'
+            'customer__contact_persons'
         ),
         id=installation_id
     )

@@ -45,6 +45,10 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "django.contrib.humanize",
 
+    # Third party apps
+    "import_export",
+
+    # Local apps
     "core",
     "dashboard",
     "item_master",

@@ -21,7 +21,7 @@
                     </div>
                     <div class="ml-5 w-0 flex-1">
                         <dl>
-                            <dt class="text-sm font-medium text-gray-500 truncate">Total Installations</dt>
+                            <dt class="text-sm font-medium text-gray-500 truncate">{% trans "Total Installations" %}</dt>
                             <dd class="text-2xl font-semibold text-gray-900">{{ total_installations|default:"0" }}</dd>
                         </dl>
                     </div>
@@ -30,7 +30,7 @@
             <div class="bg-gray-50 px-6 py-3">
                 <div class="text-sm">
                     <a href="{% url 'warranty_and_services:installation_list' %}" target="_blank" rel="noopener noreferrer" class="font-medium text-blue-600 hover:text-blue-500">
-                        View Details
+                        {% trans "View Details" %}
                         <span aria-hidden="true"> &rarr;</span>
                     </a>
                 </div>
@@ -49,7 +49,7 @@
                     </div>
                     <div class="ml-5 w-0 flex-1">
                         <dl>
-                            <dt class="text-sm font-medium text-gray-500 truncate">Active Warranty Items</dt>
+                            <dt class="text-sm font-medium text-gray-500 truncate">{% trans "Active Warranty Items" %}</dt>
                             <dd class="text-2xl font-semibold text-gray-900">{{ active_warranties|default:"0" }}</dd>
                         </dl>
                     </div>
@@ -58,7 +58,7 @@
             <div class="bg-gray-50 px-6 py-3">
                 <div class="text-sm">
                     <a href="{% url 'warranty_and_services:installation_list' %}?filter=active_warranty" target="_blank" rel="noopener noreferrer" class="font-medium text-green-600 hover:text-green-500">
-                        View Details
+                        {% trans "View Details" %}
                         <span aria-hidden="true"> &rarr;</span>
                     </a>
                 </div>
@@ -77,7 +77,7 @@
                     </div>
                     <div class="ml-5 w-0 flex-1">
                         <dl>
-                            <dt class="text-sm font-medium text-gray-500 truncate">Süresi Yaklaşan</dt>
+                            <dt class="text-sm font-medium text-gray-500 truncate">{% trans "Expiring Soon" %}</dt>
                             <dd class="text-2xl font-semibold text-gray-900">{{ expiring_warranties|default:"0" }}</dd>
                         </dl>
                     </div>
@@ -86,7 +86,7 @@
             <div class="bg-gray-50 px-6 py-3">
                 <div class="text-sm">
                     <a href="{% url 'warranty_and_services:warranty_tracking_list' %}?filter=expiring_soon" target="_blank" rel="noopener noreferrer" class="font-medium text-yellow-600 hover:text-yellow-500">
-                        View Details
+                        {% trans "View Details" %}
                         <span aria-hidden="true"> &rarr;</span>
                     </a>
                 </div>
@@ -105,7 +105,7 @@
                     </div>
                     <div class="ml-5 w-0 flex-1">
                         <dl>
-                            <dt class="text-sm font-medium text-gray-500 truncate">Overdue Services</dt>
+                            <dt class="text-sm font-medium text-gray-500 truncate">{% trans "Overdue Services" %}</dt>
                             <dd class="text-2xl font-semibold text-gray-900">{{ overdue_services|default:"0" }}</dd>
                         </dl>
                     </div>
@@ -114,7 +114,7 @@
             <div class="bg-gray-50 px-6 py-3">
                 <div class="text-sm">
                     <a href="{% url 'warranty_and_services:service_tracking_list' %}?filter=overdue" target="_blank" rel="noopener noreferrer" class="font-medium text-red-600 hover:text-red-500">
-                        View Details
+                        {% trans "View Details" %}
                         <span aria-hidden="true"> &rarr;</span>
                     </a>
                 </div>
@@ -129,7 +129,7 @@
                 <svg class="w-5 h-5 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
                 </svg>
-                Installation Reports
+                {% trans "Installation Reports" %}
             </h2>
         </div>
         
@@ -143,21 +143,21 @@
                         <svg class="w-6 h-6 text-purple-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
                         </svg>
-                        Core Business Report
+                        {% trans "Core Business Report" %}
                     </h3>
                 </div>
                 <div class="space-y-3 mb-4">
                     <div class="flex justify-between">
-                        <span class="text-gray-600">Total Businesses:</span>
+                        <span class="text-gray-600">{% trans "Total Businesses:" %}</span>
                         <span class="font-semibold text-gray-900">{{ core_business_summary.total_businesses }}</span>
                     </div>
                     <div class="flex justify-between">
-                        <span class="text-gray-600">With Installations:</span>
+                        <span class="text-gray-600">{% trans "With Installations:" %}</span>
                         <span class="font-semibold text-gray-900">{{ core_business_summary.businesses_with_installations }}</span>
                     </div>
                     {% if core_business_summary.top_business %}
                     <div class="text-center bg-gray-50 rounded p-2">
-                        <div class="text-sm text-gray-500">Top Business</div>
+                        <div class="text-sm text-gray-500">{% trans "Top Business" %}</div>
                         <div class="font-semibold text-gray-900">{{ core_business_summary.top_business.customer__core_business__name|truncatechars:25 }}</div>
                         <div class="text-xs text-gray-500">{{ core_business_summary.top_business.installation_count }} installations</div>
                     </div>
@@ -167,7 +167,7 @@
                     <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
                     </svg>
-                    View Full Report
+                    {% trans "View Full Report" %}
                 </a>
             </div>
             {% endif %}
@@ -180,21 +180,21 @@
                         <svg class="w-6 h-6 text-green-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
                         </svg>
-                        Distributor Report
+                        {% trans "Distributor Report" %}
                     </h3>
                 </div>
                 <div class="space-y-3 mb-4">
                     <div class="flex justify-between">
-                        <span class="text-gray-600">Total Distributors:</span>
+                        <span class="text-gray-600">{% trans "Total Distributors:" %}</span>
                         <span class="font-semibold text-gray-900">{{ distributor_summary.total_distributors }}</span>
                     </div>
                     <div class="flex justify-between">
-                        <span class="text-gray-600">With Installations:</span>
+                        <span class="text-gray-600">{% trans "With Installations:" %}</span>
                         <span class="font-semibold text-gray-900">{{ distributor_summary.distributors_with_installations }}</span>
                     </div>
                     {% if distributor_summary.top_distributor %}
                     <div class="text-center bg-gray-50 rounded p-2">
-                        <div class="text-sm text-gray-500">Top Distributor</div>
+                        <div class="text-sm text-gray-500">{% trans "Top Distributor" %}</div>
                         <div class="font-semibold text-gray-900">{{ distributor_summary.top_distributor.customer__related_company__name|truncatechars:25 }}</div>
                         <div class="text-xs text-gray-500">{{ distributor_summary.top_distributor.installation_count }} installations</div>
                     </div>
@@ -204,7 +204,7 @@
                     <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
                     </svg>
-                    View Full Report
+                    {% trans "View Full Report" %}
                 </a>
             </div>
             {% endif %}
@@ -217,21 +217,21 @@
                         <svg class="w-6 h-6 text-blue-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
                         </svg>
-                        Category Report
+                        {% trans "Category Report" %}
                     </h3>
                 </div>
                 <div class="space-y-3 mb-4">
                     <div class="flex justify-between">
-                        <span class="text-gray-600">Total Categories:</span>
+                        <span class="text-gray-600">{% trans "Total Categories:" %}</span>
                         <span class="font-semibold text-gray-900">{{ category_summary.total_categories }}</span>
                     </div>
                     <div class="flex justify-between">
-                        <span class="text-gray-600">Parent Categories:</span>
+                        <span class="text-gray-600">{% trans "Parent Categories:" %}</span>
                         <span class="font-semibold text-gray-900">{{ category_summary.parent_categories }}</span>
                     </div>
                     {% if category_summary.top_category %}
                     <div class="text-center bg-gray-50 rounded p-2">
-                        <div class="text-sm text-gray-500">Top Category</div>
+                        <div class="text-sm text-gray-500">{% trans "Top Category" %}</div>
                         <div class="font-semibold text-gray-900">{{ category_summary.top_category.inventory_item__name__category__category_name|truncatechars:25 }}</div>
                         <div class="text-xs text-gray-500">{{ category_summary.top_category.installation_count }} installations</div>
                     </div>
@@ -241,7 +241,7 @@
                     <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
                     </svg>
-                    View Full Report
+                    {% trans "View Full Report" %}
                 </a>
             </div>
             {% endif %}
@@ -255,7 +255,7 @@
                 <svg class="w-5 h-5 mr-2 text-orange-500" fill="currentColor" viewBox="0 0 24 24">
                     <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
                 </svg>
-                Maintenance Reports
+                {% trans "Maintenance Reports" %}
             </h2>
         </div>
         
@@ -268,29 +268,29 @@
                         <svg class="w-6 h-6 text-orange-600 mr-2" fill="currentColor" viewBox="0 0 24 24">
                             <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
                         </svg>
-                        Breakdown Maintenance Report
+                        {% trans "Breakdown Maintenance Report" %}
                     </h3>
                 </div>
                 <div class="space-y-3 mb-4">
                     <div class="flex justify-between">
-                        <span class="text-gray-600">Total Breakdowns:</span>
+                        <span class="text-gray-600">{% trans "Total Breakdowns:" %}</span>
                         <span class="font-semibold text-gray-900">{{ breakdown_maintenance_count|default:"0" }}</span>
                     </div>
                     <div class="flex justify-between">
-                        <span class="text-gray-600">Recent (30 days):</span>
+                        <span class="text-gray-600">{% trans "Recent (30 days):" %}</span>
                         <span class="font-semibold text-gray-900">{{ recent_breakdowns|default:"0" }}</span>
                     </div>
                     <div class="text-center bg-gray-50 rounded p-2">
-                        <div class="text-sm text-gray-500">Maintenance Status</div>
-                        <div class="font-semibold text-orange-600">Active Monitoring</div>
-                        <div class="text-xs text-gray-500">All breakdown records tracked</div>
+                        <div class="text-sm text-gray-500">{% trans "Maintenance Status" %}</div>
+                        <div class="font-semibold text-orange-600">{% trans "Active Monitoring" %}</div>
+                        <div class="text-xs text-gray-500">{% trans "All breakdown records tracked" %}</div>
                     </div>
                 </div>
                 <a href="{% url 'dashboard:breakdown_maintenance_report' %}" target="_blank" rel="noopener noreferrer" class="w-full inline-block bg-orange-600 hover:bg-orange-700 text-white font-semibold py-2 px-4 rounded text-center transition-colors duration-200">
                     <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
                     </svg>
-                    View Full Report
+                    {% trans "View Full Report" %}
                 </a>
             </div>
 
@@ -301,7 +301,7 @@
                         <svg class="w-6 h-6 text-blue-600 mr-2" fill="currentColor" viewBox="0 0 24 24">
                             <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
                         </svg>
-                        Spare Parts Usage Report
+                        {% trans "Spare Parts Usage Report" %}
                     </h3>
                 </div>
                 <div class="space-y-3 mb-4">
@@ -310,20 +310,20 @@
                         <span class="font-semibold text-gray-900">{{ spare_parts_count|default:"0" }}</span>
                     </div>
                     <div class="flex justify-between">
-                        <span class="text-gray-600">Recent (30 days):</span>
+                        <span class="text-gray-600">{% trans "Recent (30 days):" %}</span>
                         <span class="font-semibold text-gray-900">{{ recent_spare_parts|default:"0" }}</span>
                     </div>
                     <div class="text-center bg-gray-50 rounded p-2">
-                        <div class="text-sm text-gray-500">Parts Categories</div>
-                        <div class="font-semibold text-blue-600">Comprehensive Analysis</div>
-                        <div class="text-xs text-gray-500">Breakdown, periodic & others</div>
+                        <div class="text-sm text-gray-500">{% trans "Parts Categories" %}</div>
+                        <div class="font-semibold text-blue-600">{% trans "Comprehensive Analysis" %}</div>
+                        <div class="text-xs text-gray-500">{% trans "Breakdown, periodic & others" %}</div>
                     </div>
                 </div>
                 <a href="{% url 'dashboard:spare_parts_report' %}" target="_blank" rel="noopener noreferrer" class="w-full inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded text-center transition-colors duration-200">
                     <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
                     </svg>
-                    View Full Report
+                    {% trans "View Full Report" %}
                 </a>
             </div>
         </div>
@@ -336,7 +336,7 @@
                 <svg class="w-5 h-5 mr-2 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
                 </svg>
-                Quick Access
+                    {% trans "Quick Access" %}
             </h2>
         </div>
         <div class="p-6">
@@ -353,10 +353,10 @@
                     <div class="mt-8">
                         <h3 class="text-lg font-medium text-gray-900">
                             <span class="absolute inset-0" aria-hidden="true"></span>
-                            Warranty Tracking
+                            {% trans "Warranty Tracking" %}
                         </h3>
                         <p class="mt-2 text-sm text-gray-500">
-                            View and manage active, upcoming, and expired warranties.
+                            {% trans "View and manage active, upcoming, and expired warranties." %}
                         </p>
                     </div>
                     <span class="pointer-events-none absolute top-6 right-6 text-gray-300 group-hover:text-gray-400" aria-hidden="true">
@@ -379,10 +379,10 @@
                     <div class="mt-8">
                         <h3 class="text-lg font-medium text-gray-900">
                             <span class="absolute inset-0" aria-hidden="true"></span>
-                            Service Tracking
+                            {% trans "Service Tracking" %}
                         </h3>
                         <p class="mt-2 text-sm text-gray-500">
-                            Monitor and manage scheduled, overdue, and completed services.
+                            {% trans "Monitor and manage scheduled, overdue, and completed services." %}
                         </p>
                     </div>
                     <span class="pointer-events-none absolute top-6 right-6 text-gray-300 group-hover:text-gray-400" aria-hidden="true">
@@ -405,10 +405,10 @@
                     <div class="mt-8">
                         <h3 class="text-lg font-medium text-gray-900">
                             <span class="absolute inset-0" aria-hidden="true"></span>
-                            Kurulum Listesi
+                            {% trans "Installation List" %}
                         </h3>
                         <p class="mt-2 text-sm text-gray-500">
-                            View all installations and check their warranty/service statuses.
+                            {% trans "View all installations and check their warranty/service statuses." %}
                         </p>
                     </div>
                     <span class="pointer-events-none absolute top-6 right-6 text-gray-300 group-hover:text-gray-400" aria-hidden="true">
@@ -431,10 +431,10 @@
                     <div class="mt-8">
                         <h3 class="text-lg font-medium text-gray-900">
                             <span class="absolute inset-0" aria-hidden="true"></span>
-                            Kurulum Haritası
+                            {% trans "Installation Map" %}
                         </h3>
                         <p class="mt-2 text-sm text-gray-500">
-                            View installations on map with location data and details.
+                            {% trans "View installations on map with location data and details." %}
                         </p>
                     </div>
                     <span class="pointer-events-none absolute top-6 right-6 text-gray-300 group-hover:text-gray-400" aria-hidden="true">
@@ -455,7 +455,7 @@
                     <svg class="w-5 h-5 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
                     </svg>
-                    Customer Actions
+                    {% trans "Customer Actions" %}
                 </h3>
             </div>
             <div class="p-6">
@@ -465,14 +465,14 @@
                         <svg class="text-gray-400 mr-3 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
                         </svg>
-                        Customer List
+                        {% trans "Customer List" %}
                     </a>
                     <a href="{% url 'customer:customer_create' %}" 
                        class="group flex items-center px-2 py-2 text-sm font-medium rounded-md text-gray-600 hover:bg-gray-50 hover:text-gray-900">
                         <svg class="text-gray-400 mr-3 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                         </svg>
-                        Create Customer
+                        {% trans "Create Customer" %}
                     </a>
                 </nav>
             </div>
@@ -484,7 +484,7 @@
                     <svg class="w-5 h-5 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
                     </svg>
-                    Product Operations
+                    {% trans "Product Operations" %}
                 </h3>
             </div>
             <div class="p-6">
@@ -494,14 +494,14 @@
                         <svg class="text-gray-400 mr-3 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"></path>
                         </svg>
-                        Inventory List
+                        {% trans "Inventory List" %}
                     </a>
                     <a href="{% url 'item-master:item_master_list' %}" 
                        class="group flex items-center px-2 py-2 text-sm font-medium rounded-md text-gray-600 hover:bg-gray-50 hover:text-gray-900">
                         <svg class="text-gray-400 mr-3 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
                         </svg>
-                        Product Master List
+                       {% trans "Product Master List" %}
                     </a>
                 </nav>
             </div>

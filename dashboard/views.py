@@ -1359,9 +1359,17 @@ def spare_parts_report(request):
         from warranty_and_services.models import BreakdownCategory
         context['breakdown_categories'] = BreakdownCategory.objects.all()
         context['item_categories'] = Category.objects.all()
-        context['item_masters'] = ItemMaster.objects.all().order_by('name')
-        # There is no SparePartCategory model, so we need to use ItemMaster categories instead
-        context['spare_part_categories'] = Category.objects.all().order_by('category_name')
+        
+        # Filter Item Masters by stock_type = "Ticari" 
+        context['item_masters'] = ItemMaster.objects.filter(
+            stock_type__name="Ticari"
+        ).order_by('name')
+        
+        # Filter Spare Part Categories by stock_type = "Yedek Parça"
+        # Get categories that have items with stock_type = "Yedek Parça"
+        context['spare_part_categories'] = Category.objects.filter(
+            items__stock_type__name="Yedek Parça"
+        ).distinct().order_by('category_name')
         
         # Current filter values
         context['current_maintenance_type'] = maintenance_type_filter

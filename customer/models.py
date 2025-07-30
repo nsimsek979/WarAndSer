@@ -2,9 +2,9 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 class Country(models.Model):
-	name = models.CharField(max_length=100, default="Türkiye")
-	code = models.CharField(max_length=2, blank=True, null=True)
-	flag = models.ImageField(upload_to="country_flags/", null=True, blank=True)
+	name = models.CharField(max_length=100, default="Türkiye", verbose_name=_("Country Name"))
+	code = models.CharField(max_length=2, blank=True, null=True, verbose_name=_("Country Code"))
+	flag = models.ImageField(upload_to="country_flags/", null=True, blank=True, verbose_name=_("Country Flag"))
 	created_at = models.DateTimeField(auto_now_add=True)
 	updated_at = models.DateTimeField(auto_now=True)
 
@@ -13,10 +13,12 @@ class Country(models.Model):
 
 	class Meta:
 		ordering = ["name"]
+		verbose_name = _("Ülke")
+		verbose_name_plural = _("Ülkeler")
 
 class City(models.Model):
-	name = models.CharField(max_length=100)
-	country = models.ForeignKey("Country", on_delete=models.CASCADE, null=True)
+	name = models.CharField(max_length=100, verbose_name=_("City Name"))
+	country = models.ForeignKey("Country", on_delete=models.CASCADE, null=True, verbose_name=_("Country"))
 	created_at = models.DateTimeField(auto_now_add=True)
 	updated_at = models.DateTimeField(auto_now=True)
 
@@ -25,10 +27,12 @@ class City(models.Model):
 
 	class Meta:
 		ordering = ["name"]
+		verbose_name = _("Şehir")
+		verbose_name_plural = _("Şehirler")
 
 class County(models.Model):
-	name = models.CharField(max_length=100)
-	city = models.ForeignKey(City, on_delete=models.CASCADE)
+	name = models.CharField(max_length=100, verbose_name=_("County Name"))
+	city = models.ForeignKey(City, on_delete=models.CASCADE, verbose_name=_("City"))
 	created_at = models.DateTimeField(auto_now_add=True)
 	updated_at = models.DateTimeField(auto_now=True)
 
@@ -37,10 +41,12 @@ class County(models.Model):
 
 	class Meta:
 		ordering = ["name"]
+		verbose_name = _("İlçe")
+		verbose_name_plural = _("İlçeler")
 
 class District(models.Model):
-	name = models.CharField(max_length=100)
-	county = models.ForeignKey(County, on_delete=models.CASCADE)
+	name = models.CharField(max_length=100, verbose_name=_("District Name"))
+	county = models.ForeignKey(County, on_delete=models.CASCADE, verbose_name=_("County"))
 	created_at = models.DateTimeField(auto_now_add=True)
 	updated_at = models.DateTimeField(auto_now=True)
 
@@ -49,9 +55,11 @@ class District(models.Model):
 
 	class Meta:
 		ordering = ["name"]
+		verbose_name = _("Mahalle")
+		verbose_name_plural = _("Mahalleler")
 
 class CoreBusiness(models.Model):
-	name = models.CharField(max_length=100)
+	name = models.CharField(max_length=100, verbose_name=_("Core Business Name"))
 	created_at = models.DateTimeField(auto_now_add=True)
 	updated_at = models.DateTimeField(auto_now=True)
 
@@ -60,6 +68,8 @@ class CoreBusiness(models.Model):
 
 	class Meta:
 		ordering = ["name"]
+		verbose_name = _("Ana İş Kolu")
+		verbose_name_plural = _("Ana İş Kolu")
 
 class Company(models.Model):
 	COMPANY_TYPE_CHOICES = [
@@ -67,12 +77,12 @@ class Company(models.Model):
 		("distributor", _( "Distributor")),
 		("enduser", _( "End User")),
 	]
-	name = models.CharField(max_length=100, unique=True)
-	related_company = models.ForeignKey("self", on_delete=models.CASCADE, null=True, blank=True)
-	tax_number = models.CharField(max_length=20, null=True, blank=True)
-	company_type = models.CharField(max_length=20, choices=COMPANY_TYPE_CHOICES, null=True, blank=True)
-	core_business = models.ForeignKey(CoreBusiness, on_delete=models.SET_NULL, null=True, blank=True)
-	related_manager = models.ForeignKey('custom_user.CustomUser', on_delete=models.SET_NULL, null=True, blank=True, limit_choices_to={'role__in': ['manager_main', 'salesmanager_main']}, related_name='managed_companies')
+	name = models.CharField(max_length=100, unique=True, verbose_name=_("Company Name"))
+	related_company = models.ForeignKey("self", on_delete=models.CASCADE, null=True, blank=True, verbose_name=_("Related Company"))
+	tax_number = models.CharField(max_length=20, null=True, blank=True, verbose_name=_("Tax Number"))
+	company_type = models.CharField(max_length=20, choices=COMPANY_TYPE_CHOICES, null=True, blank=True, verbose_name=_("Company Type"))
+	core_business = models.ForeignKey(CoreBusiness, on_delete=models.SET_NULL, null=True, blank=True, verbose_name=_("Core Business"))
+	related_manager = models.ForeignKey('custom_user.CustomUser', on_delete=models.SET_NULL, null=True, blank=True, limit_choices_to={'role__in': ['manager_main', 'salesmanager_main']}, related_name='managed_companies', verbose_name=_("Related Manager"))
 	email = models.EmailField(blank=True, null=True)
 	telephone = models.CharField(max_length=20, blank=True, null=True)
 	active = models.BooleanField(default=True)
@@ -101,13 +111,15 @@ class Company(models.Model):
 			("view_all_companies", "Can view all companies"),
 			("view_assigned_companies", "Can view assigned companies"),
 		]
+		verbose_name = _("Firma")
+		verbose_name_plural = _("Firmalar")
 
 class ContactPerson(models.Model):
-	company = models.ForeignKey(Company, on_delete=models.CASCADE)
-	full_name = models.CharField(max_length=100)
-	title = models.CharField(max_length=100, blank=True, null=True)
-	email = models.EmailField(blank=True, null=True)
-	telephone = models.CharField(max_length=20, blank=True, null=True)
+	company = models.ForeignKey(Company, on_delete=models.CASCADE, verbose_name=_("Company"), related_name="contact_persons")
+	full_name = models.CharField(max_length=100, verbose_name=_("Full Name"))
+	title = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("Title"))
+	email = models.EmailField(blank=True, null=True, verbose_name=_("Email"))
+	telephone = models.CharField(max_length=20, blank=True, null=True, verbose_name=_("Telephone"))
 	created_at = models.DateTimeField(auto_now_add=True)
 	updated_at = models.DateTimeField(auto_now=True)
 
@@ -116,16 +128,18 @@ class ContactPerson(models.Model):
 
 	class Meta:
 		ordering = ["full_name"]
+		verbose_name = _("İletişim Bilgileri")
+		verbose_name_plural = _("İletişim Bilgileri")
 
 class Address(models.Model):
-	company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name="address")
-	name = models.CharField(max_length=100, default="Merkez")
-	country = models.ForeignKey(Country, on_delete=models.SET_NULL, null=True, blank=True)
-	district = models.ForeignKey(District, on_delete=models.SET_NULL, null=True, blank=True)
-	city = models.ForeignKey(City, on_delete=models.SET_NULL, null=True, blank=True)
-	county = models.ForeignKey(County, on_delete=models.SET_NULL, null=True, blank=True)
-	zipcode = models.CharField(max_length=10, blank=True, null=True)
-	address = models.TextField()
+	company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name="address", verbose_name=_("Company"))
+	name = models.CharField(max_length=100, default="Merkez", verbose_name=_("Address Name"))
+	country = models.ForeignKey(Country, on_delete=models.SET_NULL, null=True, blank=True, verbose_name=_("Country"))
+	district = models.ForeignKey(District, on_delete=models.SET_NULL, null=True, blank=True, verbose_name=_("District"))
+	city = models.ForeignKey(City, on_delete=models.SET_NULL, null=True, blank=True, verbose_name=_("City"))
+	county = models.ForeignKey(County, on_delete=models.SET_NULL, null=True, blank=True, verbose_name=_("County"))
+	zipcode = models.CharField(max_length=10, blank=True, null=True, verbose_name=_("Zip Code"))
+	address = models.TextField(verbose_name=_("Address"))
 	created_at = models.DateTimeField(auto_now_add=True)
 	updated_at = models.DateTimeField(auto_now=True)
 
@@ -134,6 +148,8 @@ class Address(models.Model):
 
 	class Meta:
 		ordering = ["company__name"]
+		verbose_name = _("Adres")
+		verbose_name_plural = _("Adresler")
 
 
 class WorkingHours(models.Model):
@@ -145,20 +161,20 @@ class WorkingHours(models.Model):
 		Company, 
 		on_delete=models.CASCADE, 
 		related_name='working_hours',
-		verbose_name=_("Customer")
+		verbose_name=_("Müşteri")
 	)
 	daily_working_hours = models.PositiveSmallIntegerField(
 		default=8,
-		verbose_name=_("Daily Working Hours"),
-		help_text=_("Maximum 24 hours per day")
+		verbose_name=_("Günlük Çalışma Saatleri"),
+		help_text=_("Maksimum 24 saat, minimum 1 saat olmalıdır.")
 	)
 	working_on_saturday = models.BooleanField(
 		default=False,
-		verbose_name=_("Working on Saturday")
+		verbose_name=_("Cumartesi Çalışması")
 	)
 	working_on_sunday = models.BooleanField(
 		default=False,
-		verbose_name=_("Working on Sunday")
+		verbose_name=_("Pazar Çalışması")
 	)
 	created_at = models.DateTimeField(auto_now_add=True)
 	updated_at = models.DateTimeField(auto_now=True)
@@ -167,11 +183,11 @@ class WorkingHours(models.Model):
 		from django.core.exceptions import ValidationError
 		if self.daily_working_hours > 24:
 			raise ValidationError({
-				'daily_working_hours': _('Daily working hours cannot exceed 24 hours.')
+				'daily_working_hours': _('Günlük çalışma saatleri 24 saati geçemez.')
 			})
 		if self.daily_working_hours < 1:
 			raise ValidationError({
-				'daily_working_hours': _('Daily working hours must be at least 1 hour.')
+				'daily_working_hours': _('Günlük çalışma saatleri en az 1 saat olmalıdır.')
 			})
 
 	def save(self, *args, **kwargs):
@@ -205,6 +221,6 @@ class WorkingHours(models.Model):
 		return f"{self.customer.name} - {self.daily_working_hours}h/day ({self.weekly_working_hours}h/week)"
 
 	class Meta:
-		verbose_name = _("Working Hours")
-		verbose_name_plural = _("Working Hours")
+		verbose_name = _("Çalışma Saatleri")
+		verbose_name_plural = _("Çalışma Saatleri")
 		ordering = ["customer__name"]

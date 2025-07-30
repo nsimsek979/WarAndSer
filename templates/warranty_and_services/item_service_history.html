@@ -34,7 +34,7 @@
                         </svg>
                     </div>
                     <div class="ml-4">
-                        <p class="text-sm font-medium text-gray-600">Total Services</p>
+                        <p class="text-sm font-medium text-gray-600">{% trans "Total Services" %}</p>
                         <p class="text-2xl font-bold text-gray-900">{{ total_maintenances }}</p>
                     </div>
                 </div>
@@ -48,7 +48,7 @@
                         </svg>
                     </div>
                     <div class="ml-4">
-                        <p class="text-sm font-medium text-gray-600">Periodic</p>
+                        <p class="text-sm font-medium text-gray-600">{% trans "Periodic" %}</p>
                         <p class="text-2xl font-bold text-gray-900">{{ periodic_count }}</p>
                     </div>
                 </div>
@@ -62,7 +62,7 @@
                         </svg>
                     </div>
                     <div class="ml-4">
-                        <p class="text-sm font-medium text-gray-600">Breakdown</p>
+                        <p class="text-sm font-medium text-gray-600">{% trans "Breakdown" %}</p>
                         <p class="text-2xl font-bold text-gray-900">{{ breakdown_count }}</p>
                     </div>
                 </div>
@@ -76,7 +76,7 @@
                         </svg>
                     </div>
                     <div class="ml-4">
-                        <p class="text-sm font-medium text-gray-600">Last Service</p>
+                        <p class="text-sm font-medium text-gray-600">{% trans "Last Service" %}</p>
                         {% if last_maintenance %}
                             <p class="text-sm font-bold text-gray-900">{{ last_maintenance.service_date }}</p>
                             <p class="text-xs text-gray-500">
@@ -87,7 +87,7 @@
                                 {% endif %}
                             </p>
                         {% else %}
-                            <p class="text-sm font-bold text-gray-900">No service yet</p>
+                            <p class="text-sm font-bold text-gray-900">{% trans "No service yet" %} </p>
                         {% endif %}
                     </div>
                 </div>
@@ -101,22 +101,22 @@
                         </svg>
                     </div>
                     <div class="ml-4">
-                        <p class="text-sm font-medium text-gray-600">Next Service</p>
+                        <p class="text-sm font-medium text-gray-600">{% trans "Next Service" %}</p>
                         {% if active_services %}
                             {% for service in active_services %}
                                 {% if forloop.first %}
                                     <p class="text-sm font-bold text-gray-900">{{ service.next_service_date|date:"d.m.Y" }}</p>
                                     <p class="text-xs text-gray-500">
                                         {% if service.service_type == 'time_term' %}
-                                            ⏰ Time-based ({{ service.service_value }} months)
+                                            {% trans "Time-based" %} ({{ service.service_value }} ay)
                                         {% else %}
-                                            🔧 Hours-based ({{ service.service_value }} hours)
+                                            🔧 {% trans "Hours-based" %} ({{ service.service_value }} saat)
                                         {% endif %}
                                     </p>
                                 {% endif %}
                             {% endfor %}
                         {% else %}
-                            <p class="text-sm font-bold text-gray-900">No schedule</p>
+                            <p class="text-sm font-bold text-gray-900">{% trans "No schedule" %}</p>
                         {% endif %}
                     </div>
                 </div>
@@ -130,7 +130,7 @@
                 <div class="bg-white rounded-xl shadow-lg overflow-hidden mb-8">
                     <div class="px-6 py-4 border-b border-gray-200">
                         <div class="flex items-center justify-between">
-                            <h2 class="text-xl font-bold text-gray-800">Service History</h2>
+                            <h2 class="text-xl font-bold text-gray-800">{% trans "Service History" %}</h2>
                             <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">{{ total_maintenances }} Records</span>
                         </div>
                     </div>
@@ -140,11 +140,11 @@
                             <table class="min-w-full divide-y divide-gray-200">
                                 <thead class="bg-gray-50">
                                     <tr>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Service Type</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Technician</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Attachments</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Service Type" %}</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Date" %}</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Technician" %}</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Attachments" %}</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Action" %}</th>
                                     </tr>
                                 </thead>
                                 <tbody class="bg-white divide-y divide-gray-200">
@@ -155,9 +155,9 @@
                                                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
                                                         {% if maintenance.maintenance_type == 'periodic' %}bg-green-100 text-green-800{% else %}bg-red-100 text-red-800{% endif %}">
                                                         {% if maintenance.maintenance_type == 'periodic' %}
-                                                            🔧 Periodic Maintenance
+                                                            🔧{% trans " Periodic Maintenance" %}
                                                         {% else %}
-                                                            ⚡ Breakdown Repair
+                                                            ⚡{% trans " Breakdown Repair" %}
                                                         {% endif %}
                                                     </span>
                                                 </div>
@@ -238,7 +238,7 @@
                                                                 <!-- Breakdown Category -->
                                                                 {% if maintenance.category %}
                                                                 <div>
-                                                                    <h4 class="text-sm font-medium text-gray-700 mb-2">Breakdown Category</h4>
+                                                                    <h4 class="text-sm font-medium text-gray-700 mb-2">{% trans "Breakdown Category" %}</h4>
                                                                     <div class="inline-flex items-center px-3 py-2 bg-red-100 text-red-800 text-sm rounded-lg font-medium">
                                                                         🔧 {{ maintenance.category.name }}
                                                                     </div>
@@ -248,7 +248,7 @@
                                                                 <!-- Breakdown Reason -->
                                                                 {% if maintenance.breakdown_reason_selected %}
                                                                 <div>
-                                                                    <h4 class="text-sm font-medium text-gray-700 mb-2">Breakdown Reason</h4>
+                                                                    <h4 class="text-sm font-medium text-gray-700 mb-2">{% trans "Breakdown Reason" %}</h4>
                                                                     <div class="inline-flex items-center px-3 py-2 bg-orange-100 text-orange-800 text-sm rounded-lg font-medium">
                                                                         ⚠️ {{ maintenance.breakdown_reason_selected.name }}
                                                                     </div>
@@ -258,7 +258,7 @@
                                                                 <!-- Breakdown Details -->
                                                                 {% if maintenance.breakdown_reason %}
                                                                 <div>
-                                                                    <h4 class="text-sm font-medium text-gray-700 mb-2">Breakdown Details</h4>
+                                                                    <h4 class="text-sm font-medium text-gray-700 mb-2">{% trans "Breakdown Details" %}</h4>
                                                                     <p class="text-sm text-gray-600 bg-white rounded-lg p-3 border">{{ maintenance.breakdown_reason|linebreaks }}</p>
                                                                 </div>
                                                                 {% endif %}
@@ -266,14 +266,14 @@
                                                             
                                                             {% if maintenance.notes %}
                                                                 <div>
-                                                                    <h4 class="text-sm font-medium text-gray-700 mb-2">Work Performed</h4>
+                                                                    <h4 class="text-sm font-medium text-gray-700 mb-2">{% trans "Work Performed" %}</h4>
                                                                     <p class="text-sm text-gray-600 bg-white rounded-lg p-3 border">{{ maintenance.notes }}</p>
                                                                 </div>
                                                             {% endif %}
                                                             
                                                             {% if maintenance.service_forms.all %}
                                                                 <div>
-                                                                    <h4 class="text-sm font-medium text-gray-700 mb-2">Service Forms Completed</h4>
+                                                                    <h4 class="text-sm font-medium text-gray-700 mb-2">{% trans "Forms Completed" %}</h4>
                                                                     <div class="flex flex-wrap gap-2">
                                                                         {% for service_form in maintenance.service_forms.all %}
                                                                             <span class="inline-flex items-center px-2 py-1 bg-green-100 text-green-800 text-xs rounded-md">
@@ -289,7 +289,7 @@
                                                         <div class="space-y-4">
                                                             {% if maintenance.spare_parts.all %}
                                                                 <div>
-                                                                    <h4 class="text-sm font-medium text-gray-700 mb-2">Spare Parts Used</h4>
+                                                                    <h4 class="text-sm font-medium text-gray-700 mb-2">{% trans "Spare Parts Used" %}</h4>
                                                                     <div class="space-y-2">
                                                                         {% for spare_part in maintenance.spare_parts.all %}
                                                                             <div class="flex items-center justify-between bg-white rounded-lg p-2 border">
@@ -310,7 +310,7 @@
                                                                 <!-- Photos -->
                                                                 {% if maintenance.photos.all %}
                                                                     <div>
-                                                                        <h4 class="text-sm font-medium text-gray-700 mb-3">Photos ({{ maintenance.photos.count }})</h4>
+                                                                        <h4 class="text-sm font-medium text-gray-700 mb-3">{% trans "Photos" %} ({{ maintenance.photos.count }})</h4>
                                                                         <div class="grid grid-cols-3 gap-2">
                                                                             {% for photo in maintenance.photos.all %}
                                                                                 <div class="aspect-square">
@@ -329,7 +329,7 @@
                                                                 <!-- Documents -->
                                                                 {% if maintenance.documents.all %}
                                                                     <div>
-                                                                        <h4 class="text-sm font-medium text-gray-700 mb-3">Documents ({{ maintenance.documents.count }})</h4>
+                                                                        <h4 class="text-sm font-medium text-gray-700 mb-3">{% trans "Documents" %} ({{ maintenance.documents.count }})</h4>
                                                                         <div class="space-y-2">
                                                                             {% for document in maintenance.documents.all %}
                                                                                 <a href="{{ document.document.url }}" 
@@ -365,8 +365,8 @@
                             <svg class="w-16 h-16 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                                             </svg>
-                            <h3 class="text-lg font-medium text-gray-900 mb-2">No Service Records</h3>
-                            <p class="text-gray-500">This item hasn't been serviced yet.</p>
+                            <h3 class="text-lg font-medium text-gray-900 mb-2">{% trans "No Service Records" %}</h3>
+                            <p class="text-gray-500">{% trans "This item hasn't been serviced yet." %}</p>
                         </div>
                     {% endif %}
                 </div>
@@ -378,45 +378,45 @@
                 <div class="bg-white rounded-xl shadow-lg">
                     <div class="px-6 py-4 border-b border-gray-200">
                         <div class="flex justify-between items-center">
-                            <h3 class="text-lg font-bold text-gray-800">Item Information</h3>
+                            <h3 class="text-lg font-bold text-gray-800">{% trans "Item Information" %}</h3>
                             <a href="{% url 'item-master:inventory_item_detail' inventory_item.pk %}" class="inline-flex items-center space-x-1
                                      bg-blue-100 text-blue-700 border border-blue-200 px-2 py-1 rounded-md hover:bg-blue-200 text-xs">
                                 <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path d="M1.5 12s4-7 10.5-7 10.5 7 10.5 7-4 7-10.5 7S1.5 12 1.5 12z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                                     <circle cx="12" cy="12" r="3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                                 </svg>
-                                <span>View Details</span>
+                                <span>{% trans "View Details" %}</span>
                             </a>
                         </div>
                     </div>
                     <div class="p-6 space-y-3">
                         <div>
-                            <p class="text-sm font-medium text-gray-600">Product Name</p>
+                            <p class="text-sm font-medium text-gray-600">{% trans "Product Name" %}</p>
                             <p class="text-sm text-gray-900">{{ inventory_item.name.name }}</p>
                         </div>
                         {% if inventory_item.name.brand_name %}
                         <div>
-                            <p class="text-sm font-medium text-gray-600">Brand</p>
+                            <p class="text-sm font-medium text-gray-600">{% trans "Brand" %}</p>
                             <p class="text-sm text-gray-900">{{ inventory_item.name.brand_name }}</p>
                         </div>
                         {% endif %}
                         <div>
-                            <p class="text-sm font-medium text-gray-600">Serial Number</p>
+                            <p class="text-sm font-medium text-gray-600">{% trans "Serial Number" %}</p>
                             <p class="text-sm text-gray-900 font-mono">{{ inventory_item.serial_no }}</p>
                         </div>
                         {% if inventory_item.name.category %}
                         <div>
-                            <p class="text-sm font-medium text-gray-600">Category</p>
+                            <p class="text-sm font-medium text-gray-600">{% trans "Category" %}</p>
                             <p class="text-sm text-gray-900">{{ inventory_item.name.category.name }}</p>
                         </div>
                         {% endif %}
                         <div>
-                            <p class="text-sm font-medium text-gray-600">Installation Date</p>
+                            <p class="text-sm font-medium text-gray-600">{% trans "Installation Date" %}</p>
                             <p class="text-sm text-gray-900">{{ installation.setup_date|date:"d.m.Y" }}</p>
                         </div>
                         {% if installation.location_address %}
                         <div>
-                            <p class="text-sm font-medium text-gray-600">Location</p>
+                            <p class="text-sm font-medium text-gray-600">{% trans "Location" %}</p>
                             <p class="text-sm text-gray-900">{{ installation.location_address }}</p>
                         </div>
                         {% endif %}
@@ -427,25 +427,25 @@
                 <div class="bg-white rounded-xl shadow-lg">
                     <div class="px-6 py-4 border-b border-gray-200">
                         <div class="flex justify-between items-center">
-                            <h3 class="text-lg font-bold text-gray-800">Customer Information</h3>
+                            <h3 class="text-lg font-bold text-gray-800">{% trans "Customer Information" %}</h3>
                             <a href="{% url 'customer:customer_detail' customer.pk %}" class="inline-flex items-center space-x-1
                                      bg-blue-100 text-blue-700 border border-blue-200 px-2 py-1 rounded-md hover:bg-blue-200 text-xs">
                                 <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path d="M1.5 12s4-7 10.5-7 10.5 7 10.5 7-4 7-10.5 7S1.5 12 1.5 12z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                                     <circle cx="12" cy="12" r="3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                                 </svg>
-                                <span>View Details</span>
+                                <span>{% trans "View Details" %}</span>
                             </a>
                         </div>
                     </div>
                     <div class="p-6 space-y-3">
                         <div>
-                            <p class="text-sm font-medium text-gray-600">Company</p>
+                            <p class="text-sm font-medium text-gray-600">{% trans "Company" %}</p>
                             <p class="text-sm text-gray-900">{{ customer.name }}</p>
                         </div>
                         {% if customer.related_company %}
                         <div>
-                            <p class="text-sm font-medium text-gray-600">Distributor</p>
+                            <p class="text-sm font-medium text-gray-600">{% trans "Distributor" %}</p>
                             <p class="text-sm text-gray-900">{{ customer.related_company.name }}</p>
                         </div>
                         {% endif %}
@@ -468,27 +468,27 @@
                 {% if active_services %}
                 <div class="bg-white rounded-xl shadow-lg">
                     <div class="px-6 py-4 border-b border-gray-200">
-                        <h3 class="text-lg font-bold text-gray-800">Upcoming Services</h3>
+                        <h3 class="text-lg font-bold text-gray-800">{% trans "Upcoming Services" %}</h3>
                     </div>
                     <div class="p-6 space-y-3">
                         {% for service in active_services %}
                             <div class="p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
                                 <div class="flex items-center justify-between mb-2">
                                     <span class="text-sm font-medium text-yellow-800">
-                                        {% if service.service_type == 'time_term' %}⏰ Time-based{% else %}🔧 Hours-based{% endif %}
+                                        {% if service.service_type == 'time_term' %}⏰ {% trans "Time-based" %}{% else %}🔧 {% trans "Hours-based" %}{% endif %}
                                     </span>
-                                    <span class="text-xs text-yellow-600">{{ service.service_value }}{% if service.service_type == 'time_term' %} months{% else %} hours{% endif %}</span>
+                                    <span class="text-xs text-yellow-600">{{ service.service_value }}{% if service.service_type == 'time_term' %} ay{% else %} saat{% endif %}</span>
                                 </div>
                                 <p class="text-sm text-yellow-700">Next: {{ service.next_service_date|date:"d.m.Y" }}</p>
                                 {% with service.next_service_date|days_until as days %}
                                     {% if days %}
                                         <p class="text-xs text-yellow-600 mt-1">
                                             {% if days < 0 %}
-                                                {{ days|abs_value }} days overdue
+                                                {{ days|abs_value }} gün geçti
                                             {% elif days == 0 %}
-                                                Due today
+                                                Bugün son gün
                                             {% else %}
-                                                {{ days }} days remaining
+                                                {{ days }} gün kaldı
                                             {% endif %}
                                         </p>
                                     {% endif %}
@@ -503,27 +503,27 @@
                 {% if warranties %}
                 <div class="bg-white rounded-xl shadow-lg">
                     <div class="px-6 py-4 border-b border-gray-200">
-                        <h3 class="text-lg font-bold text-gray-800">Warranty Status</h3>
+                        <h3 class="text-lg font-bold text-gray-800">{% trans "Warranty Status" %}</h3>
                     </div>
                     <div class="p-6 space-y-3">
                         {% for warranty in warranties %}
                             <div class="p-3 bg-green-50 border border-green-200 rounded-lg">
                                 <div class="flex items-center justify-between mb-2">
                                     <span class="text-sm font-medium text-green-800">
-                                        {% if warranty.warranty_type == 'time_term' %}📅 Time-based{% else %}⚙️ Hours-based{% endif %}
+                                        {% if warranty.warranty_type == 'time_term' %}📅 {% trans "Time-based" %}{% else %}⚙️ {% trans "Hours-based" %}{% endif %}
                                     </span>
-                                    <span class="text-xs text-green-600">{{ warranty.warranty_value }}{% if warranty.warranty_type == 'time_term' %} years{% else %} hours{% endif %}</span>
+                                    <span class="text-xs text-green-600">{{ warranty.warranty_value }}{% if warranty.warranty_type == 'time_term' %} {% trans "years" %}{% else %} {% trans "hours" %}{% endif %}</span>
                                 </div>
                                 <p class="text-sm text-green-700">Until: {{ warranty.end_of_warranty_date|date:"d.m.Y" }}</p>
                                 {% with warranty.end_of_warranty_date|days_until as days %}
                                     {% if days %}
                                         <p class="text-xs text-green-600 mt-1">
                                             {% if days < 0 %}
-                                                Expired {{ days|abs_value }} days ago
+                                                {% trans "Expired" %} {{ days|abs_value }} {% trans "days ago" %}
                                             {% elif days == 0 %}
-                                                Expires today
+                                                {% trans "Expires today" %}
                                             {% else %}
-                                                {{ days }} days remaining
+                                                {{ days }} {% trans "days remaining" %}
                                             {% endif %}
                                         </p>
                                     {% endif %}

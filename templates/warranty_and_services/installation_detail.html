@@ -234,19 +234,19 @@
                         <!-- Working Hours -->
                         {% if customer.working_hours %}
                         <div class="mt-6 p-4 bg-gray-50 rounded-lg">
-                            <h4 class="text-sm font-medium text-gray-900 mb-3">Working Hours Configuration</h4>
+                            <h4 class="text-sm font-medium text-gray-900 mb-3">{% trans "Working Hours Configuration" %}</h4>
                             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                                 <div class="text-center">
                                     <div class="text-xl font-bold text-gray-900">{{ customer.working_hours.daily_working_hours }}</div>
-                                    <div class="text-sm text-gray-500">Hours per Day</div>
+                                    <div class="text-sm text-gray-500">{% trans "Hours per Day" %}</div>
                                 </div>
                                 <div class="text-center">
                                     <div class="text-xl font-bold text-gray-900">{{ customer.working_hours.get_working_days_per_week }}</div>
-                                    <div class="text-sm text-gray-500">Days per Week</div>
+                                    <div class="text-sm text-gray-500">{% trans "Days per Week" %}</div>
                                 </div>
                                 <div class="text-center">
                                     <div class="text-xl font-bold text-gray-900">{{ customer.working_hours.weekly_working_hours }}</div>
-                                    <div class="text-sm text-gray-500">Hours per Week</div>
+                                    <div class="text-sm text-gray-500">{% trans "Hours per Week" %}</div>
                                 </div>
                             </div>
                         </div>
@@ -277,9 +277,9 @@
                                         <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium 
                                                    {% if warranty.warranty_type == 'time_term' %}bg-blue-100 text-blue-800{% else %}bg-gray-100 text-gray-800{% endif %}">
                                             {% if warranty.warranty_type == 'time_term' %}
-                                                {{ warranty.warranty_value|floatformat:"0" }} {% trans "ay" %}
+                                                {{ warranty.warranty_value|floatformat:"0" }} {% trans "month" %}
                                             {% else %}
-                                                {{ warranty.warranty_value|humanize_number }} {% trans "saat" %}
+                                                {{ warranty.warranty_value|humanize_number }} {% trans "hour" %}
                                             {% endif %}
                                         </span>
                                         {% if warranty.is_expired %}
@@ -382,7 +382,7 @@
                                     <div>
                                         <span class="text-gray-500">Status:</span>
                                         <span class="ml-1 text-gray-900">
-                                            {% if service.is_completed %}Complete{% elif service.is_due %}Due{% else %}Pending{% endif %}
+                                            {% if service.is_completed %}Complete{% elif service.is_due %}Due{% else %}{% trans "Pending" %}{% endif %}
                                         </span>
                                     </div>
                                 </div>

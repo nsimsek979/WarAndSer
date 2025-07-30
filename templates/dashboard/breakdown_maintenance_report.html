@@ -42,7 +42,7 @@
                         <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
                         </svg>
-                        Print Report
+                        {% trans "Print Report" %}
                     </button>
                 </div>
             </div>
@@ -52,7 +52,7 @@
                 <div class="flex items-center space-x-3 overflow-x-auto">
                     <!-- Period Filter -->
                     <div class="flex-shrink-0">
-                        <label class="block text-xs font-medium text-gray-700 mb-1">Period</label>
+                        <label class="block text-xs font-medium text-gray-700 mb-1">{% trans "Period" %}</label>
                         <select id="periodFilter" onchange="changePeriod()" class="bg-white border border-gray-300 rounded-md px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 min-w-32">
                             {% for option in period_options %}
                             <option value="{{ option.value }}" {% if current_period == option.value %}selected{% endif %}>
@@ -64,9 +64,9 @@
                     
                     <!-- Breakdown Category Filter -->
                     <div class="flex-shrink-0">
-                        <label class="block text-xs font-medium text-gray-700 mb-1">Breakdown Category</label>
+                        <label class="block text-xs font-medium text-gray-700 mb-1">{% trans "Breakdown Category" %}</label>
                         <select id="breakdownCategoryFilter" onchange="changeFilters()" class="bg-white border border-gray-300 rounded-md px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 min-w-36">
-                            <option value="">All Categories</option>
+                            <option value="">{% trans "All Categories" %}</option>
                             {% for category in breakdown_categories %}
                             <option value="{{ category.id }}" {% if current_breakdown_category == category.id|stringformat:"s" %}selected{% endif %}>
                                 {{ category.name }}
@@ -77,9 +77,9 @@
                     
                     <!-- Breakdown Reason Filter -->
                     <div class="flex-shrink-0">
-                        <label class="block text-xs font-medium text-gray-700 mb-1">Breakdown Reason</label>
+                        <label class="block text-xs font-medium text-gray-700 mb-1">{% trans "Breakdown Reason" %}</label>
                         <select id="breakdownReasonFilter" onchange="changeFilters()" class="bg-white border border-gray-300 rounded-md px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 min-w-36">
-                            <option value="">All Reasons</option>
+                            <option value="">{% trans "All Reasons" %}</option>
                             {% for reason in breakdown_reasons %}
                             <option value="{{ reason.id }}" {% if current_breakdown_reason == reason.id|stringformat:"s" %}selected{% endif %}>
                                 {{ reason.name }}
@@ -90,9 +90,9 @@
                     
                     <!-- Item Category Filter -->
                     <div class="flex-shrink-0">
-                        <label class="block text-xs font-medium text-gray-700 mb-1">Item Category</label>
+                        <label class="block text-xs font-medium text-gray-700 mb-1">{% trans "Item Category" %}</label>
                         <select id="itemCategoryFilter" onchange="changeFilters()" class="bg-white border border-gray-300 rounded-md px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 min-w-32">
-                            <option value="">All Categories</option>
+                            <option value="">{% trans "All Categories" %}</option>
                             {% for category in item_categories %}
                             <option value="{{ category.id }}" {% if current_item_category == category.id|stringformat:"s" %}selected{% endif %}>
                                 {{ category.category_name }}
@@ -103,9 +103,9 @@
                     
                     <!-- Item Master Filter -->
                     <div class="flex-shrink-0">
-                        <label class="block text-xs font-medium text-gray-700 mb-1">Item</label>
+                        <label class="block text-xs font-medium text-gray-700 mb-1">{% trans "Item" %}</label>
                         <select id="itemMasterFilter" onchange="changeFilters()" class="bg-white border border-gray-300 rounded-md px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 min-w-40">
-                            <option value="">All Items</option>
+                            <option value="">{% trans "All Items" %}</option>
                             {% for item in item_masters %}
                             <option value="{{ item.id }}" {% if current_item_master == item.id|stringformat:"s" %}selected{% endif %}>
                                 {{ item.name }}
@@ -129,21 +129,21 @@
                     <svg class="w-5 h-5 mr-2 text-orange-500" fill="currentColor" viewBox="0 0 24 24">
                         <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
                     </svg>
-                    Report Summary
+                    {% trans "Report Summary" %}
                 </h2>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 p-6">
                 <div class="text-center bg-orange-50 rounded-lg p-4">
                     <div class="text-3xl font-bold text-orange-600">{{ summary.total_maintenance }}</div>
-                    <div class="text-sm text-gray-600 mt-1">Total Maintenance Records</div>
+                    <div class="text-sm text-gray-600 mt-1">{% trans "Total Maintenance Records" %}</div>
                 </div>
                 <div class="text-center bg-red-50 rounded-lg p-4">
                     <div class="text-3xl font-bold text-red-600">{{ summary.total_breakdowns }}</div>
-                    <div class="text-sm text-gray-600 mt-1">Breakdown Cases</div>
+                    <div class="text-sm text-gray-600 mt-1">{% trans "Breakdown Cases" %}</div>
                 </div>
                 <div class="text-center bg-blue-50 rounded-lg p-4">
                     <div class="text-3xl font-bold text-blue-600">{{ summary.customers_affected }}</div>
-                    <div class="text-sm text-gray-600 mt-1">Customers Affected</div>
+                    <div class="text-sm text-gray-600 mt-1">{% trans "Customers Affected" %}</div>
                 </div>
             </div>
         </div>
@@ -155,7 +155,7 @@
             <!-- Breakdown Category Chart -->
             <div class="bg-white rounded-lg shadow-lg border border-gray-200">
                 <div class="px-6 py-4 border-b border-gray-200">
-                    <h3 class="text-lg font-semibold text-gray-900">Breakdown by Breakdown Category</h3>
+                    <h3 class="text-lg font-semibold text-gray-900">{% trans "Breakdown by Breakdown Category" %}</h3>
                 </div>
                 <div class="p-6">
                     <div class="relative" style="height: 400px;">
@@ -167,7 +167,7 @@
             <!-- Breakdown Reason Chart -->
             <div class="bg-white rounded-lg shadow-lg border border-gray-200">
                 <div class="px-6 py-4 border-b border-gray-200">
-                    <h3 class="text-lg font-semibold text-gray-900">Breakdown by Reason</h3>
+                    <h3 class="text-lg font-semibold text-gray-900">{% trans "Breakdown by Reason" %}</h3>
                 </div>
                 <div class="p-6">
                     <div class="relative" style="height: 400px;">
@@ -180,7 +180,7 @@
         <!-- Monthly Breakdown Trend Chart -->
         <div class="bg-white rounded-lg shadow-lg border border-gray-200 mb-8">
             <div class="px-6 py-4 border-b border-gray-200">
-                <h3 class="text-lg font-semibold text-gray-900">Monthly Breakdown Trend</h3>
+                <h3 class="text-lg font-semibold text-gray-900">{% trans "Monthly Breakdown Trend" %}</h3>
             </div>
             <div class="p-6">
                 <div class="relative" style="height: 400px;">
@@ -198,17 +198,17 @@
                     <svg class="w-5 h-5 mr-2 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
                     </svg>
-                    Top 5 Breakdown Reasons
+                    {% trans "Top 5 Breakdown Reasons" %}
                 </h3>
             </div>
             <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-50">
                         <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rank</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Breakdown Reason</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Count</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Percentage</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Rank" %}</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Breakdown Reason" %}</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Count" %}</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Percentage" %}</th>
                         </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200">
@@ -256,7 +256,7 @@
                     <svg class="w-5 h-5 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                     </svg>
-                    All Maintenance Records ({{ maintenance_records.paginator.count }} total)
+                    {% blocktrans with count=maintenance_records.paginator.count %}All Maintenance Records ({{ count }} total){% endblocktrans %}
                 </h3>
             </div>
             <div class="overflow-x-auto">
@@ -264,20 +264,20 @@
                     <thead class="bg-gray-50">
                         <tr>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">#</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Equipment</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Breakdown Category</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Breakdown Reason</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Date" %}</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Equipment" %}</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Category" %}</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Breakdown Category" %}</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Breakdown Reason" %}</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Status" %}</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Actions" %}</th>
                         </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200">
                         {% for record in maintenance_records %}
                         <tr class="hover:bg-gray-50">
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                {{ maintenance_records.start_index|add:forloop.counter0 }}
+                               blocktrans {{ maintenance_records.start_index|add:forloop.counter0 }}
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="text-sm text-gray-900">{{ record.service_date|date:"d M Y" }}</div>
@@ -309,7 +309,7 @@
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
-                                    Resolved
+                                    {% trans "Resolved" %}
                                 </span>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
@@ -319,7 +319,7 @@
                                     <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                                     </svg>
-                                    Service History
+                                    {% trans "Service History" %}
                                 </a>
                             </td>
                         </tr>
@@ -335,32 +335,32 @@
                     <div class="flex-1 flex justify-between sm:hidden">
                         {% if maintenance_records.has_previous %}
                         <a href="?period={{ current_period }}&page={{ maintenance_records.previous_page_number }}" class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
-                            Previous
+                            {% trans "Previous" %}
                         </a>
                         {% endif %}
                         {% if maintenance_records.has_next %}
                         <a href="?period={{ current_period }}&page={{ maintenance_records.next_page_number }}" class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
-                            Next
+                            {% trans "Next" %}
                         </a>
                         {% endif %}
                     </div>
                     <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
                         <div>
                             <p class="text-sm text-gray-700">
-                                Showing <span class="font-medium">{{ maintenance_records.start_index }}</span> to <span class="font-medium">{{ maintenance_records.end_index }}</span> of <span class="font-medium">{{ maintenance_records.paginator.count }}</span> results
+                                {% blocktrans with start=maintenance_records.start_index end=maintenance_records.end_index count=maintenance_records.paginator.count %}Showing {{ start }} to {{ end }} of {{ count }} results{% endblocktrans %}
                             </p>
                         </div>
                         <div>
                             <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
                                 {% if maintenance_records.has_previous %}
                                 <a href="?period={{ current_period }}&page=1" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
-                                    <span class="sr-only">First</span>
+                                    <span class="sr-only">{% trans "First" %}</span>
                                     <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
                                         <path fill-rule="evenodd" d="M15.707 15.707a1 1 0 01-1.414 0l-5-5a1 1 0 010-1.414l5-5a1 1 0 111.414 1.414L11.414 9H17a1 1 0 110 2h-5.586l4.293 4.293a1 1 0 010 1.414zM9 1L3.707 6.293a1 1 0 000 1.414L9 13l1.414-1.414L6.121 7.293a1 1 0 000-1.414L10.414 1.707A1 1 0 009 1z" clip-rule="evenodd"/>
                                     </svg>
                                 </a>
                                 <a href="?period={{ current_period }}&page={{ maintenance_records.previous_page_number }}" class="relative inline-flex items-center px-2 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
-                                    <span class="sr-only">Previous</span>
+                                    <span class="sr-only">{% trans "Previous" %}</span>
                                     <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
                                         <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd"/>
                                     </svg>
@@ -389,13 +389,13 @@
                                 
                                 {% if maintenance_records.has_next %}
                                 <a href="?period={{ current_period }}&page={{ maintenance_records.next_page_number }}" class="relative inline-flex items-center px-2 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
-                                    <span class="sr-only">Next</span>
+                                    <span class="sr-only">{% trans "Next" %}</span>
                                     <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
                                         <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
                                     </svg>
                                 </a>
                                 <a href="?period={{ current_period }}&page={{ maintenance_records.paginator.num_pages }}" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
-                                    <span class="sr-only">Last</span>
+                                    <span class="sr-only">{% trans "Last" %}</span>
                                     <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
                                         <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0l5 5a1 1 0 010 1.414l-5 5a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414zM11 19l5.293-5.293a1 1 0 000-1.414L11 7l-1.414 1.414L13.879 12.707a1 1 0 000 1.414L9.586 18.293A1 1 0 0011 19z" clip-rule="evenodd"/>
                                     </svg>
@@ -415,8 +415,8 @@
             <svg class="mx-auto h-12 w-12 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
                 <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
             </svg>
-            <h3 class="mt-2 text-sm font-medium text-gray-900">No Data Available</h3>
-            <p class="mt-1 text-sm text-gray-500">There are no breakdown maintenance records to display for the selected period.</p>
+            <h3 class="mt-2 text-sm font-medium text-gray-900">{% trans "No Data Available" %}</h3>
+            <p class="mt-1 text-sm text-gray-500">{% trans "There are no breakdown maintenance records to display for the selected period." %}</p>
         </div>
         {% endif %}
     </div>
@@ -559,7 +559,7 @@
                 data: {
                     labels: monthlyData.labels,
                     datasets: [{
-                        label: 'Breakdowns',
+                        label: '{% trans "Breakdowns" %}',
                         data: monthlyData.data,
                         borderColor: '#f97316',
                         backgroundColor: '#f9731620',
