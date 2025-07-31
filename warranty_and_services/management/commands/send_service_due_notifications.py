@@ -125,8 +125,8 @@ class Command(BaseCommand):
                 recipients.append(installation.customer.related_manager.email)
             
             # Add customer contacts  
-            if hasattr(installation.customer, 'contactperson_set'):
-                for contact in installation.customer.contactperson_set.all():
+            if hasattr(installation.customer, 'contact_persons'):
+                for contact in installation.customer.contact_persons.all():
                     if contact.email:
                         recipients.append(contact.email)
             

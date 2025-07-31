@@ -103,11 +103,11 @@
                 {% endfor %}
             </table>
             {% endif %}
-            {% if installation.customer.contactperson_set.exists %}
+            {% if installation.customer.contact_persons.exists %}
             <h4>Contact Persons</h4>
             <table>
                 <tr><th>Name</th><th>Title</th><th>Email</th><th>Phone</th></tr>
-                {% for contact in installation.customer.contactperson_set.all %}
+                {% for contact in installation.customer.contact_persons.all %}
                 <tr>
                     <td>{{ contact.full_name }}</td>
                     <td>{% if contact.title %}{{ contact.title }}{% endif %}</td>

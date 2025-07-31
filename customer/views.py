@@ -379,7 +379,7 @@ def customer_update(request, pk):
 				company.save()
 				
 				# Delete existing contacts and addresses, then recreate
-				company.contactperson_set.all().delete()
+				company.contact_persons.all().delete()
 				company.address.all().delete()
 				
 				# Create contacts
@@ -479,7 +479,7 @@ def customer_update(request, pk):
 		companies = list(Company.objects.filter(company_type__in=['main', 'distributor']).values('id', 'name'))
 	
 	# Get existing contacts and addresses
-	contacts = list(company.contactperson_set.all().values('full_name', 'title', 'email', 'telephone'))
+	contacts = list(company.contact_persons.all().values('full_name', 'title', 'email', 'telephone'))
 	addresses = []
 	for address in company.address.all():
 		addr_data = {

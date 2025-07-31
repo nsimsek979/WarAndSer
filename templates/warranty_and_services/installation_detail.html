@@ -194,11 +194,11 @@
                         {% endif %}
                         
                         <!-- Contact Persons -->
-                        {% if customer.contactperson_set.exists %}
+                        {% if customer.contact_persons.exists %}
                         <div class="mt-6 p-4 bg-green-50 rounded-lg">
                             <h4 class="text-sm font-medium text-gray-900 mb-3">{% trans "Contact Persons" %}</h4>
                             <div class="space-y-3">
-                                {% for contact in customer.contactperson_set.all %}
+                                {% for contact in customer.contact_persons.all %}
                                 <div class="bg-white p-3 rounded border">
                                     <div class="flex items-center justify-between mb-1">
                                         <span class="text-sm font-medium text-gray-900">{{ contact.full_name }}</span>

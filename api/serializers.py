@@ -56,7 +56,7 @@ class CustomerAddressSerializer(serializers.ModelSerializer):
 
 class CustomerSerializer(serializers.ModelSerializer):
     address = CustomerAddressSerializer(many=True, read_only=True)
-    contact_persons = ContactPersonSerializer(source='contactperson_set', many=True, read_only=True)
+    contact_persons = ContactPersonSerializer(source='contact_persons', many=True, read_only=True)
     working_hours = WorkingHoursSerializer(read_only=True)
     installed_items = serializers.SerializerMethodField()
     service_tracking = serializers.SerializerMethodField()
