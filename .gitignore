@@ -181,6 +181,19 @@ secret.txt
 .DS_Store
 Thumbs.db
 
+# Test and Debug files
+test*.html
+test*.py
+debug*.html
+check_*.py
+*_test.py
+mobile_plan.md
+maintenance_record_structure.txt
+breakdown_admin_append.py
+
+# Node modules
+node_modules/
+
 # Migration files (optional, depends on your workflow)
 # */migrations/*.py
 # !*/migrations/__init__.py
