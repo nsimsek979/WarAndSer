@@ -2,7 +2,19 @@ from django.contrib import admin
 from django.utils.translation import gettext_lazy as _
 from django import forms
 from django.db.models import Q
+from import_export import resources, fields
+from import_export.admin import ImportExportModelAdmin
+from import_export.widgets import ForeignKeyWidget, DateTimeWidget
+from django.utils import timezone
 from .models import Installation, WarrantyFollowUp, ServiceFollowUp, InstallationImage, InstallationDocument, BreakdownReason, BreakdownCategory, MaintenanceRecord
+
+class NaiveDateTimeWidget(DateTimeWidget):
+    """Custom widget to remove timezone info from datetime objects for Excel export"""
+    def render(self, value, obj=None, **kwargs):
+        if value and hasattr(value, 'replace'):
+            # Remove timezone info
+            value = value.replace(tzinfo=None)
+        return super().render(value, obj, **kwargs)
 
 
 class InstallationImageInline(admin.TabularInline):
@@ -52,8 +64,126 @@ class InstallationAdminForm(forms.ModelForm):
             self.fields['inventory_item'].label_from_instance = lambda obj: f"{obj.name.shortcode} - {obj.serial_no} ({'In Use' if obj.in_used else 'Available'})"
 
 
+# Import/Export Resources
+class BreakdownCategoryResource(resources.ModelResource):
+    class Meta:
+        model = BreakdownCategory
+        fields = ('name', 'description', 'is_active')
+        exclude = ('id',)
+
+
+class BreakdownReasonResource(resources.ModelResource):
+    category = fields.Field(
+        column_name='category',
+        attribute='category',
+        widget=ForeignKeyWidget(BreakdownCategory, 'name')
+    )
+    
+    class Meta:
+        model = BreakdownReason
+        fields = ('name', 'category', 'description', 'is_active')
+        exclude = ('id',)
+
+
+class InstallationResource(resources.ModelResource):
+    inventory_item_shortcode = fields.Field(
+        column_name='inventory_item_shortcode',
+        attribute='inventory_item__name__shortcode'
+    )
+    inventory_item_serial = fields.Field(
+        column_name='inventory_item_serial',
+        attribute='inventory_item__serial_no'
+    )
+    customer_name = fields.Field(
+        column_name='customer_name',
+        attribute='customer__name'
+    )
+    installer = fields.Field(
+        column_name='installer',
+        attribute='user__username'
+    )
+    
+    class Meta:
+        model = Installation
+        fields = ('setup_date', 'inventory_item_shortcode', 'inventory_item_serial', 'customer_name', 'installer', 'location_latitude', 'location_longitude', 'location_address', 'installation_notes')
+        exclude = ('id',)
+
+
+class WarrantyFollowUpResource(resources.ModelResource):
+    installation_equipment = fields.Field(
+        column_name='installation_equipment',
+        attribute='installation__inventory_item__name__shortcode'
+    )
+    installation_serial = fields.Field(
+        column_name='installation_serial',
+        attribute='installation__inventory_item__serial_no'
+    )
+    customer_name = fields.Field(
+        column_name='customer_name',
+        attribute='installation__customer__name'
+    )
+    
+    class Meta:
+        model = WarrantyFollowUp
+        fields = ('installation_equipment', 'installation_serial', 'customer_name', 'warranty_type', 'warranty_start', 'warranty_end', 'is_active')
+        exclude = ('id',)
+
+
+class ServiceFollowUpResource(resources.ModelResource):
+    installation_equipment = fields.Field(
+        column_name='installation_equipment',
+        attribute='installation__inventory_item__name__shortcode'
+    )
+    installation_serial = fields.Field(
+        column_name='installation_serial',
+        attribute='installation__inventory_item__serial_no'
+    )
+    customer_name = fields.Field(
+        column_name='customer_name',
+        attribute='installation__customer__name'
+    )
+    
+    class Meta:
+        model = ServiceFollowUp
+        fields = ('installation_equipment', 'installation_serial', 'customer_name', 'service_type', 'next_service_date', 'service_value', 'is_completed')
+        exclude = ('id',)
+
+
+class MaintenanceRecordResource(resources.ModelResource):
+    installation_equipment = fields.Field(
+        column_name='installation_equipment',
+        attribute='installation__inventory_item__name__shortcode'
+    )
+    installation_serial = fields.Field(
+        column_name='installation_serial',
+        attribute='installation__inventory_item__serial_no'
+    )
+    customer_name = fields.Field(
+        column_name='customer_name',
+        attribute='installation__customer__name'
+    )
+    breakdown_category = fields.Field(
+        column_name='breakdown_category',
+        attribute='breakdown_category__name'
+    )
+    breakdown_reason = fields.Field(
+        column_name='breakdown_reason',
+        attribute='breakdown_reason__name'
+    )
+    technician = fields.Field(
+        column_name='technician',
+        attribute='technician__username'
+    )
+    
+    class Meta:
+        model = MaintenanceRecord
+        fields = ('installation_equipment', 'installation_serial', 'customer_name', 'maintenance_type', 'breakdown_category', 'breakdown_reason', 'technician', 'maintenance_date', 'breakdown_details', 'notes')
+        exclude = ('id',)
+
+
 @admin.register(Installation)
-class InstallationAdmin(admin.ModelAdmin):
+class InstallationAdmin(ImportExportModelAdmin):
+    resource_class = InstallationResource
     form = InstallationAdminForm
     list_display = ['get_inventory_display', 'get_customer_display', 'setup_date', 'user', 'has_location']
     list_filter = ['setup_date', 'user', 'customer__company_type']
@@ -99,7 +229,8 @@ class InstallationAdmin(admin.ModelAdmin):
 
 
 @admin.register(WarrantyFollowUp)
-class WarrantyFollowUpAdmin(admin.ModelAdmin):
+class WarrantyFollowUpAdmin(ImportExportModelAdmin):
+    resource_class = WarrantyFollowUpResource
     list_display = ['get_installation_display', 'warranty_type', 'warranty_value', 'end_of_warranty_date', 'is_active', 'is_expiring_soon']
     list_filter = ['warranty_type', 'end_of_warranty_date']
     search_fields = ['installation__inventory_item__name__name', 'installation__customer__name']
@@ -138,7 +269,8 @@ class WarrantyFollowUpAdmin(admin.ModelAdmin):
 
 
 @admin.register(ServiceFollowUp)
-class ServiceFollowUpAdmin(admin.ModelAdmin):
+class ServiceFollowUpAdmin(ImportExportModelAdmin):
+    resource_class = ServiceFollowUpResource
     list_display = ['get_installation_display', 'service_type', 'service_value', 'next_service_date', 'is_completed', 'is_due']
     list_filter = ['service_type', 'is_completed', 'next_service_date']
     search_fields = ['installation__inventory_item__name__name', 'installation__customer__name']
@@ -175,7 +307,8 @@ class ServiceFollowUpAdmin(admin.ModelAdmin):
 
 
 @admin.register(BreakdownCategory)
-class BreakdownCategoryAdmin(admin.ModelAdmin):
+class BreakdownCategoryAdmin(ImportExportModelAdmin):
+    resource_class = BreakdownCategoryResource
     list_display = ['type', 'name', 'is_active', 'created_at']
     list_filter = ['type', 'is_active']
     search_fields = ['name']
@@ -189,7 +322,8 @@ class BreakdownCategoryAdmin(admin.ModelAdmin):
 
 
 @admin.register(BreakdownReason)
-class BreakdownReasonAdmin(admin.ModelAdmin):
+class BreakdownReasonAdmin(ImportExportModelAdmin):
+    resource_class = BreakdownReasonResource
     list_display = ['name', 'is_active', 'created_at']
     list_filter = ['is_active']
     search_fields = ['name']
@@ -203,7 +337,8 @@ class BreakdownReasonAdmin(admin.ModelAdmin):
 
 
 @admin.register(MaintenanceRecord)
-class MaintenanceRecordAdmin(admin.ModelAdmin):
+class MaintenanceRecordAdmin(ImportExportModelAdmin):
+    resource_class = MaintenanceRecordResource
     list_display = ['get_installation_display', 'maintenance_type', 'technician', 'category', 'breakdown_reason_selected', 'service_date', 'created_at']
     list_filter = ['maintenance_type', 'category', 'created_at']
     search_fields = ['service_followup__installation__customer__name', 'technician__first_name', 'technician__last_name', 'notes']

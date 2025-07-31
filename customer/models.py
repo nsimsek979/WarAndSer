@@ -71,6 +71,7 @@ class CoreBusiness(models.Model):
 		verbose_name = _("Ana İş Kolu")
 		verbose_name_plural = _("Ana İş Kolu")
 
+
 class Company(models.Model):
 	COMPANY_TYPE_CHOICES = [
 		("main", _( "Main")),

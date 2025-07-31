@@ -19,4 +19,5 @@ urlpatterns = [
     
     # AJAX views
     path('ajax/get-attribute-units/', views.get_attribute_units, name='get_attribute_units'),
+    path('ajax/get-attribute-units/', views.get_attribute_units, name='get_attribute_units'),
 ]

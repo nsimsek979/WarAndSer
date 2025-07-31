@@ -2,8 +2,17 @@ from django.contrib import admin
 from django import forms
 from import_export import resources, fields
 from import_export.admin import ImportExportModelAdmin
-from import_export.widgets import ForeignKeyWidget
+from import_export.widgets import ForeignKeyWidget, DateTimeWidget
 from import_export.formats.base_formats import CSV, JSON, HTML, TSV, XLSX
+from django.utils import timezone
+
+class NaiveDateTimeWidget(DateTimeWidget):
+    """Custom widget to remove timezone info from datetime objects for Excel export"""
+    def render(self, value, obj=None, **kwargs):
+        if value and hasattr(value, 'replace'):
+            # Remove timezone info
+            value = value.replace(tzinfo=None)
+        return super().render(value, obj, **kwargs)
 from .models import (
     Status, StockType, Brand, Category, ItemImage, ItemSpec,
     WarrantyType, WarrantyValue, ServiceForm, ItemSparePart, ItemMaster,
@@ -39,10 +48,10 @@ class InventoryItemAttributeForm(forms.ModelForm):
         # Add CSS classes for dynamic filtering
         self.fields['attribute_type'].widget.attrs.update({
             'class': 'attribute-type-select',
-            'data-url': '/admin/get-attribute-units/'  # We'll create this view
+            'data-target': 'unit'
         })
         self.fields['unit'].widget.attrs.update({
-            'class': 'attribute-unit-select'
+            'class': 'unit-select'
         })
     
     def clean(self):
@@ -143,7 +152,7 @@ class InventoryItemAttributeInline(admin.TabularInline):
     verbose_name_plural = "Attributes"
     
     class Media:
-        js = ('admin/js/attribute_unit_filter.js',)
+        js = ('admin/js/attribute_filtering.js',)
 
 
 class InventoryItemInline(admin.TabularInline):
@@ -170,19 +179,22 @@ class InventoryItemInline(admin.TabularInline):
 class StatusResource(resources.ModelResource):
     class Meta:
         model = Status
-        fields = ('status',)
+        exclude = ('id', 'created_at', 'updated_at')
+        import_id_fields = ['status']
 
 
 class StockTypeResource(resources.ModelResource):
     class Meta:
         model = StockType
-        fields = ('name',)
+        exclude = ('id', 'created_at', 'updated_at')
+        import_id_fields = ['name']
 
 
 class BrandResource(resources.ModelResource):
     class Meta:
         model = Brand
-        fields = ('name',)
+        exclude = ('id', 'created_at', 'updated_at')
+        import_id_fields = ['name']
 
 
 class CategoryResource(resources.ModelResource):
@@ -194,7 +206,8 @@ class CategoryResource(resources.ModelResource):
     
     class Meta:
         model = Category
-        fields = ('category_name', 'parent', 'slug')
+        exclude = ('id', 'created_at', 'updated_at')
+        import_id_fields = ['category_name']
 
 
 class ItemMasterResource(resources.ModelResource):
@@ -221,7 +234,8 @@ class ItemMasterResource(resources.ModelResource):
     
     class Meta:
         model = ItemMaster
-        fields = ('shortcode', 'name', 'description', 'category', 'status', 'brand_name', 'stock_type')
+        exclude = ('id', 'created_at', 'updated_at')
+        import_id_fields = ['shortcode']
 
 
 class InventoryItemResource(resources.ModelResource):
@@ -230,10 +244,17 @@ class InventoryItemResource(resources.ModelResource):
         attribute='name',
         widget=ForeignKeyWidget(ItemMaster, 'name')
     )
+    production_date = fields.Field(
+        column_name='production_date',
+        attribute='production_date',
+        widget=NaiveDateTimeWidget()
+    )
     
     class Meta:
         model = InventoryItem
         fields = ('name', 'serial_no', 'production_date', 'in_used')
+        exclude = ('id', 'created_at', 'updated_at')
+        import_id_fields = ['serial_no']
 
 
 class ItemSparePartResource(resources.ModelResource):
@@ -250,7 +271,7 @@ class ItemSparePartResource(resources.ModelResource):
     
     class Meta:
         model = ItemSparePart
-        fields = ('main_item', 'spare_part_item')
+        exclude = ('id', 'created_at', 'updated_at')
 
 
 # Admin classes
@@ -457,6 +478,9 @@ class InventoryItemAdmin(ImportExportModelAdmin):
     
     inlines = [InventoryItemAttributeInline]
     
+    class Media:
+        js = ('admin/js/attribute_filtering.js',)
+    
     def item_name(self, obj):
         return obj.name.name
     item_name.short_description = 'Item Name'
@@ -486,6 +510,9 @@ class InventoryItemAttributeAdmin(admin.ModelAdmin):
             'classes': ('collapse',)
         }),
     )
+    
+    class Media:
+        js = ('admin/js/attribute_filtering.js',)
     
     def inventory_item_code(self, obj):
         return obj.inventory_item.name.shortcode if obj.inventory_item else "No Item"

@@ -3,9 +3,32 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.decorators import permission_required
 from django.shortcuts import render, get_object_or_404, redirect
 from django.core.paginator import Paginator
-from django.db.models import Q
+from django.db.models import Q, F
 from django.http import JsonResponse
+from django.views.decorators.http import require_GET
 from .models import ItemMaster, Category, Brand, StockType, InventoryItem, InventoryItemAttribute, AttributeType, AttributeUnit, AttributeTypeUnit, Status
+
+@require_GET
+def get_attribute_units(request):
+    """AJAX view to get units for a specific attribute type"""
+    attribute_type_id = request.GET.get('attribute_type_id')
+    
+    if attribute_type_id:
+        try:
+            attribute_type = AttributeType.objects.get(id=attribute_type_id)
+            units = AttributeUnit.objects.filter(
+                unit_types__attribute_type=attribute_type
+            ).values('id', 'name').annotate(
+                is_default=F('unit_types__is_default')
+            ).order_by('unit_types__is_default', 'name')
+            
+            return JsonResponse({
+                'units': list(units)
+            })
+        except AttributeType.DoesNotExist:
+            pass
+    
+    return JsonResponse({'units': []})
 
 @login_required(login_url='login')
 def inventory_item_list(request):
