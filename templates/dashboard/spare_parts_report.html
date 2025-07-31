@@ -142,25 +142,25 @@
                     <svg class="w-5 h-5 mr-2 text-orange-500" fill="currentColor" viewBox="0 0 24 24">
                         <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
                     </svg>
-                    Report Summary
+                    {% trans "Report Summary" %}
                 </h2>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-4 gap-6 p-6">
                 <div class="text-center bg-orange-50 rounded-lg p-4">
                     <div class="text-3xl font-bold text-orange-600">{{ summary.total_spare_parts }}</div>
-                    <div class="text-sm text-gray-600 mt-1">Total Spare Parts Used</div>
+                    <div class="text-sm text-gray-600 mt-1">{% trans "Total Spare Parts Used" %}</div>
                 </div>
                 <div class="text-center bg-red-50 rounded-lg p-4">
                     <div class="text-3xl font-bold text-red-600">{{ summary.breakdown_spare_parts }}</div>
-                    <div class="text-sm text-gray-600 mt-1">Parts Used in Breakdowns</div>
+                    <div class="text-sm text-gray-600 mt-1">{% trans "Parts Used in Breakdowns" %}</div>
                 </div>
                 <div class="text-center bg-blue-50 rounded-lg p-4">
                     <div class="text-3xl font-bold text-blue-600">{{ summary.periodic_spare_parts }}</div>
-                    <div class="text-sm text-gray-600 mt-1">Parts Used in Periodic Maintenance</div>
+                    <div class="text-sm text-gray-600 mt-1">{% trans "Parts Used in Periodic Maintenance" %}</div>
                 </div>
                 <div class="text-center bg-green-50 rounded-lg p-4">
                     <div class="text-3xl font-bold text-green-600">{{ summary.other_spare_parts }}</div>
-                    <div class="text-sm text-gray-600 mt-1">Parts Used in Other Maintenance</div>
+                    <div class="text-sm text-gray-600 mt-1">{% trans "Parts Used in Other Maintenance" %}</div>
                 </div>
             </div>
         </div>
@@ -172,7 +172,7 @@
             <!-- Spare Parts by Category Chart -->
             <div class="bg-white rounded-lg shadow-lg border border-gray-200">
                 <div class="px-6 py-4 border-b border-gray-200">
-                    <h3 class="text-lg font-semibold text-gray-900">Spare Parts by Category</h3>
+                    <h3 class="text-lg font-semibold text-gray-900">{% trans "Spare Parts by Category" %}</h3>
                 </div>
                 <div class="p-6">
                     <div class="relative" style="height: 400px;">
@@ -184,7 +184,7 @@
             <!-- Spare Parts by Maintenance Type Chart -->
             <div class="bg-white rounded-lg shadow-lg border border-gray-200">
                 <div class="px-6 py-4 border-b border-gray-200">
-                    <h3 class="text-lg font-semibold text-gray-900">Spare Parts by Maintenance Type</h3>
+                    <h3 class="text-lg font-semibold text-gray-900">{% trans "Spare Parts by Maintenance Type" %}</h3>
                 </div>
                 <div class="p-6">
                     <div class="relative" style="height: 400px;">
@@ -197,7 +197,7 @@
         <!-- Monthly Spare Parts Usage Trend Chart -->
         <div class="bg-white rounded-lg shadow-lg border border-gray-200 mb-8">
             <div class="px-6 py-4 border-b border-gray-200">
-                <h3 class="text-lg font-semibold text-gray-900">Monthly Spare Parts Usage Trend</h3>
+                <h3 class="text-lg font-semibold text-gray-900">{% trans "Monthly Spare Parts Usage Trend" %}</h3>
             </div>
             <div class="p-6">
                 <div class="relative" style="height: 400px;">
@@ -215,19 +215,19 @@
                     <svg class="w-5 h-5 mr-2 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
                     </svg>
-                    Top 5 Most Used Spare Parts
+                    {% trans "Top 5 Most Used Spare Parts" %}
                 </h3>
             </div>
             <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-50">
                         <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rank</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Spare Part</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Part Number</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Count</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Percentage</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Rank" %}</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Spare Part" %}</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Part Number" %}</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Category" %}</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Count" %}</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Percentage" %}</th>
                         </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200">
@@ -281,7 +281,7 @@
                     <svg class="w-5 h-5 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                     </svg>
-                    All Spare Parts Usage Records ({{ spare_parts_records.paginator.count }} total)
+                    {% trans "All Spare Parts Usage Records" %} ({{ spare_parts_records.paginator.count }} total)
                 </h3>
             </div>
             <div class="overflow-x-auto">
@@ -289,14 +289,14 @@
                     <thead class="bg-gray-50">
                         <tr>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">#</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Part Name</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Part Number</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Equipment</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Maintenance Type</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Breakdown Category</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quantity</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Date" %}</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Part Name" %}</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Part Number" %}</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Equipment" %}</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Maintenance Type" %}</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Breakdown Category" %}</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Quantity" %}</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Actions" %}</th>
                         </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200">
@@ -349,7 +349,7 @@
                                     <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                                     </svg>
-                                    Service Details
+                                    {% trans "Service Details" %}
                                 </a>
                             </td>
                         </tr>
@@ -365,19 +365,19 @@
                     <div class="flex-1 flex justify-between sm:hidden">
                         {% if spare_parts_records.has_previous %}
                         <a href="?period={{ current_period }}&page={{ spare_parts_records.previous_page_number }}" class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
-                            Previous
+                            {% trans "Previous" %}
                         </a>
                         {% endif %}
                         {% if spare_parts_records.has_next %}
                         <a href="?period={{ current_period }}&page={{ spare_parts_records.next_page_number }}" class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
-                            Next
+                            {% trans "Next" %}
                         </a>
                         {% endif %}
                     </div>
                     <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
                         <div>
                             <p class="text-sm text-gray-700">
-                                Showing <span class="font-medium">{{ spare_parts_records.start_index }}</span> to <span class="font-medium">{{ spare_parts_records.end_index }}</span> of <span class="font-medium">{{ spare_parts_records.paginator.count }}</span> results
+                                {% trans "Showing" %} <span class="font-medium">{{ spare_parts_records.start_index }}</span> {% trans "to" %} <span class="font-medium">{{ spare_parts_records.end_index }}</span> {% trans "of" %} <span class="font-medium">{{ spare_parts_records.paginator.count }}</span> {% trans "results" %}.
                             </p>
                         </div>
                         <div>
@@ -445,8 +445,8 @@
             <svg class="mx-auto h-12 w-12 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
                 <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
             </svg>
-            <h3 class="mt-2 text-sm font-medium text-gray-900">No Data Available</h3>
-            <p class="mt-1 text-sm text-gray-500">There are no spare parts records to display for the selected period.</p>
+            <h3 class="mt-2 text-sm font-medium text-gray-900">{% trans "No Data Available" %}</h3>
+            <p class="mt-1 text-sm text-gray-500">{% trans "There are no spare parts records to display for the selected period." %}</p>
         </div>
         {% endif %}
     </div>
@@ -590,7 +590,7 @@
                     labels: monthlyData.labels,
                     datasets: [
                         {
-                            label: 'Total Parts',
+                            label: 'Toplam Parça Sayısı',
                             data: monthlyData.total_data,
                             borderColor: '#f97316',
                             backgroundColor: '#f9731620',
@@ -604,7 +604,7 @@
                             pointHoverRadius: 8
                         },
                         {
-                            label: 'Breakdown Parts',
+                            label: 'Arızada Kullanılan Parçalar',
                             data: monthlyData.breakdown_data,
                             borderColor: '#ef4444',
                             backgroundColor: 'transparent',
@@ -619,7 +619,7 @@
                             pointHoverRadius: 6
                         },
                         {
-                            label: 'Periodic Parts',
+                            label: 'Periyodik Parçalar',
                             data: monthlyData.periodic_data,
                             borderColor: '#3b82f6',
                             backgroundColor: 'transparent',

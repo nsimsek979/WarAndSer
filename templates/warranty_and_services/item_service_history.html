@@ -81,9 +81,9 @@
                             <p class="text-sm font-bold text-gray-900">{{ last_maintenance.service_date }}</p>
                             <p class="text-xs text-gray-500">
                                 {% if last_maintenance.maintenance_type == 'periodic' %}
-                                    🔧 Periodic Maintenance
+                                    🔧 {% trans "Periodic Maintenance" %}
                                 {% else %}
-                                    ⚡ Breakdown Repair
+                                    ⚡ {% trans "Breakdown Repair" %}
                                 {% endif %}
                             </p>
                         {% else %}
@@ -479,7 +479,7 @@
                                     </span>
                                     <span class="text-xs text-yellow-600">{{ service.service_value }}{% if service.service_type == 'time_term' %} ay{% else %} saat{% endif %}</span>
                                 </div>
-                                <p class="text-sm text-yellow-700">Next: {{ service.next_service_date|date:"d.m.Y" }}</p>
+                                <p class="text-sm text-yellow-700">{% trans "Next" %}: {{ service.next_service_date|date:"d.m.Y" }}</p>
                                 {% with service.next_service_date|days_until as days %}
                                     {% if days %}
                                         <p class="text-xs text-yellow-600 mt-1">
@@ -514,7 +514,7 @@
                                     </span>
                                     <span class="text-xs text-green-600">{{ warranty.warranty_value }}{% if warranty.warranty_type == 'time_term' %} {% trans "years" %}{% else %} {% trans "hours" %}{% endif %}</span>
                                 </div>
-                                <p class="text-sm text-green-700">Until: {{ warranty.end_of_warranty_date|date:"d.m.Y" }}</p>
+                                <p class="text-sm text-green-700">{% trans "Until" %}: {{ warranty.end_of_warranty_date|date:"d.m.Y" }}</p>
                                 {% with warranty.end_of_warranty_date|days_until as days %}
                                     {% if days %}
                                         <p class="text-xs text-green-600 mt-1">
