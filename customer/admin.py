@@ -173,7 +173,7 @@ class AddressResource(resources.ModelResource):
     
     class Meta:
         model = Address
-        fields = ('company', 'name', 'country', 'city', 'county', 'district', 'zip_code', 'address')
+        fields = ('company', 'name', 'country', 'city', 'county', 'district', 'zipcode', 'address')
         exclude = ('id',)
         import_id_fields = ['company', 'name']
 

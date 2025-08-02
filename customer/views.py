@@ -3,10 +3,11 @@ from django.contrib.auth.decorators import login_required, permission_required
 from django.shortcuts import get_object_or_404, redirect
 from django.shortcuts import render
 from django.http import JsonResponse
+from django.contrib import messages
 from django.utils.translation import gettext as _
-from .models import Company, City, Country, County, District, CoreBusiness, WorkingHours
+from .models import Company, City, Country, County, District, CoreBusiness, WorkingHours, ContactPerson, Address
 from custom_user.permissions import get_company_queryset_for_user
-from django.db import models
+from django.db import models, transaction
 from django.core.paginator import Paginator
 
 
@@ -178,11 +179,6 @@ def customer_list(request):
 
 
 # --- Create Customer View and API Endpoints ---
-from django.http import JsonResponse
-from django.shortcuts import redirect
-from django.contrib import messages
-from django.db import transaction
-from .models import ContactPerson, Address, WorkingHours
 
 @login_required(login_url='login')
 @permission_required('customer.add_company', raise_exception=True)
