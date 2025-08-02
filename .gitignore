@@ -36,6 +36,12 @@ MANIFEST
 pip-log.txt
 pip-delete-this-directory.txt
 
+# Environment and configuration files
+.env
+.env.*
+settings_local.py
+settings_old.py
+
 logs
 *.log
 npm-debug.log

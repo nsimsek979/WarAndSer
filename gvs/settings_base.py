@@ -146,3 +146,20 @@ SIMPLE_JWT = {
 
 # Import/Export settings
 IMPORT_EXPORT_USE_TRANSACTIONS = True
+
+# Celery Configuration (Ubuntu-compatible task queue)
+CELERY_BROKER_URL = 'redis://localhost:6379/0'
+CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = TIME_ZONE
+
+# Celery Beat Schedule (replaces Windows Task Scheduler)
+from celery.schedules import crontab
+CELERY_BEAT_SCHEDULE = {
+    'send-daily-service-notifications': {
+        'task': 'warranty_and_services.tasks.send_daily_service_notifications',
+        'schedule': crontab(hour=9, minute=0),  # Every day at 9:00 AM
+    },
+}

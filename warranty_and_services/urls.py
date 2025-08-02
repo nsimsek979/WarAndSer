@@ -1,5 +1,5 @@
 from django.urls import path
-from . import views
+from . import views, api_views
 
 app_name = 'warranty_and_services'
 
@@ -18,6 +18,11 @@ urlpatterns = [
     # Mobile Maintenance
     path('maintenance/mobile/', views.mobile_maintenance_scanner, name='mobile_maintenance_scanner'),
     path('maintenance/mobile/form/', views.mobile_maintenance_form, name='mobile_maintenance_form'),
+    
+    # Service Notification APIs (Ubuntu-compatible)
+    path('api/notifications/send/', api_views.api_send_service_notifications, name='api_send_service_notifications'),
+    path('api/notifications/status/', api_views.api_service_notification_status, name='api_service_notification_status'),
+    path('api/notifications/webhook/', api_views.ServiceNotificationWebhookView.as_view(), name='api_service_notification_webhook'),
     
     # API Endpoints for Mobile
     path('api/items/search-by-barcode/', views.api_search_by_barcode, name='api_search_by_barcode'),
