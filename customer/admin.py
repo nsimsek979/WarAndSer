@@ -53,6 +53,7 @@ class CountryResource(resources.ModelResource):
         model = Country
         fields = ('name', 'code')
         exclude = ('id',)
+        import_id_fields = ['name']
 
 
 class CityResource(resources.ModelResource):
@@ -66,6 +67,7 @@ class CityResource(resources.ModelResource):
         model = City
         fields = ('name', 'country')
         exclude = ('id',)
+        import_id_fields = ['name']
 
 
 class CountyResource(resources.ModelResource):
@@ -79,6 +81,7 @@ class CountyResource(resources.ModelResource):
         model = County
         fields = ('name', 'city')
         exclude = ('id',)
+        import_id_fields = ['name']
 
 
 class DistrictResource(resources.ModelResource):
@@ -92,6 +95,7 @@ class DistrictResource(resources.ModelResource):
         model = District
         fields = ('name', 'county')
         exclude = ('id',)
+        import_id_fields = ['name']
 
 
 class CoreBusinessResource(resources.ModelResource):
@@ -99,6 +103,7 @@ class CoreBusinessResource(resources.ModelResource):
         model = CoreBusiness
         fields = ('name',)
         exclude = ('id',)
+        import_id_fields = ['name']
 
 
 class CompanyResource(resources.ModelResource):
@@ -122,6 +127,7 @@ class CompanyResource(resources.ModelResource):
         model = Company
         fields = ('name', 'company_type', 'core_business', 'related_manager', 'email', 'telephone', 'active', 'related_company')
         exclude = ('id',)
+        import_id_fields = ['name']
 
 
 class ContactPersonResource(resources.ModelResource):
@@ -135,6 +141,7 @@ class ContactPersonResource(resources.ModelResource):
         model = ContactPerson
         fields = ('company', 'full_name', 'title', 'email', 'telephone')
         exclude = ('id',)
+        import_id_fields = ['company', 'full_name']
 
 
 class AddressResource(resources.ModelResource):
@@ -168,6 +175,7 @@ class AddressResource(resources.ModelResource):
         model = Address
         fields = ('company', 'name', 'country', 'city', 'county', 'district', 'zip_code', 'address')
         exclude = ('id',)
+        import_id_fields = ['company', 'name']
 
 
 class WorkingHoursResource(resources.ModelResource):
@@ -181,6 +189,7 @@ class WorkingHoursResource(resources.ModelResource):
         model = WorkingHours
         fields = ('customer', 'daily_working_hours', 'working_on_saturday', 'working_on_sunday')
         exclude = ('id',)
+        import_id_fields = ['customer']
 
 
 @admin.register(Company)

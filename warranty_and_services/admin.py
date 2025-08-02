@@ -70,6 +70,7 @@ class BreakdownCategoryResource(resources.ModelResource):
         model = BreakdownCategory
         fields = ('name', 'description', 'is_active')
         exclude = ('id',)
+        import_id_fields = ['name']
 
 
 class BreakdownReasonResource(resources.ModelResource):
@@ -83,6 +84,7 @@ class BreakdownReasonResource(resources.ModelResource):
         model = BreakdownReason
         fields = ('name', 'category', 'description', 'is_active')
         exclude = ('id',)
+        import_id_fields = ['name']
 
 
 class InstallationResource(resources.ModelResource):
@@ -107,6 +109,7 @@ class InstallationResource(resources.ModelResource):
         model = Installation
         fields = ('setup_date', 'inventory_item_shortcode', 'inventory_item_serial', 'customer_name', 'installer', 'location_latitude', 'location_longitude', 'location_address', 'installation_notes')
         exclude = ('id',)
+        import_id_fields = ['inventory_item_serial', 'customer_name']
 
 
 class WarrantyFollowUpResource(resources.ModelResource):
@@ -127,6 +130,7 @@ class WarrantyFollowUpResource(resources.ModelResource):
         model = WarrantyFollowUp
         fields = ('installation_equipment', 'installation_serial', 'customer_name', 'warranty_type', 'warranty_start', 'warranty_end', 'is_active')
         exclude = ('id',)
+        import_id_fields = ['installation_serial']
 
 
 class ServiceFollowUpResource(resources.ModelResource):
@@ -147,6 +151,7 @@ class ServiceFollowUpResource(resources.ModelResource):
         model = ServiceFollowUp
         fields = ('installation_equipment', 'installation_serial', 'customer_name', 'service_type', 'next_service_date', 'service_value', 'is_completed')
         exclude = ('id',)
+        import_id_fields = ['installation_serial', 'service_type']
 
 
 class MaintenanceRecordResource(resources.ModelResource):
@@ -179,6 +184,7 @@ class MaintenanceRecordResource(resources.ModelResource):
         model = MaintenanceRecord
         fields = ('installation_equipment', 'installation_serial', 'customer_name', 'maintenance_type', 'breakdown_category', 'breakdown_reason', 'technician', 'maintenance_date', 'breakdown_details', 'notes')
         exclude = ('id',)
+        import_id_fields = ['installation_serial', 'maintenance_date']
 
 
 @admin.register(Installation)
