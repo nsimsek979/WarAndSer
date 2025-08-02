@@ -34,6 +34,12 @@
             background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(29, 78, 216, 0.1) 100%);
             border: 2px dashed #3b82f6;
         }
+        
+        #cameraPreview video {
+            width: 100% !important;
+            height: 100% !important;
+            object-fit: cover;
+        }
     </style>
 </head>
 
@@ -60,9 +66,7 @@
         <div class="scanner-area rounded-xl p-8 text-center mobile-card">
             <!-- Camera Preview -->
             <div id="cameraPreview" class="w-full h-64 bg-black rounded-lg mb-4 relative overflow-hidden" style="display: none;">
-                <video id="video" class="w-full h-full object-cover"></video>
-                <div class="absolute inset-0 border-2 border-blue-500 rounded-lg pointer-events-none"></div>
-                <canvas id="canvas" style="display: none;"></canvas>
+                <!-- Html5Qrcode will create its own video element here -->
             </div>
             
             <!-- Default Scanner UI -->
