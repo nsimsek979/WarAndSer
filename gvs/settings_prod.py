@@ -16,24 +16,39 @@ except ImportError:
 SECRET_KEY = os.environ.get('SECRET_KEY', 'your-production-secret-key-here')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get('DEBUG', 'False').lower() == 'true'
+DEBUG = True  # Change back after fixing
+ALLOWED_HOSTS = ['*']  # Temporarily allow all hosts
+INSTALLED_APPS = [
+    "django.contrib.admin",
+    "django.contrib.auth",
+    "django.contrib.contenttypes",
+    "django.contrib.sessions",
+    "django.contrib.messages",
+    "django.contrib.staticfiles",
+    "django.contrib.humanize",
 
-# Get allowed hosts from environment
-allowed_hosts_str = os.environ.get('ALLOWED_HOSTS', 'localhost')
-ALLOWED_HOSTS = [host.strip() for host in allowed_hosts_str.split(',')]
+    # Third party apps
+    "import_export",
+
+    # Local apps
+    "core",
+    "dashboard",
+    "item_master",
+    "customer",
+    "custom_user",
+    "warranty_and_services",
+    "rest_framework",
+    "rest_framework_simplejwt",
+    "api",
+]
 
 # Database for production (PostgreSQL or MySQL)
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.environ.get('DB_NAME', 'warandser_db'),
-        'USER': os.environ.get('DB_USER', 'warandser_user'),
-        'PASSWORD': os.environ.get('DB_PASSWORD', 'your-db-password'),
-        'HOST': os.environ.get('DB_HOST', 'localhost'),
-        'PORT': os.environ.get('DB_PORT', '5432'),
+    "default": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": BASE_DIR / "db.sqlite3",
     }
 }
-
 # Security settings for production
 SECURE_BROWSER_XSS_FILTER = True
 SECURE_CONTENT_TYPE_NOSNIFF = True
@@ -42,6 +57,9 @@ SECURE_HSTS_SECONDS = 31536000
 SECURE_REDIRECT_EXEMPT = []
 SECURE_SSL_REDIRECT = True
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+SESSION_ENGINE = "django.contrib.sessions.backends.db"  # Explicitly set
+SESSION_COOKIE_NAME = "warandser_session"  # Unique name
+SESSION_COOKIE_AGE = 1209600  # 2 weeks in seconds
 
 # Session and CSRF cookies
 SESSION_COOKIE_SECURE = True
@@ -81,3 +99,25 @@ LOGGING = {
         },
     },
 }
+
+
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                # ... diger processor'lar
+            ],
+            'libraries': {
+                # ... özel template tag'ler
+            },
+            'builtins': ['django.templatetags.i18n'],  # Bu satiri ekleyin
+            'debug': True,  # DEBUG=False olsa bile template hatalarini göster
+            'string_if_invalid': 'INVALID_EXPRESSION',  # Hatalari daha görünür yapar
+            'autoescape': True,
+            'file_charset': 'utf-8'  # Bu kritik öneme sahip
+        },
+    },
+]

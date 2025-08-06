@@ -19,34 +19,6 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">\
 
     <!-- Tailwind Configuration -->
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            corePlugins: {
-                preflight: true,
-            },
-            theme: {
-                extend: {
-                    colors: {
-                        primary: {"50":"#eff6ff","100":"#dbeafe","200":"#bfdbfe","300":"#93c5fd","400":"#60a5fa","500":"#3b82f6","600":"#2563eb","700":"#1d4ed8","800":"#1e40af","900":"#1e3a8a"},
-                        gray: {
-                            25: "#fcfcfd",
-                            50: "#f9fafb",
-                            100: "#f3f4f6", 
-                            200: "#e5e7eb",
-                            300: "#d1d5db",
-                            400: "#9ca3af",
-                            500: "#6b7280",
-                            600: "#4b5563",
-                            700: "#374151",
-                            800: "#1f2937",
-                            900: "#111827"
-                        }
-                    }
-                }
-            }
-        }
-    </script>
 
     <!-- Chrome-specific optimizations -->
     <style>
@@ -98,16 +70,16 @@
             if (saved !== null) {
                 this.sidebarOpen = JSON.parse(saved);
             } else {
-                // İlk kez açılıyorsa, responsive kontrolü
+                // Ilk kez açiliyorsa, responsive kontrolü
                 this.sidebarOpen = window.innerWidth >= 1024;
             }
             
-            // Sidebar durumu değiştiğinde localStorage'a kaydet
+            // Sidebar durumu degistiginde localStorage'a kaydet
             this.$watch('sidebarOpen', value => {
                 localStorage.setItem('sidebarOpen', JSON.stringify(value));
             });
             
-            // Responsive kontrolü - sadece mobile'da kapanmasını sağla
+            // Responsive kontrolü - sadece mobile'da kapanmasini sagla
             window.addEventListener('resize', () => {
                 if (window.innerWidth < 640) {
                     this.sidebarOpen = false;
