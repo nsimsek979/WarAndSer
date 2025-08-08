@@ -1,20 +1,28 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
+  darkMode: 'class',  // enables dark mode via .dark class
   content: [
     "./templates/**/*.html",
     "./*/templates/**/*.html",
     "./static/**/*.js",
     "./*/static/**/*.js",
-    "./**/*.py",
+    "./src/**/*.{html,js,css}",
+    // Removed python files, since Tailwind doesn’t scan them for classes
   ],
   theme: {
     extend: {
       colors: {
         primary: {
           50: '#eff6ff',
+          100: '#dbeafe',
+          200: '#bfdbfe',
+          300: '#93c5fd',
+          400: '#60a5fa',
           500: '#3b82f6',
           600: '#2563eb',
           700: '#1d4ed8',
+          800: '#1e40af',
+          900: '#1e3a8a',
         },
         gray: {
           50: '#f9fafb',

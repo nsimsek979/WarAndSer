@@ -20,4 +20,3 @@ elif os.path.exists('/etc/os-release'):
 else:
     # Default to development
     from .settings_dev import *
-

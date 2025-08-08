@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+{% load i18n %}
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% trans "Category Installation Report" %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @media print {
+            .no-print { display: none !important; }
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <div class="sticky top-0 z-50 bg-white shadow-sm border-b border-gray-200 no-print">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center py-4">
+                <div class="flex items-center">
+                    <a href="{% url 'dashboard:home' %}" class="text-gray-500 hover:text-gray-700 mr-4">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                        </svg>
+                    </a>
+                    <h1 class="text-2xl font-bold text-gray-900">{% trans "Category Installation Report" %}</h1>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <button onclick="window.print()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+                        <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
+                        </svg>
+                        {% trans "Print Report" %}
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Filters Section -->
+            <div class="py-3">
+                <div class="flex items-center space-x-3 overflow-x-auto">
+                    <!-- Period Filter -->
+                    <div class="flex-shrink-0">
+                        <label class="block text-xs font-medium text-gray-700 mb-1">{% trans "Period" %}</label>
+                        <select id="periodFilter" onchange="changeFilters()" class="bg-white border border-gray-300 rounded-md px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 min-w-32">
+                            {% for option in period_options %}
+                            <option value="{{ option.value }}" {% if current_period == option.value %}selected{% endif %}>
+                                {{ option.label }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Charts Section -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+            <!-- Category Chart -->
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4 text-center">{% trans "Installations by Category" %}</h3>
+                <div class="h-80">
+                    {% if category_chart_data %}
+                        <canvas id="categoryChart"></canvas>
+                    {% else %}
+                        <p class="text-gray-500 text-center mt-20">{% trans "No category data available" %}</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Parent Category Chart -->
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4 text-center">{% trans "Installations by Parent Category" %}</h3>
+                <div class="h-80">
+                    {% if parent_category_chart_data %}
+                        <canvas id="parentCategoryChart"></canvas>
+                    {% else %}
+                        <p class="text-gray-500 text-center mt-20">{% trans "No parent category data available" %}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Top Categories Summary -->
+        {% if top_categories or top_parent_categories %}
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+            <!-- Top Categories -->
+            {% if top_categories %}
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4 pb-3 border-b border-gray-200">Top 5 Categories</h3>
+                <div class="space-y-3">
+                    {% for category in top_categories %}
+                        <div class="flex justify-between items-center py-2 {% if not forloop.last %}border-b border-gray-100{% endif %}">
+                            <span class="text-gray-900">{{ category.inventory_item__name__category__category_name }}</span>
+                            <span class="font-semibold text-blue-600">{{ category.installation_count }}</span>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Top Parent Categories -->
+            {% if top_parent_categories %}
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4 pb-3 border-b border-gray-200">{% trans "Top 5 Parent Categories" %}</h3>
+                <div class="space-y-3">
+                    {% for parent in top_parent_categories %}
+                        <div class="flex justify-between items-center py-2 {% if not forloop.last %}border-b border-gray-100{% endif %}">
+                            <span class="text-gray-900">{{ parent.inventory_item__name__category__parent__category_name }}</span>
+                            <span class="font-semibold text-green-600">{{ parent.installation_count }}</span>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+
+        <!-- Detailed Category List -->
+        {% if all_categories %}
+        <div class="bg-white rounded-lg shadow-lg">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-900">{% trans "All Categories" %}</h3>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="min-w-full">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Category" %}</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Parent Category" %}</th>
+                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Installations" %}</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        {% for category in all_categories %}
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                    {{ category.inventory_item__name__category__category_name }}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    {{ category.inventory_item__name__category__parent__category_name|default:"No Parent" }}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-900">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                        {{ category.installation_count }}
+                                    </span>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            {% if all_categories.has_other_pages %}
+                <div class="bg-white px-4 py-3 border-t border-gray-200 sm:px-6">
+                    <div class="flex items-center justify-between">
+                        <div class="flex-1 flex justify-between sm:hidden">
+                            {% if all_categories.has_previous %}
+                                <a href="?page={{ all_categories.previous_page_number }}{% if request.GET.period %}&period={{ request.GET.period }}{% endif %}" 
+                                   class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                                    {% trans "Previous" %}
+                                </a>
+                            {% endif %}
+                            {% if all_categories.has_next %}
+                                <a href="?page={{ all_categories.next_page_number }}{% if request.GET.period %}&period={{ request.GET.period }}{% endif %}" 
+                                   class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                                    {% trans "Next" %}
+                                </a>
+                            {% endif %}
+                        </div>
+                        <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                            <div>
+                                <p class="text-sm text-gray-700">
+                                    {% trans "Showing" %} <span class="font-medium">{{ all_categories.start_index }}</span> {% trans "to" %} 
+                                    <span class="font-medium">{{ all_categories.end_index }}</span> {% trans "of" %} 
+                                    <span class="font-medium">{{ all_categories.paginator.count }}</span> {% trans "results" %}
+                                </p>
+                            </div>
+                            <div>
+                                <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                                    {% if all_categories.has_previous %}
+                                        <a href="?page={{ all_categories.previous_page_number }}{% if request.GET.period %}&period={{ request.GET.period }}{% endif %}" 
+                                           class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                        
+                                        </a>
+                                    {% endif %}
+                                    
+                                    {% for num in all_categories.paginator.page_range %}
+                                        {% if num == all_categories.number %}
+                                            <span class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-indigo-50 text-sm font-medium text-indigo-600">
+                                                {{ num }}
+                                            </span>
+                                        {% else %}
+                                            <a href="?page={{ num }}{% if request.GET.period %}&period={{ request.GET.period }}{% endif %}" 
+                                               class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+                                                {{ num }}
+                                            </a>
+                                        {% endif %}
+                                    {% endfor %}
+                                    
+                                    {% if all_categories.has_next %}
+                                        <a href="?page={{ all_categories.next_page_number }}{% if request.GET.period %}&period={{ request.GET.period }}{% endif %}" 
+                                           class="relative inline-flex items-components px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                            {% trans "Next" %}
+                                        </a>
+                                    {% endif %}
+                                </nav>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+        {% else %}
+            <div class="bg-white rounded-lg shadow-lg p-8 text-center">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">{% trans "No Category Data Found" %}</h3>
+                <p class="text-gray-600">{% trans "There are no installation records with category information in the selected time period." %}</p>
+            </div>
+        {% endif %}
+    </div>
+
+    <script>
+        // Category Bar Chart
+        {% if category_chart_data %}
+        const categoryCtx = document.getElementById('categoryChart').getContext('2d');
+        const categoryChart = new Chart(categoryCtx, {
+            type: 'bar',
+            data: {
+                labels: {{ category_chart_data.labels|safe }},
+                datasets: [{
+                    label: 'Installations',
+                    data: {{ category_chart_data.data|safe }},
+                    backgroundColor: {{ category_chart_data.colors|safe }},
+                    borderColor: [
+                        '#2563EB', '#DC2626', '#059669', '#D97706', '#7C3AED',
+                        '#DB2777', '#0891B2', '#65A30D', '#EA580C', '#4F46E5'
+                    ],
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return context.parsed.y + ' installations';
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            maxRotation: 45,
+                            minRotation: 45
+                        }
+                    }
+                }
+            }
+        });
+        {% endif %}
+
+        // Parent Category Pie Chart
+        {% if parent_category_chart_data %}
+        const parentCategoryCtx = document.getElementById('parentCategoryChart').getContext('2d');
+        const parentCategoryChart = new Chart(parentCategoryCtx, {
+            type: 'doughnut',
+            data: {
+                labels: {{ parent_category_chart_data.labels|safe }},
+                datasets: [{
+                    data: {{ parent_category_chart_data.data|safe }},
+                    backgroundColor: {{ parent_category_chart_data.colors|safe }},
+                    borderColor: '#ffffff',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            padding: 15,
+                            usePointStyle: true
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                const percentage = ((context.parsed / total) * 100).toFixed(1);
+                                return context.label + ': ' + context.parsed + ' (' + percentage + '%)';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+        {% endif %}
+    </script>
+    
+    <!-- Filter JavaScript -->
+    <script>
+    function changeFilters() {
+        const periodFilter = document.getElementById('periodFilter');
+        const selectedPeriod = periodFilter.value;
+        
+        // Get current URL and update parameters
+        const url = new URL(window.location);
+        url.searchParams.set('period', selectedPeriod);
+        url.searchParams.delete('page'); // Reset pagination when changing filters
+        
+        // Reload page with new filters
+        window.location.href = url.toString();
+    }
+    </script>
+</body>
+</html>
