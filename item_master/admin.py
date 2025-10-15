@@ -3,7 +3,7 @@ from django import forms
 from import_export import resources, fields
 from import_export.admin import ImportExportModelAdmin
 from import_export.widgets import ForeignKeyWidget, DateTimeWidget
-from import_export.formats.base_formats import CSV, JSON, HTML, TSV, XLSX
+from import_export.formats.base_formats import CSV, JSON, HTML, TSV, XLSX, XLS
 from django.utils import timezone
 
 class NaiveDateTimeWidget(DateTimeWidget):
@@ -431,6 +431,8 @@ class ItemSparePartAdmin(ImportExportModelAdmin):
 @admin.register(ItemMaster)
 class ItemMasterAdmin(ImportExportModelAdmin):
     resource_class = ItemMasterResource
+    import_formats = [CSV, XLSX, XLS, TSV, JSON]
+    export_formats = [CSV, XLSX, XLS, TSV, JSON]
     list_display = ('shortcode', 'name', 'category', 'brand_name', 'status', 'stock_type', 'created_at')
     list_filter = ('category', 'brand_name', 'status', 'stock_type', 'created_at')
     search_fields = ('shortcode', 'name', 'description')
