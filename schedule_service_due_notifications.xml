@@ -48,9 +48,9 @@
   </Settings>
   <Actions Context="Author">
     <Exec>
-      <Command>D:\GarantiVeServis\venv\Scripts\python.exe</Command>
+      <Command>C:\GarantiVeServis\venv\Scripts\python.exe</Command>
       <Arguments>manage.py send_service_due_notifications</Arguments>
-      <WorkingDirectory>D:\GarantiVeServis</WorkingDirectory>
+      <WorkingDirectory>C:\GarantiVeServis</WorkingDirectory>
     </Exec>
   </Actions>
 </Task>

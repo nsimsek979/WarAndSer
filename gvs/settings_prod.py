@@ -1,8 +1,9 @@
 """
-Production settings for Ubuntu server
+Production settings for IIS (Windows Server) with PostgreSQL
 """
 
 import os
+from pathlib import Path
 from .settings_base import *
 
 # Load environment variables from .env file if it exists
@@ -16,60 +17,48 @@ except ImportError:
 SECRET_KEY = os.environ.get('SECRET_KEY', 'your-production-secret-key-here')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True  # Change back after fixing
-ALLOWED_HOSTS = ['*']  # Temporarily allow all hosts
-INSTALLED_APPS = [
-    "django.contrib.admin",
-    "django.contrib.auth",
-    "django.contrib.contenttypes",
-    "django.contrib.sessions",
-    "django.contrib.messages",
-    "django.contrib.staticfiles",
-    "django.contrib.humanize",
+DEBUG = False
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '*').split(',')
 
-    # Third party apps
-    "import_export",
-
-    # Local apps
-    "core",
-    "dashboard",
-    "item_master",
-    "customer",
-    "custom_user",
-    "warranty_and_services",
-    "rest_framework",
-    "rest_framework_simplejwt",
-    "api",
-]
-
-# Database for production (PostgreSQL or MySQL)
+# PostgreSQL Database Configuration
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": os.environ.get('DB_NAME', 'warandser_db'),
+        "USER": os.environ.get('DB_USER', 'postgres'),
+        "PASSWORD": os.environ.get('DB_PASSWORD', ''),
+        "HOST": os.environ.get('DB_HOST', 'localhost'),
+        "PORT": os.environ.get('DB_PORT', '5432'),
+        "OPTIONS": {
+            'client_encoding': 'UTF8',
+        },
     }
 }
+
 # Security settings for production
 SECURE_BROWSER_XSS_FILTER = True
 SECURE_CONTENT_TYPE_NOSNIFF = True
-SECURE_HSTS_INCLUDE_SUBDOMAINS = True
-SECURE_HSTS_SECONDS = 31536000
-SECURE_REDIRECT_EXEMPT = []
-SECURE_SSL_REDIRECT = True
-SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-SESSION_ENGINE = "django.contrib.sessions.backends.db"  # Explicitly set
-SESSION_COOKIE_NAME = "warandser_session"  # Unique name
-SESSION_COOKIE_AGE = 1209600  # 2 weeks in seconds
+X_FRAME_OPTIONS = 'DENY'
 
 # Session and CSRF cookies
-SESSION_COOKIE_SECURE = True
-CSRF_COOKIE_SECURE = True
+# Note: Set these to True only if using HTTPS
+SESSION_COOKIE_SECURE = os.environ.get('USE_HTTPS', 'False') == 'True'
+CSRF_COOKIE_SECURE = os.environ.get('USE_HTTPS', 'False') == 'True'
 CSRF_COOKIE_HTTPONLY = True
 SESSION_COOKIE_HTTPONLY = True
 
-# Static files for production
-STATIC_ROOT = '/var/www/warandser/static/'
-MEDIA_ROOT = '/var/www/warandser/media/'
+SESSION_ENGINE = "django.contrib.sessions.backends.db"
+SESSION_COOKIE_NAME = "warandser_session"
+SESSION_COOKIE_AGE = 1209600  # 2 weeks in seconds
+
+# Static files for IIS production
+# These paths should be absolute Windows paths
+STATIC_ROOT = os.environ.get('STATIC_ROOT', r'C:\inetpub\wwwroot\warandser\static')
+MEDIA_ROOT = os.environ.get('MEDIA_ROOT', r'C:\inetpub\wwwroot\warandser\media')
+
+# Static and media URLs
+STATIC_URL = '/static/'
+MEDIA_URL = '/media/'
 
 # Email settings for production
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
@@ -80,27 +69,61 @@ EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
 DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'noreply@your-domain.com')
 
-# Logging
+# Logging for Windows
+LOG_DIR = os.environ.get('LOG_DIR', r'C:\inetpub\wwwroot\warandser\logs')
+if not os.path.exists(LOG_DIR):
+    try:
+        os.makedirs(LOG_DIR)
+    except:
+        pass
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {message}',
+            'style': '{',
+        },
+    },
     'handlers': {
-        'file': {
+        'console': {
             'level': 'ERROR',
-            'class': 'logging.FileHandler',
-            'filename': '/var/log/warandser/django.log',
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose',
         },
     },
     'loggers': {
         'django': {
-            'handlers': ['file'],
-            'level': 'ERROR',
+            'handlers': ['console'],
+            'level': 'INFO',
             'propagate': True,
         },
     },
 }
 
+# Cache configuration (optional - for better performance)
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
+        'LOCATION': os.path.join(BASE_DIR, 'cache'),
+    }
+}
 
+# CORS settings if API is being used
+CORS_ALLOWED_ORIGINS = os.environ.get('CORS_ALLOWED_ORIGINS', '').split(',') if os.environ.get('CORS_ALLOWED_ORIGINS') else []
+
+# Celery Configuration (Windows-compatible)
+# Note: For Windows, you might want to use APScheduler instead of Celery
+# Or run Celery with gevent/solo pool
+CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL', 'redis://localhost:6379/0')
+CELERY_RESULT_BACKEND = os.environ.get('CELERY_RESULT_BACKEND', 'redis://localhost:6379/0')
+
+# File upload settings
+FILE_UPLOAD_MAX_MEMORY_SIZE = 10485760  # 10MB
+DATA_UPLOAD_MAX_MEMORY_SIZE = 10485760  # 10MB
+
+# Template settings
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -108,16 +131,14 @@ TEMPLATES = [
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
-                # ... diger processor'lar
+                'django.template.context_processors.debug',
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
             ],
-            'libraries': {
-                # ... özel template tag'ler
-            },
-            'builtins': ['django.templatetags.i18n'],  # Bu satiri ekleyin
-            'debug': True,  # DEBUG=False olsa bile template hatalarini göster
-            'string_if_invalid': 'INVALID_EXPRESSION',  # Hatalari daha görünür yapar
+            'builtins': ['django.templatetags.i18n'],
             'autoescape': True,
-            'file_charset': 'utf-8'  # Bu kritik öneme sahip
+            'file_charset': 'utf-8'
         },
     },
 ]

@@ -16,7 +16,7 @@ if (-not $isAdmin) {
 }
 
 # Define paths
-$projectPath = "D:\GarantiVeServis"
+$projectPath = "C:\GarantiVeServis"
 $xmlFile = "$projectPath\schedule_service_due_notifications.xml"
 $taskName = "GarantiVeServis-ServiceDueNotifications"
 
@@ -64,10 +64,10 @@ try {
     # Import the new task
     Write-Host "Importing new task from XML file..." -ForegroundColor Yellow
     Register-ScheduledTask -TaskName $taskName -Xml (Get-Content $xmlFile | Out-String)
-    
-    Write-Host "" 
+
+    Write-Host ""
     Write-Host "✅ Task created successfully!" -ForegroundColor Green
-    Write-Host "" 
+    Write-Host ""
     Write-Host "Task Details:" -ForegroundColor Cyan
     Write-Host "  - Name: $taskName" -ForegroundColor White
     Write-Host "  - Schedule: Daily at 9:00 AM" -ForegroundColor White
@@ -75,23 +75,23 @@ try {
     Write-Host "  - Arguments: manage.py send_service_due_notifications" -ForegroundColor White
     Write-Host "  - Working Directory: $projectPath" -ForegroundColor White
     Write-Host ""
-    
+
     # Test the task
     Write-Host "Testing the task..." -ForegroundColor Yellow
     $testResult = Start-ScheduledTask -TaskName $taskName -PassThru
     Start-Sleep -Seconds 3
-    
+
     $taskInfo = Get-ScheduledTask -TaskName $taskName
     $taskState = $taskInfo.State
-    
+
     Write-Host "Task State: $taskState" -ForegroundColor Cyan
-    
+
     if ($taskState -eq "Ready") {
         Write-Host "✅ Task test completed successfully!" -ForegroundColor Green
     } else {
         Write-Host "⚠️  Task may need attention. Current state: $taskState" -ForegroundColor Yellow
     }
-    
+
     Write-Host ""
     Write-Host "=== Next Steps ===" -ForegroundColor Cyan
     Write-Host "1. You can view the task in Task Scheduler (taskschd.msc)" -ForegroundColor White
@@ -100,7 +100,7 @@ try {
     Write-Host "4. To disable: Disable-ScheduledTask -TaskName '$taskName'" -ForegroundColor White
     Write-Host "5. To remove: Unregister-ScheduledTask -TaskName '$taskName'" -ForegroundColor White
     Write-Host ""
-    
+
 } catch {
     Write-Host ""
     Write-Host "❌ ERROR occurred while creating the task:" -ForegroundColor Red

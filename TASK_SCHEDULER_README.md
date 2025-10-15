@@ -40,7 +40,7 @@ Make sure you have:
 
 2. **Navigate to project directory**
    ```powershell
-   cd D:\GarantiVeServis
+   cd C:\GarantiVeServis
    ```
 
 3. **Run the setup script**
@@ -111,8 +111,8 @@ Get-ScheduledTaskInfo -TaskName "GarantiVeServis-ServiceDueNotifications"
 - Verify Django project permissions
 
 #### 3. Path Issues
-- Verify Python virtual environment path: `D:\GarantiVeServis\venv\Scripts\python.exe`
-- Check Django project path: `D:\GarantiVeServis\manage.py`
+- Verify Python virtual environment path: `C:\GarantiVeServis\venv\Scripts\python.exe`
+- Check Django project path: `C:\GarantiVeServis\manage.py`
 - Update XML file if paths are different
 
 #### 4. Email Not Sending
