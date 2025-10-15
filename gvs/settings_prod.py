@@ -62,12 +62,12 @@ MEDIA_URL = '/media/'
 
 # Email settings for production
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = os.environ.get('EMAIL_HOST', 'smtp.gmail.com')
-EMAIL_PORT = int(os.environ.get('EMAIL_PORT', '587'))
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
-EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
-DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'noreply@your-domain.com')
+EMAIL_HOST_USER = 'shipstore.app@gmail.com'  # Your Gmail address
+EMAIL_HOST_PASSWORD = 'jstz iios mkao qxes'  # Use App Password if 2FA is enabled
+DEFAULT_FROM_EMAIL = 'shipstore.app@gmail.com'  # Your Gmail address
 
 # Logging for Windows
 LOG_DIR = os.environ.get('LOG_DIR', r'C:\inetpub\wwwroot\warandser\logs')
