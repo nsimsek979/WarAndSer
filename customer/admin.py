@@ -1,10 +1,14 @@
 from django.contrib import admin
 from django.utils.html import format_html
+from django.contrib.auth import get_user_model
 from import_export import resources, fields
 from import_export.admin import ImportExportModelAdmin
 from import_export.widgets import ForeignKeyWidget, DateTimeWidget
+from import_export.formats.base_formats import CSV, XLSX, XLS, TSV, JSON
 from django.utils import timezone
 from .models import Country, City, County, District, CoreBusiness, Company, ContactPerson, Address, WorkingHours
+
+User = get_user_model()
 
 class NaiveDateTimeWidget(DateTimeWidget):
     """Custom widget to remove timezone info from datetime objects for Excel export"""
@@ -120,7 +124,7 @@ class CompanyResource(resources.ModelResource):
     related_manager = fields.Field(
         column_name='related_manager',
         attribute='related_manager',
-        widget=ForeignKeyWidget('custom_user.CustomUser', 'username')
+        widget=ForeignKeyWidget(User, 'username')
     )
     
     class Meta:
@@ -195,6 +199,8 @@ class WorkingHoursResource(resources.ModelResource):
 @admin.register(Company)
 class CompanyAdmin(ImportExportModelAdmin):
 	resource_class = CompanyResource
+	import_formats = [CSV, XLSX, XLS, TSV, JSON]
+	export_formats = [CSV, XLSX, XLS, TSV, JSON]
 	list_display = ("name", "company_type", "core_business", "email", "telephone", "active", "related_manager")
 	list_filter = ("company_type", "active", "core_business", "related_manager", "related_company")
 	search_fields = ("name", "email", "telephone")
@@ -253,6 +259,8 @@ class CompanyAdmin(ImportExportModelAdmin):
 @admin.register(Country)
 class CountryAdmin(ImportExportModelAdmin):
     resource_class = CountryResource
+    import_formats = [CSV, XLSX, XLS, TSV, JSON]
+    export_formats = [CSV, XLSX, XLS, TSV, JSON]
     list_display = ("name", "code", "display_flag")
     readonly_fields = ("display_flag",)
     search_fields = ['name', 'code']
@@ -267,24 +275,32 @@ class CountryAdmin(ImportExportModelAdmin):
 @admin.register(City)
 class CityAdmin(ImportExportModelAdmin):
 	resource_class = CityResource
+	import_formats = [CSV, XLSX, XLS, TSV, JSON]
+	export_formats = [CSV, XLSX, XLS, TSV, JSON]
 	list_display = ("name", "country")
 	search_fields = ['name']
 
 @admin.register(County)
 class CountyAdmin(ImportExportModelAdmin):
 	resource_class = CountyResource
+	import_formats = [CSV, XLSX, XLS, TSV, JSON]
+	export_formats = [CSV, XLSX, XLS, TSV, JSON]
 	list_display = ("name", "city")
 	search_fields = ['name']
 
 @admin.register(District)
 class DistrictAdmin(ImportExportModelAdmin):
 	resource_class = DistrictResource
+	import_formats = [CSV, XLSX, XLS, TSV, JSON]
+	export_formats = [CSV, XLSX, XLS, TSV, JSON]
 	list_display = ("name", "county")
 	search_fields = ['name']
 
 @admin.register(CoreBusiness)
 class CoreBusinessAdmin(ImportExportModelAdmin):
 	resource_class = CoreBusinessResource
+	import_formats = [CSV, XLSX, XLS, TSV, JSON]
+	export_formats = [CSV, XLSX, XLS, TSV, JSON]
 	list_display = ("name",)
 	search_fields = ['name']
 
@@ -292,6 +308,8 @@ class CoreBusinessAdmin(ImportExportModelAdmin):
 @admin.register(WorkingHours)
 class WorkingHoursAdmin(ImportExportModelAdmin):
 	resource_class = WorkingHoursResource
+	import_formats = [CSV, XLSX, XLS, TSV, JSON]
+	export_formats = [CSV, XLSX, XLS, TSV, JSON]
 	list_display = (
 		'customer', 
 		'daily_working_hours', 
@@ -336,6 +354,8 @@ class WorkingHoursAdmin(ImportExportModelAdmin):
 @admin.register(ContactPerson)
 class ContactPersonAdmin(ImportExportModelAdmin):
 	resource_class = ContactPersonResource
+	import_formats = [CSV, XLSX, XLS, TSV, JSON]
+	export_formats = [CSV, XLSX, XLS, TSV, JSON]
 	list_display = ('full_name', 'title', 'company', 'email', 'telephone')
 	list_filter = ('company',)
 	search_fields = ('full_name', 'title', 'email', 'company__name')
@@ -345,6 +365,8 @@ class ContactPersonAdmin(ImportExportModelAdmin):
 @admin.register(Address)
 class AddressAdmin(ImportExportModelAdmin):
 	resource_class = AddressResource
+	import_formats = [CSV, XLSX, XLS, TSV, JSON]
+	export_formats = [CSV, XLSX, XLS, TSV, JSON]
 	list_display = ('name', 'company', 'city', 'county', 'district')
 	list_filter = ('country', 'city', 'county')
 	search_fields = ('name', 'company__name', 'address')
